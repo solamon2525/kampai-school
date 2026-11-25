@@ -4,6 +4,8 @@
  * และโมเดลการประมวลผลระบบธนาคารความดี
  */
 import { supabase } from '@/integrations/supabase/client';
+import { computeVirtueSummary, isRewardDeductionRecord, type ConductScoreMetricInput } from '@/lib/conductHelpers';
+import { termService } from './waste-bank.service';
 
 export type ConductType = 'add' | 'deduct';
 
@@ -501,6 +503,12 @@ export const getEmotionalFeedback = (category: string, reason: string): string =
   }
 };
 
+const resolveAcademicYear = async (academicYear?: string): Promise<string> => {
+  if (academicYear !== undefined) return academicYear;
+  const activeTerm = await termService.getActive();
+  return activeTerm?.year || (new Date().getFullYear() + 543).toString();
+};
+
 export const conductService = {
   mapCategoryToVirtue,
   getConductCategoryMeta,
@@ -525,70 +533,66 @@ export const conductService = {
       .eq('student_id', studentId)
       .order('created_at', { ascending: false }),
 
+  /** ค้นหานักเรียนที่ active จากรหัสนักเรียนสำหรับหน้าสาธารณะ (/virtue-bank) */
+  resolvePublicStudentByCode: async (code: string) => {
+    const trimmed = code.trim();
+    if (!trimmed) {
+      return { data: null, error: null };
+    }
+    const { data, error } = await supabase
+      .from('students')
+      .select('id, student_code, name, class, room, photo_url')
+      .eq('student_code', trimmed)
+      .eq('is_active', true)
+      .maybeSingle();
+    return { data, error };
+  },
+
   /** คำนวณคะแนนสะสมความดีของนักเรียนคนเดียวตามปีการศึกษา (Optimistic / Pre-fetch) */
-  getAccumulatedScore: async (studentId: string, academicYear: string): Promise<{ total: number; available: number }> => {
+  getAccumulatedScore: async (studentId: string, academicYear?: string): Promise<{ total: number; available: number }> => {
+    const targetYear = await resolveAcademicYear(academicYear);
     let q = supabase
       .from('conduct_scores')
-      .select('score, type, category, reason, reward_claim_id, academic_year')
+      .select('score, type, category, reward_claim_id, academic_year')
       .eq('student_id', studentId);
-    if (academicYear) {
-      q = q.eq('academic_year', academicYear);
+    if (targetYear) {
+      q = q.eq('academic_year', targetYear);
     }
     const { data, error } = await q;
     if (error || !data) return { total: 0, available: 0 };
-    let total = 0;
-    let spent = 0;
-    data
-      .filter(r => !academicYear || r.academic_year === academicYear)
-      .forEach(r => {
-        const val = Number(r.score) || 0;
-        const isReward = r.reward_claim_id || r.category === 'reward' || r.reason?.includes('รับรางวัล') || r.reason?.includes('แลกรางวัล');
-        if (r.type === 'add') {
-          total += val;
-        } else if (isReward) {
-          spent += val;
-        } else {
-          total -= val;
-        }
-      });
-    const finalTotal = Math.max(0, total);
-    const finalAvailable = Math.max(0, finalTotal - spent);
-    return { total: finalTotal, available: finalAvailable };
+    const summary = computeVirtueSummary(
+      data.filter(r => !targetYear || r.academic_year === targetYear),
+    );
+    return { total: summary.honorXp, available: summary.availablePoints };
   },
 
   /** คำนวณคะแนนสะสมความดีของกลุ่มนักเรียนตามปีการศึกษาล่วงหน้า (Pre-fetch สำหรับชั้นเรียน) */
-  getAccumulatedScoresForStudents: async (studentIds: string[], academicYear: string): Promise<Record<string, { total: number; available: number }>> => {
+  getAccumulatedScoresForStudents: async (studentIds: string[], academicYear?: string): Promise<Record<string, { total: number; available: number }>> => {
     if (studentIds.length === 0) return {};
+    const targetYear = await resolveAcademicYear(academicYear);
     let q = supabase
       .from('conduct_scores')
-      .select('student_id, score, type, category, reason, reward_claim_id, academic_year')
+      .select('student_id, score, type, category, reward_claim_id, academic_year')
       .in('student_id', studentIds);
-    if (academicYear) {
-      q = q.eq('academic_year', academicYear);
+    if (targetYear) {
+      q = q.eq('academic_year', targetYear);
     }
     const { data, error } = await q;
     const scoreMap: Record<string, { total: number; available: number }> = {};
     studentIds.forEach(id => { scoreMap[id] = { total: 0, available: 0 }; });
     if (!error && data) {
-      const spentMap: Record<string, number> = {};
+      const grouped: Record<string, ConductScoreMetricInput[]> = {};
       data.forEach(r => {
-        if (!academicYear || r.academic_year === academicYear) {
-          const val = Number(r.score) || 0;
-          const isReward = r.reward_claim_id || r.category === 'reward' || r.reason?.includes('รับรางวัล') || r.reason?.includes('แลกรางวัล');
-          if (r.type === 'add') {
-            scoreMap[r.student_id].total += val;
-          } else if (isReward) {
-            spentMap[r.student_id] = (spentMap[r.student_id] || 0) + val;
-          } else {
-            scoreMap[r.student_id].total -= val;
-          }
+        if (!targetYear || r.academic_year === targetYear) {
+          if (!grouped[r.student_id]) grouped[r.student_id] = [];
+          grouped[r.student_id].push(r);
         }
       });
       studentIds.forEach(id => {
-        const t = Math.max(0, scoreMap[id].total);
+        const summary = computeVirtueSummary(grouped[id] || []);
         scoreMap[id] = {
-          total: t,
-          available: Math.max(0, t - (spentMap[id] || 0)),
+          total: summary.honorXp,
+          available: summary.availablePoints,
         };
       });
     }
@@ -646,14 +650,30 @@ export const conductService = {
   },
 
   /** ดึงสถิติภาพรวมคะแนนความดีและจำนวนครั้งความดี */
-  getSummaryStats: async (): Promise<{ totalScores: number; totalDeeds: number }> => {
-    const { data, error } = await supabase
-      .from('conduct_scores')
-      .select('score, type')
-      .eq('type', 'add');
-    if (error || !data) return { totalScores: 0, totalDeeds: 0 };
-    const sum = data.reduce((acc, curr) => acc + Number(curr.score || 0), 0);
-    return { totalScores: sum, totalDeeds: data.length };
+  getSummaryStats: async (filters?: { academicYear?: string; semester?: string }): Promise<{ totalScores: number; totalDeeds: number }> => {
+    const targetYear = await resolveAcademicYear(filters?.academicYear);
+    const allRows: { score: number; type: string }[] = [];
+    for (let from = 0; ; from += 1000) {
+      let q = supabase
+        .from('conduct_scores')
+        .select('score, type')
+        .eq('type', 'add')
+        .order('id', { ascending: true })
+        .range(from, from + 999);
+      if (targetYear) {
+        q = q.eq('academic_year', targetYear);
+      }
+      if (filters?.semester) {
+        q = q.eq('semester', filters.semester);
+      }
+      const { data, error } = await q;
+      if (error) return { totalScores: 0, totalDeeds: 0 };
+      if (!data?.length) break;
+      allRows.push(...data);
+      if (data.length < 1000) break;
+    }
+    const sum = allRows.reduce((acc, curr) => acc + Number(curr.score || 0), 0);
+    return { totalScores: sum, totalDeeds: allRows.length };
   },
 
   /** ดึงคะแนนสะสมห้องเรียนด้วย RPC (High Performance) */
@@ -674,7 +694,9 @@ export const conductService = {
   // =========================================================
 
   /** คำนวณประมวลผลโปรไฟล์ฮีโร่ของนักเรียน */
-  getHeroProfile: async (studentId: string): Promise<HeroProfile> => {
+  getHeroProfile: async (studentId: string, academicYear?: string): Promise<HeroProfile> => {
+    const targetYear = await resolveAcademicYear(academicYear);
+
     // 1. คิวรีข้อมูลความดี, สรุปแต้มขยะ, สรุปการออมเงิน และประวัติเข้าเรียน ร่วมกันแบบรวดเร็ว
     const today = new Date();
     const oneYearAgo = new Date();
@@ -682,24 +704,29 @@ export const conductService = {
     const startISO = oneYearAgo.toISOString().slice(0, 10);
     const endISO = today.toISOString().slice(0, 10);
 
+    let conductQuery = supabase
+      .from('conduct_scores')
+      .select('*')
+      .eq('student_id', studentId)
+      .order('created_at', { ascending: false });
+    if (targetYear) {
+      conductQuery = conductQuery.eq('academic_year', targetYear);
+    }
+
     const [
       conductRes,
       wasteRes,
       savingsRes,
       attendanceRes
     ] = await Promise.all([
-      supabase
-        .from('conduct_scores')
-        .select('*')
-        .eq('student_id', studentId)
-        .order('created_at', { ascending: false }),
+      conductQuery,
       supabase
         .from('waste_student_summary')
         .select('total_points_earned')
         .eq('student_id', studentId)
         .maybeSingle(),
       supabase
-        .rpc('get_savings_deposit_count' as never, { p_student_id: studentId } as never),
+        .rpc('get_savings_deposit_count', { p_student_id: studentId }),
       supabase
         .from('attendance_records')
         .select('status')
@@ -712,7 +739,6 @@ export const conductService = {
     const list = (conductRes.data || []) as ConductRecord[];
 
     // 2. คำนวณคะแนนความดีพื้นฐานและจำนวนครั้งพฤติกรรม
-    let totalXp = 0;
     const virtues = { publicMind: 0, responsibility: 0, discipline: 0, honesty: 0, kindness: 0 };
 
     // เก็บประวัติจำนวนครั้งเพื่อวิเคราะห์ Badge
@@ -724,7 +750,6 @@ export const conductService = {
     chronologicalList.forEach(r => {
       const v = mapCategoryToVirtue(r.category);
       if (r.type === 'add') {
-        totalXp += r.score;
         virtues[v] += r.score;
         counts[v] += 1;
         if (v === 'discipline' && (r.reason.includes('ตรงเวลา') || r.reason.includes('เข้าแถว'))) {
@@ -732,14 +757,14 @@ export const conductService = {
         }
       } else {
         // รายการแลกของรางวัลจะไม่ลดคะแนนเกียรติยศ totalXp หรือ radar chart
-        const isReward = r.reward_claim_id || r.category === 'reward' || r.reason?.includes('รับรางวัล') || r.reason?.includes('แลกรางวัล');
-        if (!isReward) {
-          totalXp = Math.max(0, totalXp - r.score);
+        if (!isRewardDeductionRecord(r)) {
           // การหักคะแนนพฤติกรรมส่งผลลดมิติเรดาร์ย่อย
           virtues[v] = Math.max(0, virtues[v] - r.score);
         }
       }
     });
+
+    let totalXp = computeVirtueSummary(list).honorXp;
 
     // 3. คำนวณคะแนนโบนัสภายนอก (ตามสูตรที่สมดุลและปลอดภัย)
     
@@ -897,53 +922,33 @@ export const conductService = {
     
     const ids = studentIds.map(s => s.id);
 
-    // 2. ดึงประวัติและคำนวณ XP สุทธิของแต่ละคนตามลำดับเวลา แล้วนำมารวมกัน (ป้องกันการหักลบข้ามคน และคำนวณ clamping ที่ถูกต้อง)
-    let conductQuery = supabase
-      .from('conduct_scores')
-      .select('student_id, score, type')
-      .in('student_id', ids)
-      .order('created_at', { ascending: true });
-
+    // 2. ดึงประวัติและคำนวณ XP สุทธิของแต่ละคน แล้วนำมารวมกัน (ป้องกันการหักลบข้ามคน และไม่หักลบรายการแลกรางวัล)
     let activeSem = semester;
     let activeYear = academicYear;
-    
+
     if (!activeSem || !activeYear) {
-      const { data: settingsData } = await supabase
-        .from('school_settings')
-        .select('key, value')
-        .in('key', ['active_academic_year', 'active_semester']);
-      
-      if (settingsData) {
-        const settingsMap = Object.fromEntries(settingsData.map(r => [r.key, r.value]));
-        if (!activeSem) activeSem = settingsMap.active_semester;
-        if (!activeYear) activeYear = settingsMap.active_academic_year;
-      }
-      
-      if (!activeSem) activeSem = '1';
-      if (!activeYear) activeYear = (new Date().getFullYear() + 543).toString();
+      const activeTerm = await termService.getActive();
+      if (!activeSem) activeSem = activeTerm?.sem || '1';
+      if (!activeYear) activeYear = activeTerm?.year || (new Date().getFullYear() + 543).toString();
     }
 
-    conductQuery = conductQuery.eq('semester', activeSem);
-    conductQuery = conductQuery.eq('academic_year', activeYear);
+    const { data: scores, error: conductError } = await supabase
+      .from('conduct_scores')
+      .select('student_id, score, type, category, reward_claim_id')
+      .in('student_id', ids)
+      .eq('semester', activeSem)
+      .eq('academic_year', activeYear)
+      .order('created_at', { ascending: true });
 
-    const { data: scores, error: conductError } = await conductQuery;
     if (conductError || !scores) return 0;
 
-    const studentXpMap: Record<string, number> = {};
-    ids.forEach(id => {
-      studentXpMap[id] = 0;
-    });
-
+    const grouped: Record<string, ConductScoreMetricInput[]> = {};
     scores.forEach(s => {
-      const current = studentXpMap[s.student_id] || 0;
-      if (s.type === 'add') {
-        studentXpMap[s.student_id] = current + s.score;
-      } else {
-        studentXpMap[s.student_id] = Math.max(0, current - s.score);
-      }
+      if (!grouped[s.student_id]) grouped[s.student_id] = [];
+      grouped[s.student_id].push(s);
     });
 
-    return Object.values(studentXpMap).reduce((acc, val) => acc + val, 0);
+    return ids.reduce((acc, id) => acc + computeVirtueSummary(grouped[id] || []).honorXp, 0);
   },
 
   // ─── Classroom Privilege Tokens (คูปองสิทธิ์พิเศษในห้องเรียน) ───
@@ -1003,19 +1008,23 @@ export const conductService = {
     privilegeId: string,
     studentId: string,
     academicYear?: string,
-    semester?: string
+    semester?: string,
+    studentCode?: string
   ): Promise<{ success: boolean; redemptionId?: string; error?: string }> => {
-    const { data, error } = await (supabase.rpc as any)('redeem_classroom_privilege', {
+    const { data, error } = await supabase.rpc('redeem_classroom_privilege', {
       p_privilege_id: privilegeId,
       p_student_id: studentId,
       p_academic_year: academicYear,
       p_semester: semester,
+      p_student_code: studentCode ?? null,
     });
 
     if (error) {
       console.error('Error redeeming privilege:', error);
       let errorMsg = error.message;
-      if (errorMsg.includes('INSUFFICIENT_VIRTUE_POINTS')) {
+      if (errorMsg.includes('STUDENT_CODE_VERIFICATION_REQUIRED')) {
+        errorMsg = 'กรุณายืนยันรหัสนักเรียนให้ถูกต้อง';
+      } else if (errorMsg.includes('INSUFFICIENT_VIRTUE_POINTS')) {
         errorMsg = 'คะแนนความดีสะสมพร้อมแลกไม่เพียงพอ';
       } else if (errorMsg.includes('PRIVILEGE_OUT_OF_STOCK')) {
         errorMsg = 'คูปองนี้หมดสต็อกแล้ว';
