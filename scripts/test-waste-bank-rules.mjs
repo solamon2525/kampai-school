@@ -189,3 +189,29 @@ test('Task 2 component contracts: per-row promos, Zod target scoping, ConfirmDia
   assert.equal(promosSrc.includes('zodResolver'), true);
   assert.equal(/\bdark:/.test(promosSrc), false);
 });
+
+test('Task 3 parent view contracts: dual-wallet RPC, helper, RewardCostDisplay, ConfirmDialog, light-only', async () => {
+  const parentSrc = await readFile(
+    new URL('../src/components/parent/WasteBankParentView.tsx', import.meta.url),
+    'utf8',
+  );
+
+  assert.equal(/\bdark:/.test(parentSrc), false);
+  assert.equal(/\bbg-white\b/.test(parentSrc), false);
+  assert.equal(/\btext-black\b/.test(parentSrc), false);
+  assert.equal(/#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\b/.test(parentSrc), false);
+  assert.equal(/\b(?:confirm|prompt)\s*\(/.test(parentSrc), false);
+  assert.equal(parentSrc.includes('supabase.from('), false);
+  assert.equal(parentSrc.includes('rewardClaimsService.create('), false);
+
+  assert.equal(parentSrc.includes('rewardClaimsService.lookupStudent'), true);
+  assert.equal(parentSrc.includes('rewardClaimsService.claimByCode'), true);
+  assert.equal(parentSrc.includes('canAffordDualWalletReward'), true);
+  assert.equal(parentSrc.includes('RewardCostDisplay'), true);
+  assert.equal(parentSrc.includes('ConfirmDialog'), true);
+  assert.equal(parentSrc.includes('PersonAvatar'), true);
+  assert.equal(parentSrc.includes("['parent-waste-balance'"), true);
+  assert.equal(parentSrc.includes("['waste-student-summaries']"), true);
+  assert.equal(parentSrc.includes("['rewards']"), true);
+  assert.equal(parentSrc.includes("['top-heroes']"), true);
+});
