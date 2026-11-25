@@ -25,7 +25,6 @@ import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from '@/components/ui/dialog';
 import { studentCompanionQueryKey, studentPetService } from '@/services/student-pet.service';
 import { PetVisual } from '@/components/games/PetVisual';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import SiteHeader from '@/components/SiteHeader';
 import Footer from '@/components/Footer';
@@ -181,15 +180,12 @@ function TopHeroCarousel({ heroes, onSelect }: { heroes: TopHeroRow[]; onSelect:
               : rank === 3 ? 'bg-gradient-to-br from-amber-500 to-orange-600'
               : 'bg-gradient-to-br from-primary/60 to-primary'
             )}>
-              <div className="rounded-full overflow-hidden w-24 h-24 border-2 border-slate-900">
-                {hero.photoUrl ? (
-                  <img src={hero.photoUrl} alt={hero.name} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center text-white text-2xl font-black">
-                    {hero.name.replace(/^(ด\.ช\.|ด\.ญ\.|นาย|นางสาว|นาง)\s*/, '').slice(0, 2)}
-                  </div>
-                )}
-              </div>
+              <PersonAvatar
+                name={hero.name}
+                photoUrl={hero.photoUrl}
+                size="lg"
+                className={cn('h-24 w-24 border-2 border-slate-900')}
+              />
             </div>
             {/* Floating rank badge */}
             <div className={cn(
@@ -392,13 +388,20 @@ export default function StudentHeroPublic() {
   });
 
   const [redeemingPrivilege, setRedeemingPrivilege] = useState<ClassroomPrivilege | null>(null);
+  const [confirmStudentCode, setConfirmStudentCode] = useState('');
   const [isRedeeming, setIsRedeeming] = useState<boolean>(false);
 
   const handleRedeem = async () => {
-    if (!redeemingPrivilege || !realStudentId || isRedeeming) return;
+    if (!redeemingPrivilege || !realStudentId || isRedeeming || !confirmStudentCode.trim()) return;
     setIsRedeeming(true);
     try {
-      const res = await conductService.redeemPrivilege(redeemingPrivilege.id, realStudentId);
+      const res = await conductService.redeemPrivilege(
+        redeemingPrivilege.id,
+        realStudentId,
+        undefined,
+        undefined,
+        confirmStudentCode.trim(),
+      );
       if (!res.success) {
         toast({
           variant: 'destructive',
@@ -410,6 +413,7 @@ export default function StudentHeroPublic() {
           title: 'แลกคูปองสำเร็จ 🎉',
           description: `คุณได้รับคูปอง "${redeemingPrivilege.title}" เรียบร้อยแล้ว แสดงคูปองต่อคุณครูเพื่อใช้สิทธิ์`,
         });
+        setConfirmStudentCode('');
         setRedeemingPrivilege(null);
         refetchScores();
         refetchClassPrivileges();
@@ -435,11 +439,7 @@ export default function StudentHeroPublic() {
 
     try {
       setIsSearching(true);
-      const { data, error } = await supabase
-        .from('students')
-        .select('id')
-        .eq('student_code', searchCode.trim())
-        .maybeSingle();
+      const { data, error } = await conductService.resolvePublicStudentByCode(searchCode.trim());
 
       if (error) throw error;
 
@@ -448,7 +448,7 @@ export default function StudentHeroPublic() {
           title: 'ค้นหาสำเร็จ 🎉',
           description: 'พบประวัติความดีของนักเรียนแล้ว'
         });
-        navigate(`/virtue-bank/${searchCode.trim()}`);
+        navigate(`/virtue-bank/${data.student_code || data.id}`);
       } else {
         toast({
           variant: 'destructive',
@@ -979,16 +979,13 @@ export default function StudentHeroPublic() {
                                 <p className="text-[9px] text-slate-500">โรงเรียนบ้านคำไผ่ สพป.อุดรธานี เขต 2</p>
                               </div>
 
-                              <div className="w-32 h-44 rounded-xl border-2 border-amber-300 p-1 bg-card shadow flex items-center justify-center overflow-hidden">
-                                {student.photo_url ? (
-                                  <img
-                                    src={student.photo_url}
-                                    alt={student.name}
-                                    className="max-h-full max-w-full object-contain rounded-lg"
-                                  />
-                                ) : (
-                                  <PersonAvatar name={student.name} photoUrl={null} size="lg" className="h-full w-full rounded-lg" />
-                                )}
+                              <div className={cn('w-32 h-44 rounded-xl border-2 border-amber-300 p-1 bg-card shadow flex items-center justify-center overflow-hidden')}>
+                                <PersonAvatar
+                                  name={student.name}
+                                  photoUrl={student.photo_url}
+                                  size="lg"
+                                  className={cn('h-full w-full rounded-lg')}
+                                />
                               </div>
 
                               <div className="space-y-1">
@@ -1240,7 +1237,10 @@ export default function StudentHeroPublic() {
                                 <Button
                                   size="sm"
                                   disabled={!canAfford || isOutOfStock}
-                                  onClick={() => setRedeemingPrivilege(p)}
+                                  onClick={() => {
+                                    setConfirmStudentCode('');
+                                    setRedeemingPrivilege(p);
+                                  }}
                                   className={cn(
                                     "h-7 text-[11px] font-black rounded-lg px-2.5 flex-shrink-0",
                                     canAfford && !isOutOfStock
@@ -1328,43 +1328,70 @@ export default function StudentHeroPublic() {
       </main>
 
       {/* 🎟️ PRIVILEGE REDEMPTION CONFIRMATION DIALOG */}
-      <Dialog open={!!redeemingPrivilege} onOpenChange={(open) => { if (!open) setRedeemingPrivilege(null); }}>
-        <DialogContent className="sm:max-w-[420px] rounded-3xl bg-card p-6">
+      <Dialog
+        open={!!redeemingPrivilege}
+        onOpenChange={(open) => {
+          if (!open) {
+            setRedeemingPrivilege(null);
+            setConfirmStudentCode('');
+          }
+        }}
+      >
+        <DialogContent className={cn('sm:max-w-[420px] rounded-3xl bg-card p-6')}>
           <DialogHeader>
-            <DialogTitle className="text-base font-black text-slate-900 text-center">
+            <DialogTitle className={cn('text-base font-black text-foreground text-center')}>
               ยืนยันการแลกคูปองสิทธิ์พิเศษ 🎟️
             </DialogTitle>
-            <DialogDescription className="text-xs text-center text-slate-500">
+            <DialogDescription className={cn('text-xs text-center text-muted-foreground')}>
               คะแนนสะสมจะถูกหักจากคะแนนพร้อมแลก และจะไม่ลดคะแนนเกียรติยศหรือยศฮีโร่ของคุณ
             </DialogDescription>
           </DialogHeader>
 
           {redeemingPrivilege && (
-            <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-center space-y-2 my-2">
+            <div className={cn('p-4 rounded-2xl bg-amber-50 border border-amber-200 text-center space-y-2 my-2')}>
               <span className="text-4xl block">{redeemingPrivilege.icon || '🎟️'}</span>
-              <h3 className="text-sm font-black text-slate-900">{redeemingPrivilege.title}</h3>
-              <p className="text-xs text-slate-600">{redeemingPrivilege.description}</p>
+              <h3 className={cn('text-sm font-black text-foreground')}>{redeemingPrivilege.title}</h3>
+              <p className={cn('text-xs text-muted-foreground')}>{redeemingPrivilege.description}</p>
               <div className="pt-2 flex justify-center items-center gap-2">
-                <Badge className="bg-amber-200 text-amber-900 border-amber-300 font-black text-xs">
+                <Badge className={cn('bg-amber-200 text-amber-900 border-amber-300 font-black text-xs')}>
                   ใช้ {redeemingPrivilege.virtue_points_cost} คะแนนความดี
                 </Badge>
               </div>
             </div>
           )}
 
+          <div className="space-y-1.5 py-1">
+            <Label htmlFor="confirm-student-code" className={cn('text-xs font-bold text-foreground')}>
+              ยืนยันรหัสประจำตัวนักเรียน (4 หลัก)
+            </Label>
+            <Input
+              id="confirm-student-code"
+              type="text"
+              inputMode="numeric"
+              value={confirmStudentCode}
+              onChange={(e) => setConfirmStudentCode(e.target.value)}
+              placeholder="กรอกรหัสนักเรียนเพื่อยืนยันสิทธิ์"
+              disabled={isRedeeming}
+              className={cn('rounded-xl text-center font-bold tracking-widest')}
+            />
+          </div>
+
           <div className="flex gap-2 pt-2">
             <Button
               variant="outline"
-              onClick={() => setRedeemingPrivilege(null)}
+              onClick={() => {
+                setRedeemingPrivilege(null);
+                setConfirmStudentCode('');
+              }}
               disabled={isRedeeming}
-              className="flex-1 rounded-xl font-bold"
+              className={cn('flex-1 rounded-xl font-bold')}
             >
               ยกเลิก
             </Button>
             <Button
               onClick={handleRedeem}
-              disabled={isRedeeming}
-              className="flex-1 rounded-xl font-black bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 hover:from-amber-600 hover:to-yellow-600 shadow-sm"
+              disabled={isRedeeming || !confirmStudentCode.trim()}
+              className={cn('flex-1 rounded-xl font-black bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 hover:from-amber-600 hover:to-yellow-600 shadow-sm')}
             >
               {isRedeeming ? (
                 <>

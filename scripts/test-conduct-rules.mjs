@@ -86,3 +86,48 @@ test('Conduct UI components do not hardcode semester 1, Thai reward heuristics, 
     'KampaiHeroDashboard.tsx must not pass invalid size="xl" to <PersonAvatar>',
   );
 });
+
+test('StudentHeroPublic.tsx has zero direct supabase.from calls, zero raw <img> tags, zero dark: classes, and passes confirmStudentCode to redeemPrivilege', async () => {
+  const studentHeroPublic = await readFile(
+    new URL('../src/pages/StudentHeroPublic.tsx', import.meta.url),
+    'utf8',
+  );
+
+  assert.equal(
+    studentHeroPublic.includes("supabase.from('students')"),
+    false,
+    "StudentHeroPublic.tsx must not call supabase.from('students')",
+  );
+  assert.equal(
+    /supabase\.from\s*\(/.test(studentHeroPublic),
+    false,
+    'StudentHeroPublic.tsx must have zero direct supabase.from( calls',
+  );
+  assert.equal(
+    /<img\b/.test(studentHeroPublic),
+    false,
+    'StudentHeroPublic.tsx must have zero raw <img> tags — use <PersonAvatar>',
+  );
+  assert.equal(
+    /\bdark:/.test(studentHeroPublic),
+    false,
+    'StudentHeroPublic.tsx must have zero dark: classes',
+  );
+  assert.match(
+    studentHeroPublic,
+    /useState(?:<string>)?\(\s*['"]['"]\s*\)/,
+  );
+  assert.match(
+    studentHeroPublic,
+    /\bconfirmStudentCode\b/,
+  );
+  assert.match(
+    studentHeroPublic,
+    /conductService\.redeemPrivilege\([^)]*confirmStudentCode\.trim\(\)/,
+  );
+  assert.equal(
+    studentHeroPublic.includes('conductService.resolvePublicStudentByCode('),
+    true,
+    'StudentHeroPublic.tsx must use conductService.resolvePublicStudentByCode()',
+  );
+});
