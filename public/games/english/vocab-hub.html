@@ -602,29 +602,44 @@ body::before{content:'';position:fixed;inset:0;
 .math-story-txt{font-size:clamp(14px,2.2vh,20px);color:#fff;font-weight:700;line-height:1.35;text-align:center;max-width:680px}
 
 /* Math Question 5x5 Grid Board — Compact Full-Screen Fit */
-.math-shell.grid-mode{width:min(920px,96vw);margin:auto;display:flex;flex-direction:column;align-items:center;gap:8px;padding:4px 8px 12px}
-.math-grid-toolbar{display:flex;flex-direction:column;align-items:center;gap:6px;width:100%}
-.math-grid-row{display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap}
-.math-grid-row-sub .math-chip{min-height:36px;padding:4px 12px;font-size:14px;border-radius:10px}
-.math-grid-row-sub .math-chip.math-op{min-width:38px;min-height:36px;padding:3px 8px;font-size:20px;border-radius:10px}
-.math-settings-group{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
+.math-shell.grid-mode{width:min(1080px,96vw);margin:auto;display:flex;flex-direction:column;align-items:center;gap:5px;padding:0 8px 6px}
+.math-grid-toolbar{display:flex;flex-direction:column;align-items:center;gap:5px;width:100%}
+.math-grid-row{display:flex;justify-content:center;align-items:center;gap:6px;flex-wrap:wrap}
+.math-shell.grid-mode .math-grid-row:first-child .math-chip{min-height:38px;padding:6px 14px;font-size:15px}
+.math-grid-row-sub .math-chip{min-height:32px;padding:3px 11px;font-size:13.5px;border-radius:10px}
+.math-grid-row-sub .math-chip.math-op{min-width:34px;min-height:32px;padding:2px 8px;font-size:18px;border-radius:10px}
+.math-settings-group{display:inline-flex;align-items:center;gap:5px;flex-wrap:wrap}
 
-.math-grid-container{width:min(500px,86vw,calc(100vh - 165px));max-width:100%;display:flex;flex-direction:column;align-items:center;gap:6px;margin:0 auto}
-.math-grid-meta{width:100%;display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:clamp(13px,1.8vh,15px);color:#fff;font-weight:700;min-height:36px}
-.math-grid-actions{display:inline-flex;align-items:center;gap:6px}
-.math-btn-replay,.math-btn-reset{min-height:34px;padding:4px 12px;font-size:13px;border-radius:10px}
+.math-grid-container{width:min(860px,94vw,calc((100vh - 225px) * 1.25));max-width:100%;display:flex;flex-direction:column;align-items:center;gap:5px;margin:0 auto}
+.math-grid-meta{width:100%;display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:clamp(13px,1.8vh,15px);color:#fff;font-weight:700;min-height:34px;flex-wrap:wrap}
+.math-grid-actions{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
+.math-btn-replay,.math-btn-reset,.math-btn-pic-pass{min-height:34px;padding:4px 12px;font-size:13px;border-radius:10px}
 .math-btn-replay{background:rgba(255,213,79,.2);border-color:#FFD54F;color:#FFE082;font-weight:800}
-.math-grid-board{width:100%;aspect-ratio:1;display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(5,1fr);gap:6px}
-.math-cell{aspect-ratio:1;min-height:0;border-radius:12px;border:2px solid rgba(255,255,255,.24);background:rgba(255,255,255,.08);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation;transition:transform .12s ease,border-color .12s ease,background .12s ease;padding:2px;position:relative;user-select:none}
+.math-btn-replay:disabled,.math-btn-replay.is-exhausted{opacity:.45;cursor:not-allowed;filter:grayscale(.45);border-color:rgba(255,255,255,.25);color:rgba(255,255,255,.72);background:rgba(255,255,255,.08)}
+.math-btn-pic-pass{background:#22c55e;border-color:#86efac;color:#052e16;font-weight:900}
+.math-btn-pic-pass:hover{background:#4ade80}
+.math-pic-gate-bar{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:5px 12px;border-radius:12px;background:rgba(255,213,79,.16);border:2px solid #FFD54F;color:#fff}
+.math-pic-gate-info{display:flex;align-items:center;gap:10px;min-width:0}
+.math-pic-gate-preview{width:40px;height:40px;border-radius:8px;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;padding:2px}
+.math-pic-gate-preview img{width:100%;height:100%;object-fit:contain}
+.math-pic-gate-text{font-size:clamp(13px,1.8vh,16px);font-weight:800;color:#FFE082;line-height:1.25}
+.math-grid-board{width:100%;aspect-ratio:5/4;display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(5,1fr);gap:7px}
+@media (max-width:767px){.math-grid-container{width:min(540px,94vw)}.math-grid-board{aspect-ratio:1}}
+.math-cell{min-height:0;border-radius:12px;border:2px solid rgba(255,255,255,.24);background:rgba(255,255,255,.08);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation;transition:transform .12s ease,border-color .12s ease,background .12s ease;padding:4px;position:relative;user-select:none;overflow:hidden}
 .math-cell:hover,.math-cell:focus-visible{transform:scale(1.04);border-color:#FFD54F}
-.math-cell-num{font-size:clamp(11px,1.5vh,14px);font-weight:800;opacity:.85;line-height:1}
-.math-cell-icon{font-size:clamp(18px,2.8vh,26px);line-height:1;margin-top:2px}
+.math-cell-num{position:absolute;top:4px;left:6px;font-size:clamp(10px,1.35vh,13px);font-weight:800;opacity:.9;line-height:1;z-index:2;text-shadow:0 1px 2px rgba(0,0,0,.45)}
+.math-cell-icon{font-size:clamp(20px,3vh,30px);line-height:1;margin-top:4px}
+.math-cell-pic{width:80%;height:80%;display:flex;align-items:center;justify-content:center;pointer-events:none;margin-top:4px}
+.math-cell-pic img{width:100%;height:100%;object-fit:contain;border-radius:8px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.25))}
+.math-cell-pic-fallback{font-size:clamp(26px,4.4vh,48px);line-height:1}
+.math-cell.pic_asking{background:rgba(255,213,79,.22);border-color:#FFD54F;box-shadow:0 0 0 3px rgba(255,213,79,.45);animation:math-pulse 1.6s infinite}
 .math-cell.asking{background:#FFD54F;color:#172554;border-color:#FFF3B0;animation:math-pulse 1.6s infinite}
-.math-cell.asking .math-cell-num{color:#172554;opacity:.9}
-.math-cell.asking .math-cell-icon{font-size:clamp(22px,3.4vh,30px)}
+.math-cell.asking .math-cell-num{color:#172554;opacity:.9;text-shadow:none}
+.math-cell.asking .math-cell-icon{font-size:clamp(24px,3.6vh,34px)}
+.math-cell-replay-badge{font-size:clamp(10px,1.25vh,12px);font-weight:800;color:#172554;background:rgba(255,255,255,.68);padding:1px 6px;border-radius:999px;margin-top:2px;line-height:1.2}
 .math-cell.solved{background:#15803d;color:#fff;border-color:#86efac}
-.math-cell.solved .math-cell-ans{font-size:clamp(16px,2.8vh,26px);font-weight:900;line-height:1;margin-top:1px}
-.math-cell.solved .math-cell-eq{font-size:clamp(9px,1.3vh,11px);opacity:.9;font-weight:700;margin-top:1px}
+.math-cell.solved .math-cell-ans{font-size:clamp(18px,3vh,30px);font-weight:900;line-height:1;margin-top:6px}
+.math-cell.solved .math-cell-eq{font-size:clamp(10px,1.4vh,12px);opacity:.9;font-weight:700;margin-top:2px}
 .math-cell.active-focus{outline:3px solid #FFD54F;outline-offset:2px}
 @keyframes math-pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,213,79,.7)}50%{box-shadow:0 0 0 8px rgba(255,213,79,0)}}
 
@@ -2087,6 +2102,7 @@ let mathVoiceGender = (function(){
 let mathPos = 0, mathTotal = 10, mathCorrect = 0, mathScore = 0, mathStreak = 0;
 let mathLocked = false, mathStartTime = 0;
 let mathGridCells = [], mathGridActiveIndex = null;
+const MATH_GRID_MAX_REPLAYS = 3;
 let gridPlayMode = 'solo'; // 'solo' | 'battle'
 let gridTeamTurn = 'red';  // 'red' | 'blue'
 let gridRedCells = new Set(), gridBlueCells = new Set();
@@ -3054,14 +3070,46 @@ function setMathVoiceGender(gender){
       if(cell.status === 'solved'){
         if(cell.vocabItem) mathSpeakParts([cell.vocabItem.en]);
         else mathSpeakAnswer(cell.q);
-      } else {
+      } else if(cell.status === 'asking'){
         if(cell.vocabItem) mathSpeakParts([cell.vocabItem.en]);
-        else mathSpeakQuestion(cell.q);
+        else if((cell.replaysLeft ?? MATH_GRID_MAX_REPLAYS) > 0) mathSpeakQuestion(cell.q);
       }
     }
   } else if(mathQuestion){
     mathSpeakQuestion(mathQuestion);
   }
+}
+function pickMathGridPictureItems(count){
+  const seen = new Set();
+  const candidates = [];
+  Object.entries(TOPICS || {}).forEach(([slug, list]) => {
+    if(slug === 'numbers' || !Array.isArray(list)) return;
+    list.forEach(item => {
+      if(!item || !item.image || !item.en) return;
+      const key = String(item.en).toLowerCase();
+      if(seen.has(key)) return;
+      seen.add(key);
+      candidates.push(item);
+    });
+  });
+  const shuffled = shuffle(candidates);
+  if(!shuffled.length) return [];
+  const out = [];
+  for(let i = 0; i < count; i++){
+    out.push(shuffled[i % shuffled.length]);
+  }
+  return out;
+}
+function mathGridCellPicHtml(item){
+  if(!item) return '<span class="math-cell-icon">❓</span>';
+  if(item.image){
+    const fallback = escapeHtml(item.emoji || item.th || item.en || '🖼️');
+    return '<span class="math-cell-pic">'
+      + '<img class="vocab-image" src="' + escapeHtml(item.image) + '" alt="ทายภาพคำศัพท์" decoding="sync">'
+      + '<span class="image-fallback math-cell-pic-fallback">' + fallback + '</span>'
+      + '</span>';
+  }
+  return '<span class="math-cell-pic-fallback">' + escapeHtml(item.emoji || '🖼️') + '</span>';
 }
 function startMathQuestion(){
   try{KAMPAI.beginRound();}catch(_){}
@@ -3091,12 +3139,15 @@ function initMysteryGrid(){
 
   const isNumbers = currentSlug === 'numbers';
   const pool = Array.isArray(allItems) && allItems.length ? allItems : (TOPICS[currentSlug] || []);
+  const picPool = isNumbers ? pickMathGridPictureItems(25) : [];
 
   for(let i = 0; i < 25; i++){
     if(isNumbers){
       mathGridCells.push({
         id: i + 1,
         q: makeMathQuestion(),
+        picItem: picPool[i] || null,
+        replaysLeft: MATH_GRID_MAX_REPLAYS,
         status: 'closed',
         team: null
       });
@@ -3105,6 +3156,7 @@ function initMysteryGrid(){
       mathGridCells.push({
         id: i + 1,
         vocabItem: vItem,
+        replaysLeft: MATH_GRID_MAX_REPLAYS,
         status: 'closed',
         team: null
       });
@@ -3204,10 +3256,16 @@ function renderMathGrid(){
     if(isFocus) cls += ' active-focus';
 
     let inner = '';
-    if(c.status === 'closed'){
-      inner = '<span class="math-cell-num">#' + c.id + '</span><span class="math-cell-icon">❓</span>';
+    if(c.status === 'closed' || c.status === 'pic_asking'){
+      if(c.picItem){
+        inner = '<span class="math-cell-num">#' + c.id + '</span>' + mathGridCellPicHtml(c.picItem);
+      } else {
+        inner = '<span class="math-cell-num">#' + c.id + '</span><span class="math-cell-icon">❓</span>';
+      }
     } else if(c.status === 'asking'){
-      inner = '<span class="math-cell-num">#' + c.id + '</span><span class="math-cell-icon">🔊</span>';
+      const left = c.replaysLeft ?? MATH_GRID_MAX_REPLAYS;
+      inner = '<span class="math-cell-num">#' + c.id + '</span><span class="math-cell-icon">🔊</span>'
+        + '<span class="math-cell-replay-badge">เหลือ ' + left + '/' + MATH_GRID_MAX_REPLAYS + '</span>';
     } else {
       const badge = c.team === 'red' ? '🔴' : c.team === 'blue' ? '🔵' : '✓';
       if(c.vocabItem){
@@ -3223,6 +3281,27 @@ function renderMathGrid(){
     return '<button type="button" class="' + cls + '" data-grid-cell="' + idx + '" aria-label="ช่องที่ ' + c.id + '">' + inner + '</button>';
   }).join('');
 
+  const replayLeft = activeCell ? (activeCell.replaysLeft ?? MATH_GRID_MAX_REPLAYS) : MATH_GRID_MAX_REPLAYS;
+  const replayExhausted = replayLeft <= 0;
+  const replayBtnHtml = activeCell && activeCell.status === 'asking'
+    ? '<button type="button" class="math-secondary math-btn-replay' + (replayExhausted ? ' is-exhausted' : '') + '" id="math-grid-speak"'
+      + (replayExhausted ? ' disabled aria-disabled="true"' : '') + '>'
+      + (replayExhausted
+        ? '🔇 ฟังซ้ำครบ ' + MATH_GRID_MAX_REPLAYS + ' ครั้งแล้ว (0)'
+        : '🔊 ฟังซ้ำ #' + activeCell.id + ' (เหลือ ' + replayLeft + ' ครั้ง)')
+      + '</button>'
+    : '';
+
+  const picGateBarHtml = activeCell && activeCell.status === 'pic_asking' && activeCell.picItem
+    ? '<div class="math-pic-gate-bar" id="math-pic-gate-bar">'
+      + '<div class="math-pic-gate-info">'
+      + '<span class="math-pic-gate-preview">' + mathGridCellPicHtml(activeCell.picItem) + '</span>'
+      + '<span class="math-pic-gate-text">🖼️ ช่อง #' + activeCell.id + ': ภาพนี้พูดภาษาอังกฤษว่าอะไร?</span>'
+      + '</div>'
+      + '<button type="button" class="math-secondary math-btn-pic-pass" id="math-grid-pic-pass">✅ ทายถูก → เปิดโจทย์เลข</button>'
+      + '</div>'
+    : '';
+
   playEl.innerHTML = '<div class="math-shell grid-mode">'
     + renderMathGridSettingsHtml()
     + '<div class="math-grid-container">'
@@ -3230,11 +3309,12 @@ function renderMathGrid(){
     + '<div class="math-grid-meta">'
     + '<span>' + (gridPlayMode === 'battle' ? '🏆 บิงโก 5 แถว' : 'เฉลยแล้ว <b>' + openedCount + '/25</b> ช่อง') + '</span>'
     + '<div class="math-grid-actions">'
-    + (activeCell && activeCell.status === 'asking' ? '<button type="button" class="math-secondary math-btn-replay" id="math-grid-speak">🔊 ฟังซ้ำ #' + activeCell.id + '</button>' : '')
+    + replayBtnHtml
     + (gridPlayMode === 'battle' && activeCell && activeCell.status === 'solved' ? '<button type="button" class="math-secondary" id="math-grid-switch-team" style="font-size:11px;padding:3px 8px">🔄 สลับแต้มให้อีกทีม</button>' : '')
     + '<button type="button" class="math-secondary math-btn-reset" id="math-grid-reset">🔄 สุ่มใหม่</button>'
     + '</div>'
     + '</div>'
+    + picGateBarHtml
     + '<div class="math-grid-board">'
     + cellsHtml
     + '</div>'
@@ -3248,6 +3328,11 @@ function renderMathGrid(){
     btn.onclick = () => handleMathGridCellClick(Number(btn.dataset.gridCell));
   });
 
+  const btnPicPass = document.getElementById('math-grid-pic-pass');
+  if(btnPicPass && activeCell && activeCell.status === 'pic_asking'){
+    btnPicPass.onclick = () => unlockMathGridQuestion(mathGridActiveIndex);
+  }
+
   const btnReset = document.getElementById('math-grid-reset');
   if(btnReset) btnReset.onclick = () => {
     initMysteryGrid();
@@ -3257,6 +3342,10 @@ function renderMathGrid(){
   const btnSpeak = document.getElementById('math-grid-speak');
   if(btnSpeak && activeCell){
     btnSpeak.onclick = () => {
+      const left = activeCell.replaysLeft ?? MATH_GRID_MAX_REPLAYS;
+      if(left <= 0) return;
+      activeCell.replaysLeft = left - 1;
+      renderMathGrid();
       if(activeCell.vocabItem) mathSpeakParts([activeCell.vocabItem.en]);
       else mathSpeakQuestion(activeCell.q);
     };
@@ -3284,15 +3373,33 @@ function renderMathGrid(){
     };
   }
 }
+function unlockMathGridQuestion(idx){
+  const cell = mathGridCells[idx];
+  if(!cell || cell.status !== 'pic_asking') return;
+  cell.status = 'asking';
+  mathGridActiveIndex = idx;
+  try{ KAMPAI.sound.correct(); }catch(_){}
+  renderMathGrid();
+  if(cell.vocabItem) mathSpeakParts([cell.vocabItem.en]);
+  else mathSpeakQuestion(cell.q);
+}
 function handleMathGridCellClick(idx){
   const cell = mathGridCells[idx];
   if(!cell) return;
   if(cell.status === 'closed'){
-    cell.status = 'asking';
-    mathGridActiveIndex = idx;
-    renderMathGrid();
-    if(cell.vocabItem) mathSpeakParts([cell.vocabItem.en]);
-    else mathSpeakQuestion(cell.q);
+    if(cell.q && cell.picItem){
+      cell.status = 'pic_asking';
+      mathGridActiveIndex = idx;
+      renderMathGrid();
+    } else {
+      cell.status = 'asking';
+      mathGridActiveIndex = idx;
+      renderMathGrid();
+      if(cell.vocabItem) mathSpeakParts([cell.vocabItem.en]);
+      else mathSpeakQuestion(cell.q);
+    }
+  } else if(cell.status === 'pic_asking'){
+    unlockMathGridQuestion(idx);
   } else if(cell.status === 'asking'){
     solveMathGridCell(idx);
   } else {
