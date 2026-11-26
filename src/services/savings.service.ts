@@ -37,6 +37,8 @@ export type SavingsTransaction = {
   semester: string | null;
   created_at: string;
   students?: { photo_url: string | null } | null;
+  recorder_staff?: { photo_url: string | null } | null;
+  recorder_admin?: { photo_url: string | null } | null;
 };
 
 export type SavingsStudentSummary = {
@@ -119,7 +121,7 @@ export const savingsTransactionsService = {
     for (let from = 0; ; from += pageSize) {
       const { data, error } = await supabase
         .from('savings_transactions')
-        .select('*, students(photo_url)')
+        .select('*, students(photo_url), recorder_staff:staff!recorded_by_staff_id(photo_url), recorder_admin:administrators!recorded_by_administrator_id(photo_url)')
         .order('transaction_date', { ascending: false })
         .order('created_at', { ascending: false })
         .order('id', { ascending: false })
@@ -474,5 +476,175 @@ export const savingsGoalsService = {
 
   delete: (goalId: string) =>
     supabase.rpc('delete_savings_goal', { p_goal_id: goalId }),
+};
+
+// ─── Backups & Backup Settings (school_settings + savings_backups) ───────────
+export type SavingsBackupRow = Database['public']['Tables']['savings_backups']['Row'];
+
+export type SavingsBackupSettings = {
+  id_freq: string;
+  id_email: string;
+  id_id: string;
+  id_enabled: string;
+  frequency: string;
+  teacherEmail: string;
+  teacherId: string;
+  enabled: boolean;
+};
+
+export type SavingsBackupTeacher = Pick<
+  Database['public']['Tables']['staff']['Row'],
+  'id' | 'name' | 'position' | 'email' | 'photo_url'
+>;
+
+export const savingsBackupsService = {
+  getTeachers: async (): Promise<SavingsBackupTeacher[]> => {
+    const { data, error } = await supabase
+      .from('staff')
+      .select('id, name, position, email, photo_url')
+      .eq('staff_type', 'teaching')
+      .order('order_position', { ascending: true });
+    if (error) throw error;
+    return data ?? [];
+  },
+
+  getSettings: async (): Promise<SavingsBackupSettings> => {
+    const { data, error } = await supabase
+      .from('school_settings')
+      .select('id, key, value')
+      .in('key', [
+        'savings_backup_frequency',
+        'savings_backup_teacher_email',
+        'savings_backup_teacher_id',
+        'savings_backup_enabled',
+      ]);
+    if (error) throw error;
+
+    const settingsMap: Record<string, { id: string; value: string }> = {};
+    (data ?? []).forEach((item) => {
+      settingsMap[item.key] = { id: item.id, value: item.value || '' };
+    });
+
+    return {
+      id_freq: settingsMap.savings_backup_frequency?.id || '',
+      id_email: settingsMap.savings_backup_teacher_email?.id || '',
+      id_id: settingsMap.savings_backup_teacher_id?.id || '',
+      id_enabled: settingsMap.savings_backup_enabled?.id || '',
+      frequency: settingsMap.savings_backup_frequency?.value || '7',
+      teacherEmail: settingsMap.savings_backup_teacher_email?.value || '',
+      teacherId: settingsMap.savings_backup_teacher_id?.value || '',
+      enabled: (settingsMap.savings_backup_enabled?.value || 'true') === 'true',
+    };
+  },
+
+  saveSettings: async (
+    settings: Pick<SavingsBackupSettings, 'frequency' | 'teacherEmail' | 'teacherId' | 'enabled'>,
+  ) => {
+    const upsertRows = [
+      {
+        key: 'savings_backup_frequency',
+        value: settings.frequency,
+        category: 'savings_bank',
+        description: 'ความถี่ในการส่งออกสำรองข้อมูลภายนอก (7, 15, 30 วัน)',
+      },
+      {
+        key: 'savings_backup_teacher_email',
+        value: settings.teacherEmail,
+        category: 'savings_bank',
+        description: 'อีเมลคุณครูผู้รับผิดชอบระบบสำรองข้อมูลสำหรับรับรายงาน',
+      },
+      {
+        key: 'savings_backup_teacher_id',
+        value: settings.teacherId,
+        category: 'savings_bank',
+        description: 'ID ของครูผู้รับผิดชอบจากตาราง staff',
+      },
+      {
+        key: 'savings_backup_enabled',
+        value: String(settings.enabled),
+        category: 'savings_bank',
+        description: 'เปิดใช้งานระบบส่งออกสำรองข้อมูลอัตโนมัติ',
+      },
+    ];
+
+    const { error } = await supabase
+      .from('school_settings')
+      .upsert(upsertRows, { onConflict: 'key' });
+    if (error) throw error;
+  },
+
+  listBackups: async (): Promise<{ backups: SavingsBackupRow[]; missingTable: boolean }> => {
+    const { data, error } = await supabase
+      .from('savings_backups')
+      .select('*')
+      .order('backup_date', { ascending: false });
+
+    if (error) {
+      if (error.code === 'PGRST205' || error.message?.includes('does not exist')) {
+        return { backups: [], missingTable: true };
+      }
+      throw error;
+    }
+    return { backups: data ?? [], missingTable: false };
+  },
+
+  createSnapshot: async (summaries: SavingsStudentSummary[]) => {
+    const totalBalance = summaries.reduce((sum, s) => sum + Number(s.current_balance ?? 0), 0);
+    const totalSavers = summaries.filter((s) => Number(s.current_balance ?? 0) > 0).length;
+
+    const packedData = summaries.map((s) => ({
+      student_id: s.student_id,
+      current_balance: Number(s.current_balance ?? 0),
+      total_transactions: Number(s.total_transactions ?? 0),
+    }));
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    let recorderName = 'ระบบแอดมิน';
+    if (user) {
+      const { data: roleRow } = await supabase
+        .from('user_roles')
+        .select('staff_id, administrator_id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      const adminId = roleRow?.administrator_id ?? user.id;
+      const { data: admin } = await supabase
+        .from('administrators')
+        .select('id, name, photo_url')
+        .eq('id', adminId)
+        .maybeSingle();
+
+      if (admin?.name) {
+        recorderName = admin.name;
+      } else {
+        const staffId = roleRow?.staff_id ?? user.id;
+        const { data: stf } = await supabase
+          .from('staff')
+          .select('id, name, position, email, photo_url')
+          .eq('id', staffId)
+          .maybeSingle();
+        if (stf?.name) recorderName = stf.name;
+      }
+    }
+
+    const { error } = await supabase.from('savings_backups').insert({
+      backup_date: new Date().toISOString().split('T')[0],
+      total_savers: totalSavers,
+      total_balance: totalBalance,
+      backup_data: packedData as unknown as Json,
+      created_by: recorderName,
+    });
+    if (error) throw error;
+
+    return { totalBalance, totalSavers };
+  },
+
+  deleteBackup: async (id: string) => {
+    const { error } = await supabase.from('savings_backups').delete().eq('id', id);
+    if (error) throw error;
+  },
 };
 

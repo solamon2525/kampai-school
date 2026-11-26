@@ -54,6 +54,7 @@ import { StudentQRScanner } from '@/components/shared/StudentQRScanner';
 import { formatThaiDateMedium } from '@/lib/thaiDate';
 import { ThaiDatePicker } from '@/components/shared/ThaiDatePicker';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
+import { ConfirmDialog } from '@/components/admin/shared/ConfirmDialog';
 import { getFirstName, speakThai, thaiNumberToWords } from '@/lib/thaiSpeech';
 import {
   Dialog,
@@ -132,6 +133,7 @@ export const SavingsBankManagement = () => {
   const [historyClassFilter, setHistoryClassFilter] = useState('all');
   const [historySearch, setHistorySearch] = useState('');
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [deleteTransactionId, setDeleteTransactionId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchTransactions();
@@ -331,8 +333,14 @@ export const SavingsBankManagement = () => {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('ลบรายการนี้? — ยอดเงินคงเหลือจะถูกคำนวณใหม่')) return;
+  const handleDelete = (id: string) => {
+    setDeleteTransactionId(id);
+  };
+
+  const confirmDeleteTransaction = async () => {
+    if (!deleteTransactionId) return;
+    const id = deleteTransactionId;
+    setDeleteTransactionId(null);
     const { error } = await savingsTransactionsService.delete(id);
     if (error) {
       toast({ title: 'ลบไม่สำเร็จ', description: savingsErrorMessage(error), variant: 'destructive' });
@@ -373,11 +381,11 @@ export const SavingsBankManagement = () => {
         <div className="text-xs font-bold uppercase tracking-[0.15em] text-amber-600 mb-1">
           ระบบบริการ
         </div>
-        <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 flex items-center gap-2">
+        <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-foreground flex items-center gap-2">
           <PiggyBank className="w-7 h-7 text-amber-500" />
           ธนาคารพอเพียง
         </h2>
-        <p className="text-sm text-slate-600 font-medium mt-1">
+        <p className="text-sm text-muted-foreground font-medium mt-1">
           ระบบฝาก/ถอนเงินสำหรับนักเรียน — สอนวินัยการออมตามหลักปรัชญาเศรษฐกิจพอเพียง
         </p>
       </div>
@@ -390,8 +398,8 @@ export const SavingsBankManagement = () => {
           label="ผู้ออม"
           value={fmtCount(schoolTotals.savers)}
           unit="คน"
-          icon={<Users className="w-5 h-5 text-slate-500" />}
-          accentBar="bg-slate-900"
+          icon={<Users className="w-5 h-5 text-muted-foreground" />}
+          accentBar="bg-primary"
         />
         <KpiCard
           label="ยอดฝากรวม"
@@ -402,8 +410,8 @@ export const SavingsBankManagement = () => {
         <KpiCard
           label="ยอดถอนรวม"
           value={fmtBaht(schoolTotals.withdrawals)}
-          icon={<ArrowUpFromLine className="w-5 h-5 text-rose-500" />}
-          accentBar="bg-rose-500"
+          icon={<ArrowUpFromLine className="w-5 h-5 text-destructive" />}
+          accentBar="bg-destructive"
         />
         <KpiHero
           label="ยอดเงินคงเหลือ"
@@ -413,7 +421,7 @@ export const SavingsBankManagement = () => {
       </div>
 
       {/* Tab navigation — pill style */}
-      <div className="inline-flex p-1 bg-slate-100 rounded-xl flex-wrap gap-1">
+      <div className={cn('inline-flex p-1 bg-muted rounded-xl flex-wrap gap-1')}>
         <PillTab
           active={activeTab === 'record'}
           onClick={() => setActiveTab('record')}
@@ -460,9 +468,9 @@ export const SavingsBankManagement = () => {
 
       {/* ─── Tab 1: Record ────────────────────────────────────────────── */}
       {activeTab === 'record' && (
-        <div className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200">
-          <div className="px-5 md:px-6 py-4 border-b border-slate-200 flex items-center justify-between gap-3 flex-wrap">
-            <h3 className="text-base font-extrabold text-slate-900">บันทึกฝาก/ถอนเงิน</h3>
+        <div className={cn('bg-card rounded-2xl shadow-sm ring-1 ring-border')}>
+          <div className="px-5 md:px-6 py-4 border-b border-border flex items-center justify-between gap-3 flex-wrap">
+            <h3 className="text-base font-extrabold text-foreground">บันทึกฝาก/ถอนเงิน</h3>
             <button
               type="button"
               onClick={toggleQuickMode}
@@ -488,7 +496,7 @@ export const SavingsBankManagement = () => {
                   'rounded-xl py-4 text-base font-extrabold transition flex items-center justify-center gap-2 active:translate-y-px',
                   form.transaction_type === 'deposit'
                     ? 'bg-amber-500 text-amber-950 shadow-lg shadow-amber-500/30 ring-2 ring-amber-300'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200',
+                    : 'bg-muted text-muted-foreground hover:bg-muted/80',
                 )}
               >
                 <ArrowDownToLine className="w-5 h-5" /> ฝากเงิน
@@ -499,8 +507,8 @@ export const SavingsBankManagement = () => {
                 className={cn(
                   'rounded-xl py-4 text-base font-extrabold transition flex items-center justify-center gap-2 active:translate-y-px',
                   form.transaction_type === 'withdraw'
-                    ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/30 ring-2 ring-rose-300'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200',
+                    ? 'bg-destructive text-destructive-foreground shadow-lg shadow-destructive/30 ring-2 ring-destructive/40'
+                    : 'bg-muted text-muted-foreground hover:bg-muted/80',
                 )}
               >
                 <ArrowUpFromLine className="w-5 h-5" /> ถอนเงิน
@@ -513,17 +521,19 @@ export const SavingsBankManagement = () => {
                 variant="outline"
                 size="lg"
                 onClick={() => setScannerOpen(true)}
-                className="w-full gap-2 border-amber-400 bg-amber-50 text-amber-900 hover:bg-amber-100 hover:border-amber-500"
+                className={cn(
+                  'w-full gap-2 border-amber-400 bg-amber-50 text-amber-900 hover:bg-amber-100 hover:border-amber-500',
+                )}
               >
                 <QrCode className="w-5 h-5" />
                 สแกน QR นักเรียน
               </Button>
-              <label className="flex items-center gap-2 text-xs text-slate-600 cursor-pointer select-none">
+              <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer select-none">
                 <input
                   type="checkbox"
                   checked={quickRepeat}
                   onChange={(e) => setQuickRepeat(e.target.checked)}
-                  className="rounded border-slate-300 text-amber-600 focus:ring-amber-500"
+                  className="rounded border-border text-amber-600 focus:ring-amber-500"
                 />
                 <span>
                   <span className="font-semibold">โหมดต่อเนื่อง</span> — หลังบันทึกเปิดสแกนต่อทันที (เหมาะกับช่วงเช้านักเรียนต่อแถว)
@@ -547,12 +557,12 @@ export const SavingsBankManagement = () => {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">ชั้น</Label>
+                  <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">ชั้น</Label>
                   <Select
                     value={form.student_class}
                     onValueChange={(v) => setForm((p) => ({ ...p, student_class: v }))}
                   >
-                    <SelectTrigger className="border-slate-300">
+                    <SelectTrigger className="border-border">
                       <SelectValue placeholder="เลือกชั้น" />
                     </SelectTrigger>
                     <SelectContent>
@@ -565,26 +575,20 @@ export const SavingsBankManagement = () => {
                   </Select>
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">นักเรียน</Label>
+                  <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">นักเรียน</Label>
                   <Select
                     value={form.student_id}
                     onValueChange={(v) => setForm((p) => ({ ...p, student_id: v }))}
                     disabled={!form.student_class}
                   >
-                    <SelectTrigger className="border-slate-300">
+                    <SelectTrigger className="border-border">
                       <SelectValue placeholder={form.student_class ? 'เลือกนักเรียน' : 'เลือกชั้นก่อน'} />
                     </SelectTrigger>
                     <SelectContent>
                       {studentOptions.map((s) => (
                         <SelectItem key={s.id} value={s.id}>
                           <div className="flex items-center gap-2">
-                            {s.photo_url ? (
-                              <img src={s.photo_url} alt={s.name} className="w-6 h-6 rounded-full object-cover" />
-                            ) : (
-                              <div className="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-700">
-                                {s.name.slice(0, 1)}
-                              </div>
-                            )}
+                            <PersonAvatar name={s.name} photoUrl={s.photo_url} size="sm" />
                             <span>{s.name}</span>
                           </div>
                         </SelectItem>
@@ -598,7 +602,7 @@ export const SavingsBankManagement = () => {
             {/* Amount + Date */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                   จำนวนเงิน (บาท)
                 </Label>
                 <Input
@@ -610,7 +614,7 @@ export const SavingsBankManagement = () => {
                   onChange={(e) => setForm((p) => ({ ...p, amount: e.target.value }))}
                   onWheel={(e) => e.currentTarget.blur()}
                   placeholder="0"
-                  className="border-slate-300 font-bold tabular-nums text-base"
+                  className={cn('border-border font-bold tabular-nums text-base')}
                 />
                 <div className="flex flex-wrap gap-1.5">
                   {QUICK_AMOUNTS.map((v) => (
@@ -622,7 +626,7 @@ export const SavingsBankManagement = () => {
                         'px-2.5 py-1 rounded-md border text-sm font-bold tabular-nums transition-colors',
                         form.amount === String(v)
                           ? 'border-amber-500 bg-amber-100 text-amber-900'
-                          : 'border-slate-300 text-slate-700 hover:bg-amber-50 hover:border-amber-400',
+                          : 'border-border text-foreground hover:bg-amber-50 hover:border-amber-400',
                       )}
                     >
                       {v}
@@ -631,7 +635,7 @@ export const SavingsBankManagement = () => {
                 </div>
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">วันที่</Label>
+                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">วันที่</Label>
                 <ThaiDatePicker
                   value={form.transaction_date}
                   onChange={(v) => setForm((p) => ({ ...p, transaction_date: v }))}
@@ -641,14 +645,14 @@ export const SavingsBankManagement = () => {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">
+              <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                 หมายเหตุ (ถ้ามี)
               </Label>
               <Input
                 value={form.notes}
                 onChange={(e) => setForm((p) => ({ ...p, notes: e.target.value }))}
                 placeholder="เช่น ฝากประจำสัปดาห์"
-                className="border-slate-300"
+                className="border-border"
               />
             </div>
 
@@ -662,7 +666,7 @@ export const SavingsBankManagement = () => {
                 'w-full text-base font-extrabold shadow-lg active:translate-y-px',
                 form.transaction_type === 'deposit'
                   ? 'bg-amber-500 hover:bg-amber-400 text-amber-950 shadow-amber-500/30'
-                  : 'bg-rose-500 hover:bg-rose-400 text-white shadow-rose-500/30',
+                  : 'bg-destructive hover:bg-destructive/90 text-destructive-foreground shadow-destructive/30',
               )}
             >
               {isSubmitting
@@ -735,7 +739,7 @@ export const SavingsBankManagement = () => {
 
       {/* ─── Tab 3: History ────────────────────────────────────────────── */}
       {activeTab === 'history' && (
-        <div className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200">
+        <div className={cn('bg-card rounded-2xl shadow-sm ring-1 ring-border')}>
           <div className="px-5 md:px-6 py-4 border-b border-border flex items-center gap-3 justify-between flex-wrap">
             <div>
               <h3 className="text-base font-extrabold text-foreground">ประวัติธุรกรรมทั้งหมด</h3>
@@ -801,9 +805,9 @@ export const SavingsBankManagement = () => {
           </div>
 
           <div className="p-5 md:p-6">
-            <div className="overflow-x-auto rounded-xl border border-slate-200">
+            <div className="overflow-x-auto rounded-xl border border-border">
               <table className="w-full text-sm">
-                <thead className="bg-slate-100">
+                <thead className="bg-muted">
                   <tr>
                     <Th className="text-left">วันที่</Th>
                     <Th className="text-left">นักเรียน</Th>
@@ -818,7 +822,7 @@ export const SavingsBankManagement = () => {
                 <tbody>
                   {filteredTransactions.length === 0 && (
                     <tr>
-                      <td colSpan={8} className="p-6 text-center text-slate-500 font-medium">
+                      <td colSpan={8} className="p-6 text-center text-muted-foreground font-medium">
                         ไม่มีรายการ
                       </td>
                     </tr>
@@ -827,59 +831,68 @@ export const SavingsBankManagement = () => {
                     <tr
                       key={t.id}
                       className={cn(
-                        'border-t border-slate-100',
-                        idx % 2 === 1 && 'bg-slate-50/40',
+                        'border-t border-border',
+                        idx % 2 === 1 && 'bg-muted/30',
                       )}
                     >
-                      <td className="p-3 whitespace-nowrap text-slate-700 font-medium">
+                      <td className="p-3 whitespace-nowrap text-muted-foreground font-medium">
                         <div>{formatThaiDateMedium(t.transaction_date)}</div>
-                        <div className="text-[10px] text-slate-400 font-semibold mt-0.5">
+                        <div className="text-[10px] text-muted-foreground/80 font-semibold mt-0.5">
                           {t.created_at ? new Date(t.created_at).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Bangkok' }) + ' น.' : '—'}
                         </div>
                       </td>
                       <td className="p-3">
                         <div className="flex items-center gap-2">
-                          {t.students?.photo_url ? (
-                            <img
-                              src={t.students.photo_url}
-                              alt={t.student_name}
-                              className="w-7 h-7 rounded-full object-cover flex-shrink-0"
-                            />
-                          ) : (
-                            <div className="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center text-[11px] font-bold text-slate-700 flex-shrink-0">
-                              {t.student_name.slice(0, 1)}
-                            </div>
-                          )}
-                          <span className="font-bold text-slate-900">{t.student_name}</span>
+                          <PersonAvatar
+                            name={t.student_name}
+                            photoUrl={t.students?.photo_url}
+                            size="sm"
+                            className="flex-shrink-0"
+                          />
+                          <span className="font-bold text-foreground">{t.student_name}</span>
                         </div>
                       </td>
-                      <td className="p-3 text-slate-700 font-medium">{t.student_class}</td>
+                      <td className="p-3 text-muted-foreground font-medium">{t.student_class}</td>
                       <td className="p-3 text-center">
                         {t.transaction_type === 'deposit' ? (
                           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500 text-amber-950 text-xs font-bold shadow-sm">
                             <ArrowDownToLine className="w-3 h-3" /> ฝาก
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-rose-500 text-white text-xs font-bold shadow-sm">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-destructive text-destructive-foreground text-xs font-bold shadow-sm">
                             <ArrowUpFromLine className="w-3 h-3" /> ถอน
                           </span>
                         )}
                       </td>
-                      <td className="p-3 text-right tabular-nums font-extrabold text-slate-900">
+                      <td className="p-3 text-right tabular-nums font-extrabold text-foreground">
                         {fmtBaht(Number(t.amount))}
                       </td>
-                      <td className="p-3 text-right tabular-nums text-slate-600 font-semibold">
+                      <td className="p-3 text-right tabular-nums text-muted-foreground font-semibold">
                         {fmtBaht(Number(t.balance_after))}
                       </td>
-                      <td className="p-3 text-slate-700 font-medium">{t.recorded_by ?? '—'}</td>
+                      <td className="p-3 text-muted-foreground font-medium">
+                        {t.recorded_by ? (
+                          <div className="flex items-center gap-2">
+                            <PersonAvatar
+                              name={t.recorded_by}
+                              photoUrl={t.recorder_staff?.photo_url ?? t.recorder_admin?.photo_url}
+                              size="xs"
+                              className="flex-shrink-0"
+                            />
+                            <span>{t.recorded_by}</span>
+                          </div>
+                        ) : (
+                          '—'
+                        )}
+                      </td>
                       <td className="p-3 text-center">
                         <Button
                           size="icon"
                           variant="ghost"
                           onClick={() => handleDelete(t.id)}
-                          className="h-7 w-7 hover:bg-rose-50"
+                          className="h-7 w-7 hover:bg-destructive/10"
                         >
-                          <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+                          <Trash2 className="w-3.5 h-3.5 text-destructive" />
                         </Button>
                       </td>
                     </tr>
@@ -905,6 +918,18 @@ export const SavingsBankManagement = () => {
         onClose={() => setScannerOpen(false)}
         onScanned={handleQRScanned}
       />
+
+      <ConfirmDialog
+        open={deleteTransactionId !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTransactionId(null);
+        }}
+        onConfirm={confirmDeleteTransaction}
+        title="ลบรายการนี้?"
+        description="ยอดเงินคงเหลือจะถูกคำนวณใหม่"
+        confirmText="ลบรายการ"
+        variant="destructive"
+      />
     </div>
   );
 };
@@ -920,7 +945,7 @@ const Th = ({
 }) => (
   <th
     className={cn(
-      'p-3 text-xs font-bold uppercase tracking-wider text-slate-700',
+      'p-3 text-xs font-bold uppercase tracking-wider text-muted-foreground',
       className,
     )}
   >
@@ -943,19 +968,19 @@ const KpiCard = ({
 }) => (
   <div
     className={cn(
-      'bg-white rounded-xl p-4 ring-1 ring-slate-200 border-l-4 hover:shadow-md transition',
+      'bg-card rounded-xl p-4 ring-1 ring-border border-l-4 hover:shadow-md transition',
       accentBar.replace('bg-', 'border-l-'),
     )}
   >
-    <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+    <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
       {icon}
       {label}
     </div>
     <div className="flex items-baseline gap-1.5">
-      <span className="text-base xs:text-lg sm:text-xl md:text-2xl font-extrabold text-slate-900 tabular-nums tracking-tight">
+      <span className="text-base xs:text-lg sm:text-xl md:text-2xl font-extrabold text-foreground tabular-nums tracking-tight">
         {value}
       </span>
-      {unit && <span className="text-sm font-bold text-slate-600">{unit}</span>}
+      {unit && <span className="text-sm font-bold text-muted-foreground">{unit}</span>}
     </div>
   </div>
 );
@@ -969,12 +994,12 @@ const KpiHero = ({
   value: string;
   icon?: React.ReactNode;
 }) => (
-  <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-xl p-4 shadow-lg ring-1 ring-amber-500/20">
+  <div className={cn('bg-gradient-to-br from-primary to-primary/90 rounded-xl p-4 shadow-lg ring-1 ring-amber-500/20')}>
     <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-400 mb-1.5">
       {icon}
       {label}
     </div>
-    <div className="text-base xs:text-lg sm:text-xl md:text-2xl font-extrabold text-white tabular-nums tracking-tight">
+    <div className="text-base xs:text-lg sm:text-xl md:text-2xl font-extrabold text-primary-foreground tabular-nums tracking-tight">
       {value}
     </div>
   </div>
@@ -996,8 +1021,8 @@ const PillTab = ({
     className={cn(
       'flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-bold transition active:translate-y-px',
       active
-        ? 'bg-slate-900 text-white shadow-md'
-        : 'text-slate-600 hover:text-slate-900',
+        ? 'bg-primary text-primary-foreground shadow-md'
+        : 'text-muted-foreground hover:text-foreground',
     )}
   >
     {icon}
@@ -1020,14 +1045,14 @@ const FilterChip = ({
     accent === 'amber'
       ? 'bg-amber-500 text-amber-950 shadow-sm'
       : accent === 'rose'
-        ? 'bg-rose-500 text-white shadow-sm'
-        : 'bg-slate-900 text-white shadow-sm';
+        ? 'bg-destructive text-destructive-foreground shadow-sm'
+        : 'bg-primary text-primary-foreground shadow-sm';
   return (
     <button
       onClick={onClick}
       className={cn(
         'px-3 py-1.5 rounded-full text-xs font-bold transition active:translate-y-px',
-        active ? activeClass : 'bg-slate-100 text-slate-600 hover:bg-slate-200',
+        active ? activeClass : 'bg-muted text-muted-foreground hover:bg-muted/80',
       )}
     >
       {children}
