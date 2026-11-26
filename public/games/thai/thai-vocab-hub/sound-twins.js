@@ -257,6 +257,8 @@
   // 4 Castles State
   let castleScore = 0;
   let castleStreak = 0;
+  let castleRoundCount = 0;
+  const CASTLE_ROUND_LIMIT = 10;
   let currentPromptWord = null;
   let castlePool = [];
   let isAnsweringLocked = false;
@@ -372,6 +374,10 @@
               <div class="castle-stat-item">
                 <span class="castle-stat-label">คอมโบต่อเนื่อง:</span>
                 <strong class="castle-stat-val streak" id="castle-streak-val">🔥 0</strong>
+              </div>
+              <div class="castle-stat-item">
+                <span class="castle-stat-label">ด่าน:</span>
+                <strong class="castle-stat-val" id="castle-round-val">1/10</strong>
               </div>
               <button type="button" class="cbtn touch-target castle-reset-btn" onclick="window.ThaiSoundTwins.resetChallenge()" title="เริ่มนับคะแนนใหม่">
                 ↺ เริ่มใหม่
@@ -557,9 +563,11 @@
   function updateCastleStats() {
     const scoreEl = document.getElementById('castle-score-val');
     const streakEl = document.getElementById('castle-streak-val');
+    const roundEl = document.getElementById('castle-round-val');
 
     if (scoreEl) scoreEl.textContent = castleScore;
     if (streakEl) streakEl.textContent = `🔥 ${castleStreak}`;
+    if (roundEl) roundEl.textContent = `${Math.min(castleRoundCount + 1, CASTLE_ROUND_LIMIT)}/${CASTLE_ROUND_LIMIT}`;
   }
 
   // ─── 8. Public API ───────────────────────────────────────────────
@@ -661,19 +669,27 @@
         isAnsweringLocked = true;
         castleScore += 10 + (castleStreak >= 2 ? 5 : 0);
         castleStreak += 1;
+        castleRoundCount += 1;
         updateCastleStats();
         audioFx.playCorrect();
 
         if (pressedBtn) pressedBtn.classList.add('correct');
         if (feedbackEl) {
           feedbackEl.className = 'castle-feedback-banner success';
-          feedbackEl.textContent = `🎉 ถูกต้องยอดเยี่ยม! คำว่า "${currentPromptWord.word}" สะกดด้วย ${currentPromptWord.surfaceConsonant} อยู่ใน ${currentPromptWord.sectionName || 'มาตรานี้'} (ออกเสียง ${currentPromptWord.soundConsonant || ''} สะกด) ✨`;
+          if (castleRoundCount >= CASTLE_ROUND_LIMIT) {
+            const stars = castleScore >= 120 ? '⭐⭐⭐' : castleScore >= 80 ? '⭐⭐☆' : '⭐☆☆';
+            feedbackEl.textContent = `🏆 จบรอบ ${CASTLE_ROUND_LIMIT} ข้อแล้ว! ได้คะแนน ${castleScore} (${stars}) — กด "↺ เริ่มใหม่" เพื่อเล่นรอบถัดไป!`;
+          } else {
+            feedbackEl.textContent = `🎉 ถูกต้องยอดเยี่ยม! คำว่า "${currentPromptWord.word}" สะกดด้วย ${currentPromptWord.surfaceConsonant} อยู่ใน ${currentPromptWord.sectionName || 'มาตรานี้'} (ออกเสียง ${currentPromptWord.soundConsonant || ''} สะกด) ✨`;
+          }
         }
 
-        // Auto-advance after 1.4s
-        advanceTimer = setTimeout(() => {
-          ThaiSoundTwins.nextCastlePrompt();
-        }, 1400);
+        if (castleRoundCount < CASTLE_ROUND_LIMIT) {
+          // Auto-advance after 1.4s
+          advanceTimer = setTimeout(() => {
+            ThaiSoundTwins.nextCastlePrompt();
+          }, 1400);
+        }
       } else {
         castleStreak = 0;
         updateCastleStats();
@@ -700,6 +716,7 @@
     resetChallenge() {
       castleScore = 0;
       castleStreak = 0;
+      castleRoundCount = 0;
       updateCastleStats();
       this.nextCastlePrompt();
     },

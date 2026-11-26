@@ -246,6 +246,13 @@
             </div>
           </div>
 
+          <!-- Studio Mode Tabs -->
+          <div class="studio-mode-tabs" role="tablist" aria-label="โหมดฝึกอ่าน">
+            <button type="button" class="studio-mode-tab active" id="reading-tab-learn" onclick="window.ThaiReadingTrainer.switchStudioMode('learn')">📖 ฝึกอ่านทีละพยางค์</button>
+            <button type="button" class="studio-mode-tab" id="reading-tab-quiz" onclick="window.ThaiReadingTrainer.switchStudioMode('quiz')">🎯 ทายคำอ่าน (10 ข้อ)</button>
+          </div>
+
+          <div id="reading-learn-panel">
           <!-- Filter Bar Tabs & Live Search -->
           <div class="reading-filter-bar" role="tablist" aria-label="กรองประเภทคำศัพท์">
             ${buildFilterTabsHtml()}
@@ -300,6 +307,8 @@
               </button>
             </div>
           </div>
+          </div>
+          <div id="reading-quiz-panel" class="studio-quiz-panel" style="display:none"></div>
         </div>
       `;
       document.body.appendChild(modal);
@@ -541,6 +550,31 @@
 
   // ─── 8. Public API ──────────────────────────────────────────────
   window.ThaiReadingTrainer = {
+    switchStudioMode(mode) {
+      const learnPanel = document.getElementById("reading-learn-panel");
+      const quizPanel = document.getElementById("reading-quiz-panel");
+      const tabLearn = document.getElementById("reading-tab-learn");
+      const tabQuiz = document.getElementById("reading-tab-quiz");
+      const isQuiz = mode === "quiz";
+      if (tabLearn) tabLearn.classList.toggle("active", !isQuiz);
+      if (tabQuiz) tabQuiz.classList.toggle("active", isQuiz);
+      if (learnPanel) learnPanel.style.display = isQuiz ? "none" : "";
+      if (quizPanel) {
+        quizPanel.style.display = isQuiz ? "flex" : "none";
+        if (isQuiz && window.ThaiStudioChallenge) {
+          loadDataset();
+          const startQuiz = () => {
+            const qs = window.ThaiStudioChallenge.buildReadingQuestions(allWords, 10);
+            window.ThaiStudioChallenge.createChallengeRunner(quizPanel, {
+              questions: qs,
+              speak: (t) => speakWord(t),
+              onRestart: startQuiz,
+            });
+          };
+          startQuiz();
+        }
+      }
+    },
     CATEGORY_CONFIG,
     toThaiNumeral,
     buildTtsReading,

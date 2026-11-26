@@ -222,6 +222,13 @@
             </div>
           </div>
 
+          <!-- Studio Mode Tabs -->
+          <div class="studio-mode-tabs" role="tablist" aria-label="โหมดถอดหน้ากากตัวสะกด">
+            <button type="button" class="studio-mode-tab active" id="decoder-tab-learn" onclick="window.ThaiSpellingDecoder.switchStudioMode('learn')">🎭 โรงละครถอดหน้ากาก</button>
+            <button type="button" class="studio-mode-tab" id="decoder-tab-quiz" onclick="window.ThaiSpellingDecoder.switchStudioMode('quiz')">🎯 ทายแม่ตัวสะกด (10 ข้อ)</button>
+          </div>
+
+          <div id="decoder-learn-panel">
           <!-- Section Tabs -->
           <div class="decoder-preset-bar" role="tablist" aria-label="เลือกมาตราตัวสะกด">
             <button type="button" class="decoder-preset-tab touch-target active" data-section="kod" onclick="window.ThaiSpellingDecoder.selectSection('kod')">แม่กด (เสียง ด)</button>
@@ -276,6 +283,8 @@
               </button>
             </div>
           </div>
+          </div>
+          <div id="decoder-quiz-panel" class="studio-quiz-panel" style="display:none"></div>
         </div>
       `;
       document.body.appendChild(modal);
@@ -454,6 +463,33 @@
 
   // ─── 7. Public API ─────────────────────────────────────────────
   window.ThaiSpellingDecoder = {
+    switchStudioMode(mode) {
+      const learnPanel = document.getElementById('decoder-learn-panel');
+      const quizPanel = document.getElementById('decoder-quiz-panel');
+      const tabLearn = document.getElementById('decoder-tab-learn');
+      const tabQuiz = document.getElementById('decoder-tab-quiz');
+      const isQuiz = mode === 'quiz';
+      if (tabLearn) tabLearn.classList.toggle('active', !isQuiz);
+      if (tabQuiz) tabQuiz.classList.toggle('active', isQuiz);
+      if (learnPanel) learnPanel.style.display = isQuiz ? 'none' : '';
+      if (quizPanel) {
+        quizPanel.style.display = isQuiz ? 'flex' : 'none';
+        if (isQuiz && window.ThaiStudioChallenge) {
+          loadData().then(() => {
+            const allWords = [].concat(sectionMap.kod || [], sectionMap.kon || [], sectionMap.kob || [], sectionMap.kok || []);
+            const startQuiz = () => {
+              const qs = window.ThaiStudioChallenge.buildDecoderQuestions(allWords, 10);
+              window.ThaiStudioChallenge.createChallengeRunner(quizPanel, {
+                questions: qs,
+                speak: (t) => speakThai(t),
+                onRestart: startQuiz,
+              });
+            };
+            startQuiz();
+          });
+        }
+      }
+    },
     setData(data) {
       const words = Array.isArray(data) ? data : (data && data.words ? data.words : []);
       setDataset(words);

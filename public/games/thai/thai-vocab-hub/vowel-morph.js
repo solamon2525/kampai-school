@@ -1756,7 +1756,13 @@
             </div>
           </div>
 
-          <!-- Preset Selector Tabs -->
+          <!-- Studio Mode Tabs -->
+<div class="studio-mode-tabs" role="tablist" aria-label="โหมดห้องเรียนสระแปลงร่าง">
+  <button type="button" class="studio-mode-tab active" id="morph-tab-learn" onclick="window.ThaiVowelMorph.switchStudioMode('learn')">🎬 ชมแอนิเมชัน</button>
+  <button type="button" class="studio-mode-tab" id="morph-tab-quiz" onclick="window.ThaiVowelMorph.switchStudioMode('quiz')">🎯 แบบฝึกหัด (10 ข้อ)</button>
+</div>
+<div id="morph-learn-panel">
+<!-- Preset Selector Tabs -->
           <div class="morph-preset-bar" role="tablist" aria-label="เลือกสระแปลงร่าง">
             ${MORPH_PRESETS.map((p, idx) => `
               <button type="button" class="morph-preset-tab ${idx === 0 ? 'active' : ''}"
@@ -1812,6 +1818,8 @@
               </button>
             </div>
           </div>
+          </div>
+          <div id="morph-quiz-panel" class="studio-quiz-panel" style="display:none"></div>
         </div>
       `;
       document.body.appendChild(modal);
@@ -2063,6 +2071,30 @@
 
   // ─── 8. Public API ─────────────────────────────────────────────
   window.ThaiVowelMorph = {
+    switchStudioMode(mode) {
+      const learnPanel = document.getElementById("morph-learn-panel");
+      const quizPanel = document.getElementById("morph-quiz-panel");
+      const tabLearn = document.getElementById("morph-tab-learn");
+      const tabQuiz = document.getElementById("morph-tab-quiz");
+      const isQuiz = mode === "quiz";
+      if (tabLearn) tabLearn.classList.toggle("active", !isQuiz);
+      if (tabQuiz) tabQuiz.classList.toggle("active", isQuiz);
+      if (learnPanel) learnPanel.style.display = isQuiz ? "none" : "";
+      if (quizPanel) {
+        quizPanel.style.display = isQuiz ? "flex" : "none";
+        if (isQuiz && window.ThaiStudioChallenge) {
+          const startQuiz = () => {
+            const qs = window.ThaiStudioChallenge.buildVowelMorphQuestions(MORPH_PRESETS, 10);
+            window.ThaiStudioChallenge.createChallengeRunner(quizPanel, {
+              questions: qs,
+              speak: (t) => speakMorph(t),
+              onRestart: startQuiz,
+            });
+          };
+          startQuiz();
+        }
+      }
+    },
     getPresets() {
       return MORPH_PRESETS;
     },

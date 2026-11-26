@@ -495,6 +495,13 @@
       </div>
     </div>
 
+    <!-- Studio Mode Tabs -->
+    <div class="studio-mode-tabs" role="tablist" aria-label="โหมดถอดหน้ากากตัวสะกด">
+      <button type="button" class="studio-mode-tab active" id="decoder-tab-learn" onclick="window.ThaiSpellingDecoder.switchStudioMode('learn')">🎭 โรงละครถอดหน้ากาก</button>
+      <button type="button" class="studio-mode-tab" id="decoder-tab-quiz" onclick="window.ThaiSpellingDecoder.switchStudioMode('quiz')">🎯 ทายแม่ตัวสะกด (10 ข้อ)</button>
+    </div>
+
+    <div id="decoder-learn-panel">
     <!-- Section Tabs -->
     <div class="decoder-preset-bar" role="tablist" aria-label="เลือกมาตราตัวสะกด">
       <button type="button" class="decoder-preset-tab touch-target active" data-section="kod" onclick="window.ThaiSpellingDecoder.selectSection('kod')">แม่กด (เสียง ด)</button>
@@ -549,6 +556,8 @@
         </button>
       </div>
     </div>
+    </div>
+    <div id="decoder-quiz-panel" class="studio-quiz-panel" style="display:none"></div>
   </div>
 </div>
 
@@ -606,6 +615,10 @@
         <div class="castle-stat-item">
           <span class="castle-stat-label">คอมโบต่อเนื่อง:</span>
           <strong class="castle-stat-val streak" id="castle-streak-val">🔥 0</strong>
+        </div>
+        <div class="castle-stat-item">
+          <span class="castle-stat-label">ด่าน:</span>
+          <strong class="castle-stat-val" id="castle-round-val">1/10</strong>
         </div>
         <button type="button" class="cbtn touch-target castle-reset-btn" onclick="window.ThaiSoundTwins.resetChallenge()" title="เริ่มนับคะแนนใหม่">
           ↺ เริ่มใหม่
@@ -685,6 +698,7 @@ window.KampaiVersus = window.KampaiVersus || { create:function(){return{availabl
 <script src="vocab-sheet-100.js"></script>
 <script src="worksheet-generator.js"></script>
 <script src="classroom-tools.js"></script>
+<script src="studio-challenge.js"></script>
 <script src="vowel-morph.js"></script>
 <script src="spelling-decoder.js"></script>
 <script src="sound-twins.js"></script>
