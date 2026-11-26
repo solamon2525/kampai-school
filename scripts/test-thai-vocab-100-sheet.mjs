@@ -53,4 +53,38 @@ const shortTypo = api.computeCellTypography('กะเพรา', { showReading:
 const longTypo = api.computeCellTypography('ขี่ช้างจับตั๊กแตน', { showReading: false });
 assert.notEqual(shortTypo.fontClass, longTypo.fontClass, 'long idioms must get a smaller font class than short words');
 
-console.log('✅ Task 1 unit tests passed!');
+// Task 2: render100SheetDocument tests
+const htmlPortrait = api.render100SheetDocument({
+  sets: built.sets.slice(0, 1),
+  categoriesSummary: '4 หมวด',
+  grade: 'all',
+  preset: '5x20-portrait',
+  showNumbers: true,
+  showReading: false,
+  showCheckbox: true,
+  includeTeacherKey: true,
+  title: 'ชุดคำศัพท์ <script>alert(1)</script>',
+});
+assert.ok(htmlPortrait.includes('size: A4 portrait'), 'must include A4 portrait @page rule');
+assert.ok(htmlPortrait.includes('vocab-100-table'), 'must include vocab-100-table');
+assert.ok(htmlPortrait.includes('teacher-key-sheet'), 'must include teacher key sheet when enabled');
+assert.ok(htmlPortrait.includes('window.print()'), 'must include print trigger');
+assert.ok(!htmlPortrait.includes('<script>alert(1)</script>'), 'must sanitize title against XSS');
+const cellMatches = htmlPortrait.match(/<td class="vocab-cell /g) || [];
+assert.equal(cellMatches.length, 100, 'student sheet must render exactly 100 cells');
+
+const htmlLandscape = api.render100SheetDocument({
+  sets: built.sets.slice(0, 1),
+  categoriesSummary: '4 หมวด',
+  grade: 'ป.4',
+  preset: '5x20-landscape',
+  showNumbers: false,
+  showReading: true,
+  showCheckbox: false,
+  includeTeacherKey: false,
+  title: 'ชุดคำศัพท์ 100 คำ',
+});
+assert.ok(htmlLandscape.includes('size: A4 landscape'), 'must include A4 landscape @page rule');
+assert.ok(!htmlLandscape.includes('<section class="sheet teacher-key-sheet">'), 'must omit teacher key when disabled');
+
+console.log('✅ Task 1 & 2 unit tests passed!');

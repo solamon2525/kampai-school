@@ -252,11 +252,407 @@
     return { sets, totalAvailable: pool.length, seed };
   }
 
+  function renderStudentSetSheet(words, setIndex, totalSets, preset, opts) {
+    const cols = preset.cols;
+    const rows = preset.rows;
+    const totalSlots = cols * rows;
+    const gradeLabel = opts.grade === 'all' || !opts.grade
+      ? 'ป.4–ป.6'
+      : opts.grade;
+
+    let tbodyHtml = '';
+    for (let r = 0; r < rows; r++) {
+      tbodyHtml += '<tr>';
+      for (let c = 0; c < cols; c++) {
+        const idx = r * cols + c;
+        const item = words[idx];
+        if (!item) {
+          tbodyHtml += `<td class="vocab-cell vocab-cell-empty"><span class="cell-num">${opts.showNumbers ? idx + 1 : ''}</span></td>`;
+          continue;
+        }
+        const typo = computeCellTypography(item.word, { showReading: opts.showReading });
+        tbodyHtml += `<td class="vocab-cell ${typo.fontClass}">`;
+        if (opts.showNumbers) {
+          tbodyHtml += `<span class="cell-num">${idx + 1}</span>`;
+        }
+        if (opts.showCheckbox) {
+          tbodyHtml += '<span class="cell-check" aria-hidden="true">☐</span>';
+        }
+        tbodyHtml += `<div class="cell-inner">`;
+        tbodyHtml += `<div class="cell-word">${sanitize(item.word)}</div>`;
+        if (opts.showReading && item.reading) {
+          tbodyHtml += `<div class="cell-reading">[${sanitize(item.reading)}]</div>`;
+        }
+        tbodyHtml += '</div></td>';
+      }
+      tbodyHtml += '</tr>';
+    }
+
+    const setBadge = totalSets > 1 ? ` · ชุดที่ ${setIndex + 1}/${totalSets}` : '';
+    const countLabel = `${words.length} คำ`;
+    return `
+  <section class="sheet student-sheet">
+    <header class="sheet-head">
+      <div class="head-top">
+        <div class="head-title">${sanitize(opts.title || 'ชุดคำศัพท์ภาษาไทย 100 คำ')}${sanitize(setBadge)}</div>
+        <div class="head-meta">${sanitize(gradeLabel)} · ${sanitize(opts.categoriesSummary || 'คลังคำศัพท์')} · ${sanitize(countLabel)}</div>
+      </div>
+      <div class="student-bar">
+        <span>ชื่อ–นามสกุล .................................................................</span>
+        <span>ชั้น ...............</span>
+        <span>เลขที่ .........</span>
+        <span class="score-pill">อ่านได้ ........ / ${words.length}</span>
+      </div>
+    </header>
+    <table class="vocab-100-table" style="height:${preset.tableHeightMm}mm">
+      <tbody>${tbodyHtml}</tbody>
+    </table>
+    <footer class="sheet-foot">
+      <span>โรงเรียนบ้านคำไผ่ · แบบฝึกอ่าน/เขียนตามคำบอกชุด 100 คำ</span>
+      <span>วันที่ ....... / .............. / 25..... · ลงชื่อผู้ตรวจ ........................................</span>
+    </footer>
+  </section>`;
+  }
+
+  function renderTeacherKeySheet(words, setIndex, totalSets, opts) {
+    const setBadge = totalSets > 1 ? ` (ชุดที่ ${setIndex + 1}/${totalSets})` : '';
+    const half = Math.ceil(words.length / 2);
+    const left = words.slice(0, half);
+    const right = words.slice(half);
+
+    const renderList = (list, offset) => list.map((item, i) => `
+      <div class="key-row">
+        <span class="key-num">${offset + i + 1}.</span>
+        <span class="key-word">${sanitize(item.word)}</span>
+        ${item.reading ? `<span class="key-reading">[${sanitize(item.reading)}]</span>` : ''}
+        ${item.meaning ? `<span class="key-meaning">— ${sanitize(item.meaning)}</span>` : ''}
+      </div>`).join('');
+
+    return `
+  <section class="sheet teacher-key-sheet">
+    <header class="sheet-head">
+      <div class="head-top">
+        <div class="head-title">เฉลยและคำอ่านสำหรับครู${sanitize(setBadge)} — ${sanitize(opts.title || 'ชุดคำศัพท์ 100 คำ')}</div>
+        <div class="head-meta">${sanitize(opts.categoriesSummary || '')}</div>
+      </div>
+    </header>
+    <div class="key-columns">
+      <div class="key-col">${renderList(left, 0)}</div>
+      <div class="key-col">${renderList(right, half)}</div>
+    </div>
+    <footer class="sheet-foot">
+      <span>เอกสารสำหรับครูผู้สอน · คลังคำศัพท์ภาษาไทย ป.4–ป.6</span>
+      <span>ทั้งหมด ${words.length} คำ</span>
+    </footer>
+  </section>`;
+  }
+
+  function render100SheetDocument(config) {
+    const opts = config || {};
+    const preset = GRID_PRESETS[opts.preset] || GRID_PRESETS['5x20-portrait'];
+    const sets = Array.isArray(opts.sets) ? opts.sets : [];
+    const docTitle = sanitize(opts.title || 'ชุดคำศัพท์ภาษาไทย-100-คำ');
+    const fs = preset.fontSizes;
+    const isLandscape = preset.orientation === 'landscape';
+
+    let pagesHtml = '';
+    for (let i = 0; i < sets.length; i++) {
+      pagesHtml += renderStudentSetSheet(sets[i], i, sets.length, preset, opts);
+      if (opts.includeTeacherKey) {
+        pagesHtml += renderTeacherKeySheet(sets[i], i, sets.length, opts);
+      }
+    }
+
+    return `<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>${docTitle}</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  @page {
+    size: A4 ${preset.orientation};
+    margin: 7mm 8mm;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    font-family: 'Sarabun', sans-serif;
+    color: #0f172a;
+    background: #e2e8f0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .preview-toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 18px;
+    background: #0f172a;
+    color: #f8fafc;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  }
+  .preview-toolbar-left {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .preview-toolbar-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #fbbf24;
+  }
+  .preview-toolbar-hint {
+    font-size: 12px;
+    color: #cbd5e1;
+  }
+  .preview-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .pbtn {
+    border: 1px solid rgba(255,255,255,0.2);
+    background: #1e293b;
+    color: #f8fafc;
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .pbtn:hover { background: #334155; }
+  .pbtn-primary { background: #0284c7; border-color: #0284c7; }
+  .pbtn-primary:hover { background: #0369a1; }
+  .pbtn-pdf { background: #059669; border-color: #059669; }
+  .pbtn-pdf:hover { background: #047857; }
+  .pages-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 8px 32px;
+  }
+  .sheet {
+    width: ${isLandscape ? '281mm' : '194mm'};
+    height: ${isLandscape ? '194mm' : '281mm'};
+    background: #ffffff;
+    padding: 3mm 4mm;
+    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.18);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+    page-break-after: always;
+    break-after: page;
+  }
+  .sheet:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+  .sheet-head {
+    border-bottom: 1.5px solid #1e293b;
+    padding-bottom: 1.5mm;
+    margin-bottom: 1.5mm;
+    flex-shrink: 0;
+  }
+  .head-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .head-title {
+    font-size: 13pt;
+    font-weight: 800;
+    color: #0f172a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .head-meta {
+    font-size: 9.5pt;
+    font-weight: 600;
+    color: #475569;
+    white-space: nowrap;
+  }
+  .student-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+    margin-top: 1mm;
+    font-size: 10pt;
+    font-weight: 500;
+  }
+  .score-pill {
+    border: 1px solid #334155;
+    border-radius: 4px;
+    padding: 0.4mm 2mm;
+    font-weight: 700;
+    font-size: 9.5pt;
+  }
+  .vocab-100-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    flex: 1 1 auto;
+  }
+  .vocab-cell {
+    position: relative;
+    border: 1px solid #475569;
+    padding: 0.8mm 1.5mm;
+    text-align: center;
+    vertical-align: middle;
+    overflow: hidden;
+    background: #ffffff;
+  }
+  .vocab-cell-empty {
+    background: #f8fafc;
+    border-style: dashed;
+  }
+  .cell-num {
+    position: absolute;
+    top: 0.4mm;
+    left: 1mm;
+    font-size: 7pt;
+    font-weight: 600;
+    color: #64748b;
+    line-height: 1;
+  }
+  .cell-check {
+    position: absolute;
+    top: 0.3mm;
+    right: 1mm;
+    font-size: 8.5pt;
+    color: #475569;
+    line-height: 1;
+  }
+  .cell-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    padding-top: 0.6mm;
+  }
+  .cell-word {
+    font-weight: 700;
+    line-height: 1.12;
+    color: #0f172a;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+  }
+  .cell-reading {
+    font-size: 7.5pt;
+    font-weight: 500;
+    color: #475569;
+    line-height: 1.05;
+    margin-top: 0.3mm;
+  }
+  .vocab-cell.fs-xl .cell-word { font-size: ${fs.xl}; }
+  .vocab-cell.fs-lg .cell-word { font-size: ${fs.lg}; }
+  .vocab-cell.fs-md .cell-word { font-size: ${fs.md}; }
+  .vocab-cell.fs-sm .cell-word { font-size: ${fs.sm}; }
+  .vocab-cell.fs-xs .cell-word { font-size: ${fs.xs}; }
+  .sheet-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #cbd5e1;
+    padding-top: 1mm;
+    margin-top: 1.2mm;
+    font-size: 8.5pt;
+    color: #475569;
+    flex-shrink: 0;
+  }
+  .teacher-key-sheet .key-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3mm;
+    flex: 1 1 auto;
+    overflow: hidden;
+  }
+  .key-row {
+    font-size: 8.2pt;
+    line-height: 1.26;
+    border-bottom: 0.5px dotted #cbd5e1;
+    padding: 0.35mm 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .key-num { font-weight: 700; color: #0369a1; margin-right: 2px; }
+  .key-word { font-weight: 700; color: #0f172a; }
+  .key-reading { color: #475569; margin-left: 3px; font-size: 7.5pt; }
+  .key-meaning { color: #334155; margin-left: 3px; }
+  @media print {
+    html, body { background: #ffffff !important; }
+    .no-print { display: none !important; }
+    .pages-wrap { padding: 0; gap: 0; display: block; }
+    .sheet {
+      width: 100% !important;
+      height: ${isLandscape ? '194mm' : '281mm'} !important;
+      padding: 0 !important;
+      box-shadow: none !important;
+      margin: 0 !important;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="preview-toolbar no-print">
+    <div class="preview-toolbar-left">
+      <div class="preview-toolbar-title">📄 พรีวิวใบงานคำศัพท์ 100 คำ (${sanitize(preset.label)})</div>
+      <div class="preview-toolbar-hint">กด "บันทึกเป็น PDF" แล้วเลือกปลายทาง <strong>Save as PDF / บันทึกเป็น PDF</strong> เพื่อส่งออกไฟล์ PDF คมชัด</div>
+    </div>
+    <div class="preview-actions">
+      <button type="button" class="pbtn" id="btn-reroll-100" onclick="window.__reroll100 && window.__reroll100()">🎲 สุ่มชุดใหม่</button>
+      <button type="button" class="pbtn pbtn-pdf" onclick="window.print()">📄 บันทึกเป็น PDF</button>
+      <button type="button" class="pbtn pbtn-primary" onclick="window.print()">🖨️ สั่งพิมพ์</button>
+      <button type="button" class="pbtn" onclick="window.close()">✖️ ปิด</button>
+    </div>
+  </div>
+  <main class="pages-wrap">
+    ${pagesHtml}
+  </main>
+</body>
+</html>`;
+  }
+
+  function openPreviewWindow(config) {
+    const win = window.open('', '_blank');
+    if (!win) return null;
+
+    const writeDoc = (cfg) => {
+      const built = build100WordSets(cfg);
+      const html = render100SheetDocument(Object.assign({}, cfg, { sets: built.sets }));
+      win.document.open();
+      win.document.write(html);
+      win.document.close();
+      win.__reroll100 = function () {
+        const nextCfg = Object.assign({}, cfg, { seed: (Date.now() ^ Math.floor(Math.random() * 1e6)) & 0x7fffffff });
+        writeDoc(nextCfg);
+      };
+    };
+
+    writeDoc(config);
+    return win;
+  }
+
   window.ThaiVocabSheet100 = {
     GRID_PRESETS,
     sanitize,
     collectPoolWords,
     build100WordSets,
     computeCellTypography,
+    render100SheetDocument,
+    openPreviewWindow,
   };
 })();
