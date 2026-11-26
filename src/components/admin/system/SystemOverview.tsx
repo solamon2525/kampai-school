@@ -290,6 +290,27 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v2.8.31',
+        date: '26 พ.ย. 2569',
+        title: 'ใบงานทั้งระบบ: เพิ่มตัวเลือกสร้างใบงานเรียง 1 ถึง 10 หน้าพร้อมกัน',
+        description:
+            'อัปเกรด worksheet-modes.js ให้เติมตัวเลือกจำนวนหน้า (#selPageCount) แบบเรียงลำดับ 1–10 หน้า (1, 2, 3, 4, 5, 6, 7, 8, 9, 10 หน้า) อัตโนมัติสำหรับใบงานทั้งระบบ (146 ไฟล์) โดยคงค่าเริ่มต้นและตัวเลือกพิเศษ > 10 (เช่น 11 รูปทรงใน rect-area-worksheet.html) พร้อมอัปเดตแม่แบบ _template-worksheet.html และ WORKSHEET.md',
+        type: 'feature',
+        author: 'ครูณัฐพงศ์ สิงห์ชมภู',
+        tags: [
+            'Worksheet System',
+            'Multi-Page 1-10',
+            'worksheet-modes.js',
+            'Batch Generator',
+        ],
+        badge: 'bg-primary',
+        items: [
+            'Centralized 1–10 Page Selector: เพิ่ม normalizePageCountOptions() ใน worksheet-modes.js เติมตัวเลือก 1 ถึง 10 หน้าเรียงครบทุกเลขให้ใบงานทั้งระบบโดยไม่ต้องแก้ไฟล์รายวิชาซ้ำซ้อน',
+            'Preserve Special Options & Fixed Packs: คงตัวเลือกพิเศษ > 10 (เช่น 11 รูปทรงใน rect-area-worksheet.html) และยกเว้นชุดระบายสีคงที่ 3 หน้า (color-fill-pack.js)',
+            'Template, Spec & Verification: อัปเดต _template-worksheet.html, WORKSHEET.md และเพิ่มชุดทดสอบ Playwright E2E (tests/worksheet-page-count.test.mjs) ยืนยันการสร้าง 4, 6, 7, 10 หน้าและคืนค่าหลังสลับโหมด A–B–C',
+        ],
+    },
+    {
         version: 'v2.8.30',
         date: '26 พ.ย. 2569',
         title: 'Thai Vocab Hub: แก้ไขความถูกต้องคลังคำ 200 คำและหน้าจอโรงละครสระแปลงร่าง & สระลดรูป',

@@ -7,6 +7,33 @@
 
   if (typeof baseRender !== 'function' || !controls || !pageCountSelect || !styleSelect) return;
 
+  function normalizePageCountOptions(selectEl) {
+    if (!selectEl || selectEl.dataset.fixedPages) return;
+    const isColorFillPack = Boolean(document.querySelector('script[src*="color-fill-pack.js"]'));
+    if (isColorFillPack) return;
+
+    const previousValue = selectEl.value || '1';
+    const extraOptions = Array.from(selectEl.options)
+      .filter((opt) => Number(opt.value) > 10)
+      .map((opt) => ({ value: opt.value, text: opt.textContent }));
+
+    const optionsHtml = [];
+    for (let n = 1; n <= 10; n += 1) {
+      const label = n === 1 ? 'สร้าง 1 หน้า' : `สร้าง ${n} หน้าพร้อมกัน`;
+      optionsHtml.push(`<option value="${n}">${label}</option>`);
+    }
+    extraOptions.forEach((opt) => {
+      optionsHtml.push(`<option value="${opt.value}">${opt.text}</option>`);
+    });
+
+    selectEl.innerHTML = optionsHtml.join('');
+    if (Array.from(selectEl.options).some((opt) => opt.value === previousValue)) {
+      selectEl.value = previousValue;
+    }
+  }
+
+  normalizePageCountOptions(pageCountSelect);
+
   const modeSelect = document.createElement('select');
   modeSelect.className = 't-select';
   modeSelect.id = 'selUseMode';
