@@ -236,11 +236,32 @@
             </div>
         </div>
 
-        <!-- 4. Matching (จับคู่) -->
+        <!-- 4. Matching (จับคู่ความหมาย & การ์ดคว่ำ) -->
         <div id="match-mode" class="mode-panel" style="display:none">
-            <div class="match-container">
-                <div id="match-left" class="match-column"></div>
-                <div id="match-right" class="match-column"></div>
+            <div id="match-hud-bar" class="match-hud-bar">
+                <div class="match-submode-tabs" role="tablist" aria-label="รูปแบบการจับคู่">
+                    <button type="button" id="match-sub-connect" class="match-sub-btn active">🔗 โยงเส้นความหมาย</button>
+                    <button type="button" id="match-sub-memory" class="match-sub-btn">🃏 การ์ดคว่ำจำคู่</button>
+                </div>
+                <div class="match-meta-controls">
+                    <span id="match-wave-badge" class="match-pill">ด่าน 1/3 · คู่ 0/6</span>
+                    <span id="match-combo-badge" class="match-pill match-combo-pill">✨ คอมโบ 0</span>
+                    <select id="match-pair-count" class="match-select" aria-label="จำนวนคู่ต่อด่าน">
+                        <option value="6" selected>6 คู่/ด่าน</option>
+                        <option value="8">8 คู่/ด่าน</option>
+                        <option value="10">10 คู่/ด่าน</option>
+                    </select>
+                    <button type="button" id="match-hint-btn" class="match-tool-btn">💡 ตัวช่วย (2)</button>
+                    <button type="button" id="match-reroll-btn" class="match-tool-btn">🎲 สุ่มชุดใหม่</button>
+                </div>
+            </div>
+            <div id="match-board-wrap" class="match-board-wrap">
+                <svg id="match-svg-layer" class="match-svg-layer" aria-hidden="true"></svg>
+                <div id="match-connect-wrap" class="match-container">
+                    <div id="match-left" class="match-column"></div>
+                    <div id="match-right" class="match-column"></div>
+                </div>
+                <div id="match-memory-grid" class="match-memory-grid" style="display:none"></div>
             </div>
         </div>
 
@@ -609,6 +630,7 @@ window.KampaiVersus = window.KampaiVersus || { create:function(){return{availabl
 <script src="spelling-decoder.js"></script>
 <script src="sound-twins.js"></script>
 <script src="reading-trainer.js"></script>
+<script src="match-engine.js"></script>
 <script src="game.js"></script>
 </body>
 </html>
