@@ -93,6 +93,27 @@ try {
     `Student sheet must have no horizontal overflow (scrollW=${sheetMetrics.scrollWidth}, clientW=${sheetMetrics.clientWidth})`
   );
 
+  // Check teacher key sheet fits A4 without right-column clipping and renders bottom notes box
+  const keyMetrics = await popup.locator('.teacher-key-sheet').first().evaluate(el => {
+    const sheetRect = el.getBoundingClientRect();
+    const cols = Array.from(el.querySelectorAll('.key-col'));
+    const rightCol = cols[cols.length - 1];
+    const rightColRect = rightCol ? rightCol.getBoundingClientRect() : sheetRect;
+    const notesBox = el.querySelector('.teacher-notes-box');
+    return {
+      scrollHeight: el.scrollHeight,
+      clientHeight: el.clientHeight,
+      scrollWidth: el.scrollWidth,
+      clientWidth: el.clientWidth,
+      rightOverflowPx: rightColRect.right - sheetRect.right,
+      hasNotesBox: !!notesBox && notesBox.getBoundingClientRect().height > 20,
+    };
+  });
+  assert.ok(keyMetrics.rightOverflowPx <= 1, `Teacher key right column clipped by ${keyMetrics.rightOverflowPx}px`);
+  assert.ok(keyMetrics.scrollWidth <= keyMetrics.clientWidth + 1, `Teacher key horizontal overflow (${keyMetrics.scrollWidth} > ${keyMetrics.clientWidth})`);
+  assert.ok(keyMetrics.scrollHeight <= keyMetrics.clientHeight + 2, `Teacher key vertical overflow (${keyMetrics.scrollHeight} > ${keyMetrics.clientHeight})`);
+  assert.equal(keyMetrics.hasNotesBox, true, 'Teacher key must include bottom assessment & notes box');
+
   // Test reroll button in preview window
   const firstWordBefore = await popup.locator('.student-sheet .vocab-cell .cell-word').first().textContent();
   await popup.click('#btn-reroll-100');

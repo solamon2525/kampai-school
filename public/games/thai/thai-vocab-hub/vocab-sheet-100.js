@@ -314,11 +314,11 @@
   </section>`;
   }
 
-  function renderTeacherKeySheet(words, setIndex, totalSets, opts) {
+  function renderTeacherKeySheet(words, setIndex, totalSets, opts, isLandscape) {
     const setBadge = totalSets > 1 ? ` (ชุดที่ ${setIndex + 1}/${totalSets})` : '';
-    const half = Math.ceil(words.length / 2);
-    const left = words.slice(0, half);
-    const right = words.slice(half);
+    const colCount = isLandscape ? 3 : 2;
+    const perCol = Math.ceil(words.length / colCount);
+    const colsHtml = [];
 
     const renderList = (list, offset) => list.map((item, i) => `
       <div class="key-row">
@@ -328,6 +328,21 @@
         ${item.meaning ? `<span class="key-meaning">— ${sanitize(item.meaning)}</span>` : ''}
       </div>`).join('');
 
+    for (let c = 0; c < colCount; c++) {
+      const start = c * perCol;
+      const slice = words.slice(start, start + perCol);
+      colsHtml.push(`<div class="key-col">${renderList(slice, start)}</div>`);
+    }
+
+    const catCounts = {};
+    for (let i = 0; i < words.length; i++) {
+      const title = words[i]._categoryTitle || words[i]._categorySlug || 'ทั่วไป';
+      catCounts[title] = (catCounts[title] || 0) + 1;
+    }
+    const catStatsHtml = Object.entries(catCounts)
+      .map(([title, count]) => `<span class="key-stat-pill">${sanitize(title)}: ${count} คำ</span>`)
+      .join('');
+
     return `
   <section class="sheet teacher-key-sheet">
     <header class="sheet-head">
@@ -336,9 +351,22 @@
         <div class="head-meta">${sanitize(opts.categoriesSummary || '')}</div>
       </div>
     </header>
-    <div class="key-columns">
-      <div class="key-col">${renderList(left, 0)}</div>
-      <div class="key-col">${renderList(right, half)}</div>
+    <div class="key-columns ${isLandscape ? 'cols-3' : 'cols-2'}">
+      ${colsHtml.join('')}
+    </div>
+    <div class="teacher-notes-box">
+      <div class="notes-stats-row">
+        <strong>สัดส่วนคำศัพท์ในชุดนี้:</strong>
+        <div class="notes-stats-pills">${catStatsHtml}</div>
+      </div>
+      <div class="notes-eval-row">
+        <span>📊 <strong>สรุปผลการประเมิน:</strong> ผ่านเกณฑ์ (≥ 80 คำ) ............ คน · ควรฝึกซ้ำ ............ คน</span>
+        <span>✍️ ลงชื่อครูผู้สอน ............................................</span>
+      </div>
+      <div class="notes-lines">
+        <div class="notes-line"><strong>📝 คำที่นักเรียนมักอ่าน/เขียนผิดบ่อย &amp; แนวทางซ่อมเสริม:</strong> ....................................................................................................................................</div>
+        <div class="notes-line">................................................................................................................................................................................................................................</div>
+      </div>
     </div>
     <footer class="sheet-foot">
       <span>เอกสารสำหรับครูผู้สอน · คลังคำศัพท์ภาษาไทย ป.4–ป.6</span>
@@ -359,7 +387,7 @@
     for (let i = 0; i < sets.length; i++) {
       pagesHtml += renderStudentSetSheet(sets[i], i, sets.length, preset, opts);
       if (opts.includeTeacherKey) {
-        pagesHtml += renderTeacherKeySheet(sets[i], i, sets.length, opts);
+        pagesHtml += renderTeacherKeySheet(sets[i], i, sets.length, opts, isLandscape);
       }
     }
 
@@ -574,24 +602,80 @@
   }
   .teacher-key-sheet .key-columns {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 3mm;
     flex: 1 1 auto;
+    min-height: 0;
+    align-content: start;
+    overflow: hidden;
+  }
+  .teacher-key-sheet .key-columns.cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2.5mm;
+  }
+  .key-col {
+    min-width: 0;
     overflow: hidden;
   }
   .key-row {
-    font-size: 8.2pt;
-    line-height: 1.26;
+    font-size: ${isLandscape ? '6.9pt' : '7.7pt'};
+    line-height: ${isLandscape ? '1.16' : '1.22'};
     border-bottom: 0.5px dotted #cbd5e1;
-    padding: 0.35mm 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    padding: ${isLandscape ? '0.2mm 0' : '0.35mm 0'};
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: anywhere;
   }
   .key-num { font-weight: 700; color: #0369a1; margin-right: 2px; }
   .key-word { font-weight: 700; color: #0f172a; }
-  .key-reading { color: #475569; margin-left: 3px; font-size: 7.5pt; }
+  .key-reading { color: #475569; margin-left: 3px; font-size: ${isLandscape ? '6.5pt' : '7.1pt'}; }
   .key-meaning { color: #334155; margin-left: 3px; }
+  .teacher-notes-box {
+    margin-top: 1.5mm;
+    border: 1px solid #94a3b8;
+    border-radius: 4px;
+    padding: ${isLandscape ? '1.2mm 2mm' : '1.8mm 2.5mm'};
+    background: #f8fafc;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: ${isLandscape ? '0.8mm' : '1.2mm'};
+    font-size: ${isLandscape ? '7pt' : '7.8pt'};
+    color: #1e293b;
+  }
+  .notes-stats-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+  }
+  .notes-stats-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .key-stat-pill {
+    background: #e2e8f0;
+    border-radius: 3px;
+    padding: 0.3mm 1.5mm;
+    font-size: ${isLandscape ? '6.6pt' : '7.2pt'};
+    font-weight: 600;
+  }
+  .notes-eval-row {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .notes-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2mm;
+  }
+  .notes-line {
+    white-space: nowrap;
+    overflow: hidden;
+  }
   @media print {
     html, body { background: #ffffff !important; }
     .no-print { display: none !important; }
