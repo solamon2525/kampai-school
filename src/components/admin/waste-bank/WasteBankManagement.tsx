@@ -59,7 +59,7 @@ import { useAuth } from '@/contexts/AuthProvider';
 import { TermBanner } from './TermBanner';
 import { QuickStudentPicker } from './QuickStudentPicker';
 import { RecorderSelect, EMPTY_RECORDER, type RecorderValue } from '@/components/admin/shared/RecorderSelect';
-import { formatThaiDateFull } from '@/lib/thaiDate';
+import { formatThaiDateFull, getBangkokTodayIso } from '@/lib/thaiDate';
 import { ThaiDatePicker } from '@/components/shared/ThaiDatePicker';
 import {
   PointsConfirmationDialog,
@@ -136,6 +136,7 @@ export const WasteBankManagement = () => {
   const [pointsConfirmation, setPointsConfirmation] = useState<PointsConfirmation | null>(null);
   const [speechComplete, setSpeechComplete] = useState(false);
   const speechRequestRef = useRef(0);
+  const submitLockRef = useRef(false);
 
   // Student selector
   const [studentOptions, setStudentOptions] = useState<StudentOption[]>([]);
@@ -162,7 +163,7 @@ export const WasteBankManagement = () => {
       return next;
     });
 
-  const today = new Date().toISOString().split('T')[0];
+  const today = getBangkokTodayIso();
 
   type RecordRow = { category_id: string; quantity: string };
 
@@ -328,8 +329,17 @@ export const WasteBankManagement = () => {
   };
 
   const handleSubmitTransaction = async () => {
+    if (submitLockRef.current || isSubmitting) return;
     if (!form.student_name || !form.student_class || !form.transaction_date) {
       toast({ title: 'กรุณาเลือกนักเรียนและวันที่', variant: 'destructive' });
+      return;
+    }
+    if (!recorder.name || (!recorder.staffId && !recorder.administratorId)) {
+      toast({
+        title: 'กรุณาเลือกผู้บันทึก',
+        description: 'เลือกครูหรือผู้ดูแลก่อนบันทึกรายการรับขยะ',
+        variant: 'destructive',
+      });
       return;
     }
 
@@ -348,94 +358,99 @@ export const WasteBankManagement = () => {
       return;
     }
 
-    const now = new Date();
-    const userNotes = form.notes.trim();
-
-    const payload = valid.map(({ cat, qty }) => {
-      const { finalPoints, appliedPromotions } = computeRowPromotionPoints({
-        quantity: qty,
-        pointsPerItem: cat.points_per_item,
-        categoryId: cat.id,
-        promotions: activePromos,
-        now,
-      });
-      const promoPrefix = appliedPromotions.length > 0
-        ? `[${appliedPromotions.map((p) => p.badge_text || p.title).join(', ')}] `
-        : '';
-      const rowNotes = userNotes ? `${promoPrefix}${userNotes}` : (promoPrefix.trim() || null);
-      return {
-        student_name: form.student_name.trim(),
-        student_class: form.student_class,
-        student_id: selectedStudentId || null,
-        category_id: cat.id,
-        quantity: qty,
-        points_earned: finalPoints,
-        transaction_date: form.transaction_date,
-        notes: rowNotes,
-        recorded_by: recorder.name || null,
-        recorded_by_staff_id: recorder.staffId,
-        recorded_by_administrator_id: recorder.administratorId,
-      };
-    });
-
-
-    const student = studentOptions.find((option) => option.id === selectedStudentId);
-    const { data: summaryBefore } = selectedStudentId
-      ? await wasteSummaryService.getForStudent(selectedStudentId)
-      : { data: null };
-    const pointsBefore = Number(summaryBefore?.total_points_earned ?? 0);
-
+    submitLockRef.current = true;
     setIsSubmitting(true);
-    const { error } = await wasteTransactionsService.insertMany(payload);
-    setIsSubmitting(false);
+    try {
+      const now = new Date();
+      const userNotes = form.notes.trim();
 
-    if (error) {
-      toast({ title: 'เกิดข้อผิดพลาด', description: error.message, variant: 'destructive' });
-      return;
+      const payload = valid.map(({ cat, qty }) => {
+        const { finalPoints, appliedPromotions } = computeRowPromotionPoints({
+          quantity: qty,
+          pointsPerItem: cat.points_per_item,
+          categoryId: cat.id,
+          promotions: activePromos,
+          now,
+        });
+        const promoPrefix = appliedPromotions.length > 0
+          ? `[${appliedPromotions.map((p) => p.badge_text || p.title).join(', ')}] `
+          : '';
+        const rowNotes = userNotes ? `${promoPrefix}${userNotes}` : (promoPrefix.trim() || null);
+        return {
+          student_name: form.student_name.trim(),
+          student_class: form.student_class,
+          student_id: selectedStudentId || null,
+          category_id: cat.id,
+          quantity: qty,
+          points_earned: finalPoints,
+          transaction_date: form.transaction_date,
+          notes: rowNotes,
+          recorded_by: recorder.name || null,
+          recorded_by_staff_id: recorder.staffId,
+          recorded_by_administrator_id: recorder.administratorId,
+        };
+      });
+
+      const student = studentOptions.find((option) => option.id === selectedStudentId);
+      const { data: summaryBefore } = selectedStudentId
+        ? await wasteSummaryService.getForStudent(selectedStudentId)
+        : { data: null };
+      const pointsBefore = Number(summaryBefore?.total_points_earned ?? 0);
+
+      const { error } = await wasteTransactionsService.insertMany(payload);
+
+      if (error) {
+        toast({ title: 'เกิดข้อผิดพลาด', description: error.message, variant: 'destructive' });
+        return;
+      }
+
+      const totalPointsSubmitted = payload.reduce((s, p) => s + p.points_earned, 0);
+      toast({
+        title: 'บันทึกรายการสำเร็จ',
+        description: `${form.student_name} — ${valid.length} ประเภท · รวม ${totalPointsSubmitted} แต้ม`,
+      });
+      const accumulatedPoints = pointsBefore + totalPointsSubmitted;
+      setPointsConfirmation({
+        studentName: form.student_name,
+        photoUrl: student?.photo_url ?? null,
+        latestPoints: totalPointsSubmitted,
+        accumulatedPoints,
+      });
+      setSpeechComplete(false);
+      const speechRequest = ++speechRequestRef.current;
+      void speakThai([
+        'รับฝากขยะสำเร็จ',
+        `ชื่อ ${getFirstName(form.student_name)}`,
+        `ได้รับ ${thaiNumberToWords(totalPointsSubmitted)} แต้ม`,
+        `แต้มสะสม ${thaiNumberToWords(accumulatedPoints)} แต้ม`,
+      ]).then(({ spoken }) => {
+        if (speechRequest !== speechRequestRef.current) return;
+        if (spoken) setSpeechComplete(true);
+        else window.setTimeout(() => {
+          if (speechRequest === speechRequestRef.current) setSpeechComplete(true);
+        }, 5000);
+      });
+      const defaultCat = categories.find(
+        (c) => c.name.includes('ขวดพลาสติกเล็ก') || c.name.includes('ขวดเล็ก')
+      );
+      setRows([{ category_id: defaultCat?.id || '', quantity: '1' }]);
+      setExpandedRow(0);
+      setForm({ student_name: '', student_class: '', transaction_date: getBangkokTodayIso(), notes: '' });
+      // recorder ไม่ reset — auto-fill ของ login user คงอยู่ บันทึกรายการต่อๆ ได้เลย
+      setSelectedStudentId('');
+      setStudentOptions([]);
+      fetchTransactions();
+      fetchSummaries();
+      void queryClient.invalidateQueries({ queryKey: ['waste-student-summaries'] });
+      void queryClient.invalidateQueries({ queryKey: ['waste-student-statement'] });
+      void queryClient.invalidateQueries({ queryKey: ['waste-transactions'] });
+      void queryClient.invalidateQueries({ queryKey: ['waste-classroom-league'] });
+      void queryClient.invalidateQueries({ queryKey: ['waste-bank-showcase', 'public-results'] });
+      void queryClient.invalidateQueries({ queryKey: ['student-three-banks'] });
+    } finally {
+      submitLockRef.current = false;
+      setIsSubmitting(false);
     }
-
-    const totalPointsSubmitted = payload.reduce((s, p) => s + p.points_earned, 0);
-    toast({
-      title: 'บันทึกรายการสำเร็จ',
-      description: `${form.student_name} — ${valid.length} ประเภท · รวม ${totalPointsSubmitted} แต้ม`,
-    });
-    const accumulatedPoints = pointsBefore + totalPointsSubmitted;
-    setPointsConfirmation({
-      studentName: form.student_name,
-      photoUrl: student?.photo_url ?? null,
-      latestPoints: totalPointsSubmitted,
-      accumulatedPoints,
-    });
-    setSpeechComplete(false);
-    const speechRequest = ++speechRequestRef.current;
-    void speakThai([
-      'รับฝากขยะสำเร็จ',
-      `ชื่อ ${getFirstName(form.student_name)}`,
-      `ได้รับ ${thaiNumberToWords(totalPointsSubmitted)} แต้ม`,
-      `แต้มสะสม ${thaiNumberToWords(accumulatedPoints)} แต้ม`,
-    ]).then(({ spoken }) => {
-      if (speechRequest !== speechRequestRef.current) return;
-      if (spoken) setSpeechComplete(true);
-      else window.setTimeout(() => {
-        if (speechRequest === speechRequestRef.current) setSpeechComplete(true);
-      }, 5000);
-    });
-    const defaultCat = categories.find(
-      (c) => c.name.includes('ขวดพลาสติกเล็ก') || c.name.includes('ขวดเล็ก')
-    );
-    setRows([{ category_id: defaultCat?.id || '', quantity: '1' }]);
-    setExpandedRow(0);
-    setForm({ student_name: '', student_class: '', transaction_date: today, notes: '' });
-    // recorder ไม่ reset — auto-fill ของ login user คงอยู่ บันทึกรายการต่อๆ ได้เลย
-    setSelectedStudentId('');
-    setStudentOptions([]);
-    fetchTransactions();
-    fetchSummaries();
-    void queryClient.invalidateQueries({ queryKey: ['waste-student-summaries'] });
-    void queryClient.invalidateQueries({ queryKey: ['waste-student-statement'] });
-    void queryClient.invalidateQueries({ queryKey: ['waste-transactions'] });
-    void queryClient.invalidateQueries({ queryKey: ['waste-classroom-league'] });
-    void queryClient.invalidateQueries({ queryKey: ['waste-bank-showcase', 'public-results'] });
   };
 
   const closePointsConfirmation = useCallback(() => {
@@ -918,7 +933,7 @@ export const WasteBankManagement = () => {
                 </div>
 
                 {/* Recorded by */}
-                <RecorderSelect value={recorder} onChange={setRecorder} />
+                <RecorderSelect value={recorder} onChange={setRecorder} required />
 
                 {/* Notes */}
                 <div className="space-y-1 md:col-span-2">

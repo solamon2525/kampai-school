@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -23,6 +23,7 @@ import {
     studentsService,
     wasteTransactionsService,
     wasteCategoriesService,
+    wastePromotionsService,
     wasteSummaryService,
     savingsTransactionsService,
     savingsErrorMessage,
@@ -33,9 +34,12 @@ import {
 } from '@/services';
 import type {
     WasteCategory,
+    WastePromotion,
     WasteStudentSummary,
 } from '@/services/waste-bank.service';
 import type { SavingsStudentSummary } from '@/services/savings.service';
+import { computeRowPromotionPoints } from '@/lib/wasteBankHelpers';
+import { getBangkokTodayIso } from '@/lib/thaiDate';
 
 const QUICK_AMOUNTS = [5, 10, 20, 50, 100] as const;
 const CONDUCT_QUICK_SCORES = [1, 2, 3, 5, 10] as const;
@@ -103,9 +107,11 @@ export default function ScanRecorder() {
     const [savingsSummary, setSavingsSummary] = useState<SavingsStudentSummary | null>(null);
     const [conductSummary, setConductSummary] = useState<{ total: number; available: number } | null>(null);
     const [categories, setCategories] = useState<WasteCategory[]>([]);
+    const [activePromos, setActivePromos] = useState<WastePromotion[]>([]);
     const [recorder, setRecorder] = useState<RecorderValue>(EMPTY_RECORDER);
     const [quickRepeat, setQuickRepeat] = useState(true);
     const [saving, setSaving] = useState(false);
+    const savingLockRef = useRef(false);
 
     // Waste form state
     const [wasteRows, setWasteRows] = useState<{ category_id: string; quantity: string }[]>([
@@ -123,11 +129,15 @@ export default function ScanRecorder() {
     const [conductScore, setConductScore] = useState('2');
     const [conductReason, setConductReason] = useState('');
 
-    // โหลด categories ครั้งเดียว
+    // โหลด categories + promotions ครั้งเดียว
     useEffect(() => {
         (async () => {
-            const { data } = await wasteCategoriesService.getActive();
-            setCategories((data || []) as WasteCategory[]);
+            const [catRes, promoRes] = await Promise.all([
+                wasteCategoriesService.getActive(),
+                wastePromotionsService.getActive(),
+            ]);
+            setCategories((catRes.data || []) as WasteCategory[]);
+            setActivePromos((promoRes.data || []) as WastePromotion[]);
         })();
     }, []);
 
@@ -180,7 +190,7 @@ export default function ScanRecorder() {
     };
 
     const handleSubmitWaste = async () => {
-        if (!student) return;
+        if (!student || savingLockRef.current || saving) return;
         const valid = wasteRows
             .map((r) => {
                 const cat = categories.find((c) => c.id === r.category_id);
@@ -193,91 +203,130 @@ export default function ScanRecorder() {
             toast({ title: 'กรอกประเภทและจำนวนอย่างน้อย 1 แถว', variant: 'destructive' });
             return;
         }
-        if (!recorder.staffId && !recorder.administratorId) {
+        if (!recorder.name || (!recorder.staffId && !recorder.administratorId)) {
             toast({ title: 'เลือกผู้บันทึก', variant: 'destructive' });
             return;
         }
+        savingLockRef.current = true;
         setSaving(true);
-        const payload = valid.map(({ cat, qty }) => ({
-            student_name: student.name,
-            student_class: student.class,
-            student_id: student.id,
-            category_id: cat.id,
-            quantity: qty,
-            points_earned: qty * cat.points_per_item,
-            transaction_date: new Date().toISOString().split('T')[0],
-            notes: wasteNotes.trim() || null,
-            recorded_by: recorder.name || null,
-            recorded_by_staff_id: recorder.staffId,
-            recorded_by_administrator_id: recorder.administratorId,
-        }));
-        const { error } = await wasteTransactionsService.insertMany(payload);
-        setSaving(false);
-        if (error) {
-            toast({ title: 'บันทึกไม่สำเร็จ', description: error.message, variant: 'destructive' });
-            return;
+        try {
+            const now = new Date();
+            const transactionDate = getBangkokTodayIso(now);
+            const userNotes = wasteNotes.trim();
+            const payload = valid.map(({ cat, qty }) => {
+                const { finalPoints, appliedPromotions } = computeRowPromotionPoints({
+                    quantity: qty,
+                    pointsPerItem: cat.points_per_item,
+                    categoryId: cat.id,
+                    promotions: activePromos,
+                    now,
+                });
+                const promoPrefix = appliedPromotions.length > 0
+                    ? `[${appliedPromotions.map((p) => p.badge_text || p.title).join(', ')}] `
+                    : '';
+                const rowNotes = userNotes ? `${promoPrefix}${userNotes}` : (promoPrefix.trim() || null);
+                return {
+                    student_name: student.name,
+                    student_class: student.class,
+                    student_id: student.id,
+                    category_id: cat.id,
+                    quantity: qty,
+                    points_earned: finalPoints,
+                    transaction_date: transactionDate,
+                    notes: rowNotes,
+                    recorded_by: recorder.name || null,
+                    recorded_by_staff_id: recorder.staffId,
+                    recorded_by_administrator_id: recorder.administratorId,
+                };
+            });
+            const { error } = await wasteTransactionsService.insertMany(payload);
+            if (error) {
+                toast({ title: 'บันทึกไม่สำเร็จ', description: error.message, variant: 'destructive' });
+                return;
+            }
+            await Promise.all([
+                queryClient.invalidateQueries({ queryKey: ['waste-student-summaries'] }),
+                queryClient.invalidateQueries({ queryKey: ['waste-student-statement'] }),
+                queryClient.invalidateQueries({ queryKey: ['waste-transactions'] }),
+                queryClient.invalidateQueries({ queryKey: ['waste-classroom-league'] }),
+                queryClient.invalidateQueries({ queryKey: ['waste-bank-showcase', 'public-results'] }),
+                queryClient.invalidateQueries({ queryKey: ['student-three-banks'] }),
+            ]);
+            const total = payload.reduce((s, p) => s + p.points_earned, 0);
+            toast({ title: 'บันทึกขยะสำเร็จ', description: `${student.name} — ${valid.length} ประเภท · +${total} แต้ม` });
+            if (quickRepeat) resetAll();
+            else { setStudent(null); setMode('done'); }
+        } finally {
+            savingLockRef.current = false;
+            setSaving(false);
         }
-        const total = payload.reduce((s, p) => s + p.points_earned, 0);
-        toast({ title: 'บันทึกขยะสำเร็จ', description: `${student.name} — ${valid.length} ประเภท · +${total} แต้ม` });
-        if (quickRepeat) resetAll();
-        else { setStudent(null); setMode('done'); }
     };
 
     const handleSubmitSavings = async (type: 'deposit' | 'withdraw') => {
-        if (!student || saving) return;
+        if (!student || savingLockRef.current || saving) return;
         const amt = Number(amount);
         if (!Number.isInteger(amt) || amt <= 0 || amt >= 100000000) {
             toast({ title: 'กรุณากรอกจำนวนเต็ม (ไม่มีทศนิยม)', variant: 'destructive' });
             return;
         }
-        if (!recorder.staffId && !recorder.administratorId) {
+        if (!recorder.name || (!recorder.staffId && !recorder.administratorId)) {
             toast({ title: 'เลือกผู้บันทึก', variant: 'destructive' });
             return;
         }
-        const currentBalance = Number(savingsSummary?.current_balance ?? 0);
-        if (type === 'withdraw' && amt > currentBalance) {
-            toast({
-                title: 'ถอนไม่ได้',
-                description: `ยอดคงเหลือเพียง ${fmtBaht(currentBalance)}`,
-                variant: 'destructive',
-            });
-            return;
-        }
+        savingLockRef.current = true;
         setSaving(true);
         try {
-        const term = await termService.getActive();
-        const { data: saved, error } = await savingsTransactionsService.insert({
-            student_id: student.id,
-            student_name: student.name,
-            student_class: student.class,
-            transaction_type: type,
-            amount: amt,
-            transaction_date: new Date().toISOString().split('T')[0],
-            notes: savingsNotes.trim() || null,
-            recorded_by: recorder.name,
-            recorded_by_staff_id: recorder.staffId,
-            recorded_by_administrator_id: recorder.administratorId,
-            academic_year: term?.year ?? null,
-            semester: term?.sem ?? null,
-        });
-        if (error) throw error;
-        if (!saved?.[0]) throw new Error('ไม่ได้รับการยืนยันจากระบบ กรุณาตรวจสอบประวัติก่อนบันทึกซ้ำ');
-        const balance_after = Number(saved[0].balance_after);
-        toast({
-            title: type === 'deposit' ? 'ฝากเงินสำเร็จ' : 'ถอนเงินสำเร็จ',
-            description: `${student.name} — ${fmtBaht(amt)} (คงเหลือ ${fmtBaht(balance_after)})`,
-        });
-        if (quickRepeat) resetAll();
-        else { setStudent(null); setMode('done'); }
+            const currentBalance = Number(savingsSummary?.current_balance ?? 0);
+            if (type === 'withdraw' && amt > currentBalance) {
+                toast({
+                    title: 'ถอนไม่ได้',
+                    description: `ยอดคงเหลือเพียง ${fmtBaht(currentBalance)}`,
+                    variant: 'destructive',
+                });
+                return;
+            }
+            const term = await termService.getActive();
+            const { data: saved, error } = await savingsTransactionsService.insert({
+                student_id: student.id,
+                student_name: student.name,
+                student_class: student.class,
+                transaction_type: type,
+                amount: amt,
+                transaction_date: getBangkokTodayIso(),
+                notes: savingsNotes.trim() || null,
+                recorded_by: recorder.name,
+                recorded_by_staff_id: recorder.staffId,
+                recorded_by_administrator_id: recorder.administratorId,
+                academic_year: term?.year ?? null,
+                semester: term?.sem ?? null,
+            });
+            if (error) throw error;
+            if (!saved?.[0]) throw new Error('ไม่ได้รับการยืนยันจากระบบ กรุณาตรวจสอบประวัติก่อนบันทึกซ้ำ');
+            const balance_after = Number(saved[0].balance_after);
+            await Promise.all([
+                queryClient.invalidateQueries({ queryKey: ['savings-student-summaries'] }),
+                queryClient.invalidateQueries({ queryKey: ['savings-transactions'] }),
+                queryClient.invalidateQueries({ queryKey: ['savings-stats'] }),
+                queryClient.invalidateQueries({ queryKey: ['savings-bank'] }),
+                queryClient.invalidateQueries({ queryKey: ['savings-statement'] }),
+                queryClient.invalidateQueries({ queryKey: ['student-three-banks'] }),
+            ]);
+            toast({
+                title: type === 'deposit' ? 'ฝากเงินสำเร็จ' : 'ถอนเงินสำเร็จ',
+                description: `${student.name} — ${fmtBaht(amt)} (คงเหลือ ${fmtBaht(balance_after)})`,
+            });
+            if (quickRepeat) resetAll();
+            else { setStudent(null); setMode('done'); }
         } catch (error) {
             toast({ title: 'บันทึกไม่สำเร็จ', description: savingsErrorMessage(error), variant: 'destructive' });
         } finally {
+            savingLockRef.current = false;
             setSaving(false);
         }
     };
 
     const handleSubmitConduct = async () => {
-        if (!student || saving) return;
+        if (!student || savingLockRef.current || saving) return;
         const pts = Number(conductScore);
         if (!Number.isInteger(pts) || pts <= 0 || pts > 100) {
             toast({ title: 'กรอกคะแนนเป็นจำนวนเต็ม 1–100', variant: 'destructive' });
@@ -287,10 +336,11 @@ export default function ScanRecorder() {
             toast({ title: 'กรุณาระบุเหตุผล', variant: 'destructive' });
             return;
         }
-        if (!recorder.staffId && !recorder.administratorId) {
+        if (!recorder.name || (!recorder.staffId && !recorder.administratorId)) {
             toast({ title: 'เลือกผู้บันทึก', variant: 'destructive' });
             return;
         }
+        savingLockRef.current = true;
         setSaving(true);
         try {
             const term = await termService.getActive();
@@ -311,8 +361,11 @@ export default function ScanRecorder() {
             await Promise.all([
                 queryClient.invalidateQueries({ queryKey: ['conduct-scores'] }),
                 queryClient.invalidateQueries({ queryKey: ['public-top-heroes'] }),
+                queryClient.invalidateQueries({ queryKey: ['public-hero-profile'] }),
                 queryClient.invalidateQueries({ queryKey: ['hall-of-fame-heroes'] }),
                 queryClient.invalidateQueries({ queryKey: ['top-heroes'] }),
+                queryClient.invalidateQueries({ queryKey: ['classroom-xp-sum'] }),
+                queryClient.invalidateQueries({ queryKey: ['student-three-banks'] }),
             ]);
             toast({
                 title: conductType === 'add' ? 'บันทึกคะแนนความดีสำเร็จ' : 'บันทึกหักคะแนนความประพฤติสำเร็จ',
@@ -324,6 +377,7 @@ export default function ScanRecorder() {
             const msg = err instanceof Error ? err.message : (err && typeof err === 'object' && 'message' in err ? String((err as { message: unknown }).message) : 'เกิดข้อผิดพลาด');
             toast({ title: 'บันทึกไม่สำเร็จ', description: msg, variant: 'destructive' });
         } finally {
+            savingLockRef.current = false;
             setSaving(false);
         }
     };
@@ -335,13 +389,21 @@ export default function ScanRecorder() {
         setWasteRows((r) => (r.length === 1 ? r : r.filter((_, idx) => idx !== i)));
 
     const wasteTotal = useMemo(() => {
+        const now = new Date();
         return wasteRows.reduce((sum, r) => {
             const cat = categories.find((c) => c.id === r.category_id);
             const qty = parseInt(r.quantity, 10);
             if (!cat || isNaN(qty) || qty <= 0) return sum;
-            return sum + qty * cat.points_per_item;
+            const { finalPoints } = computeRowPromotionPoints({
+                quantity: qty,
+                pointsPerItem: cat.points_per_item,
+                categoryId: cat.id,
+                promotions: activePromos,
+                now,
+            });
+            return sum + finalPoints;
         }, 0);
-    }, [wasteRows, categories]);
+    }, [wasteRows, categories, activePromos]);
 
     return (
         <div className="container max-w-2xl mx-auto p-4 md:p-6 space-y-4">
@@ -383,12 +445,12 @@ export default function ScanRecorder() {
                                     </Badge>
                                 )}
                                 {wasteSummary && (
-                                    <Badge variant="outline" className="text-[10px] border-emerald-300 bg-white">
+                                    <Badge variant="outline" className="text-[10px] border-emerald-300 bg-card text-emerald-900">
                                         ขยะ {wasteSummary.available_points ?? 0} แต้ม
                                     </Badge>
                                 )}
                                 {savingsSummary && (
-                                    <Badge variant="outline" className="text-[10px] border-amber-300 bg-white">
+                                    <Badge variant="outline" className="text-[10px] border-amber-300 bg-card text-amber-900">
                                         เงินคงเหลือ {fmtBaht(savingsSummary.current_balance)}
                                     </Badge>
                                 )}

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   ArrowDownToLine,
   ArrowUpFromLine,
@@ -51,7 +52,7 @@ import {
   type RecorderValue,
 } from '@/components/admin/shared/RecorderSelect';
 import { StudentQRScanner } from '@/components/shared/StudentQRScanner';
-import { formatThaiDateMedium } from '@/lib/thaiDate';
+import { formatThaiDateMedium, getBangkokTodayIso } from '@/lib/thaiDate';
 import { ThaiDatePicker } from '@/components/shared/ThaiDatePicker';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { ConfirmDialog } from '@/components/admin/shared/ConfirmDialog';
@@ -96,8 +97,9 @@ const fmtCount = (n: number | null | undefined) =>
 export const SavingsBankManagement = () => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('record');
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  const today = new Date().toISOString().split('T')[0];
+  const today = getBangkokTodayIso();
   const [form, setForm] = useState({
     transaction_type: 'deposit' as SavingsTransactionType,
     student_class: '',
@@ -120,6 +122,7 @@ export const SavingsBankManagement = () => {
     });
   const [recorder, setRecorder] = useState<RecorderValue>(EMPTY_RECORDER);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const submitLockRef = useRef(false);
   const [scannerOpen, setScannerOpen] = useState(false);
   const [quickRepeat, setQuickRepeat] = useState(false);
   const [depositConfirmation, setDepositConfirmation] = useState<DepositConfirmation | null>(null);
@@ -199,9 +202,20 @@ export const SavingsBankManagement = () => {
     setSummaries((data ?? []) as unknown as SavingsStudentSummary[]);
   };
 
+  const invalidateSavingsCaches = async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['savings-student-summaries'] }),
+      queryClient.invalidateQueries({ queryKey: ['savings-transactions'] }),
+      queryClient.invalidateQueries({ queryKey: ['savings-stats'] }),
+      queryClient.invalidateQueries({ queryKey: ['savings-bank'] }),
+      queryClient.invalidateQueries({ queryKey: ['savings-statement'] }),
+      queryClient.invalidateQueries({ queryKey: ['student-three-banks'] }),
+    ]);
+  };
+
   const refreshAll = async () => {
     setIsRefreshing(true);
-    await Promise.all([fetchTransactions(), fetchSummaries()]);
+    await Promise.all([fetchTransactions(), fetchSummaries(), invalidateSavingsCaches()]);
     setIsRefreshing(false);
   };
 
@@ -236,7 +250,7 @@ export const SavingsBankManagement = () => {
   };
 
   const handleSubmit = async () => {
-    if (isSubmitting) return;
+    if (submitLockRef.current || isSubmitting) return;
     if (!form.student_id) {
       toast({ title: 'กรุณาเลือกนักเรียน', variant: 'destructive' });
       return;
@@ -246,26 +260,27 @@ export const SavingsBankManagement = () => {
       toast({ title: 'กรุณากรอกจำนวนเต็ม (ไม่มีทศนิยม)', variant: 'destructive' });
       return;
     }
-    if (!recorder.staffId && !recorder.administratorId) {
+    if (!recorder.name || (!recorder.staffId && !recorder.administratorId)) {
       toast({ title: 'กรุณาเลือกผู้บันทึก', variant: 'destructive' });
       return;
     }
 
-    if (form.transaction_type === 'withdraw') {
-      const { data: summary } = await savingsSummaryService.getForStudent(form.student_id);
-      const current = summary?.current_balance ?? 0;
-      if (amount > Number(current)) {
-        toast({
-          title: 'ถอนไม่ได้',
-          description: `ยอดคงเหลือเพียง ${fmtBaht(Number(current))} — ถอนเกินยอด`,
-          variant: 'destructive',
-        });
-        return;
-      }
-    }
-
+    submitLockRef.current = true;
     setIsSubmitting(true);
     try {
+      if (form.transaction_type === 'withdraw') {
+        const { data: summary } = await savingsSummaryService.getForStudent(form.student_id);
+        const current = summary?.current_balance ?? 0;
+        if (amount > Number(current)) {
+          toast({
+            title: 'ถอนไม่ได้',
+            description: `ยอดคงเหลือเพียง ${fmtBaht(Number(current))} — ถอนเกินยอด`,
+            variant: 'destructive',
+          });
+          return;
+        }
+      }
+
       const term = await termService.getActive();
 
       const studentOpt = studentOptions.find((s) => s.id === form.student_id);
@@ -324,11 +339,12 @@ export const SavingsBankManagement = () => {
         amount: '',
         notes: '',
       }));
-      await Promise.all([fetchTransactions(), fetchSummaries()]);
+      await Promise.all([fetchTransactions(), fetchSummaries(), invalidateSavingsCaches()]);
     } catch (err) {
       const msg = savingsErrorMessage(err);
       toast({ title: 'บันทึกไม่สำเร็จ', description: msg, variant: 'destructive' });
     } finally {
+      submitLockRef.current = false;
       setIsSubmitting(false);
     }
   };
@@ -347,7 +363,7 @@ export const SavingsBankManagement = () => {
       return;
     }
     toast({ title: 'ลบรายการแล้ว' });
-    await Promise.all([fetchTransactions(), fetchSummaries()]);
+    await Promise.all([fetchTransactions(), fetchSummaries(), invalidateSavingsCaches()]);
   };
 
   // Derived data

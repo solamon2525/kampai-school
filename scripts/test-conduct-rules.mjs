@@ -212,3 +212,21 @@ test('SystemOverview.tsx includes v2.8.27 release entry', async () => {
   assert.match(systemOverview, /version:\s*['"]v2\.8\.27['"]/);
   assert.match(systemOverview, /date:\s*['"]25 พ\.ย\. 2569['"]/);
 });
+
+test('Conduct recording integrity contracts: saveLockRef, required recorder, admin-only delete, and ScanRecorder cache sync', async () => {
+  const [conductMgmt, scanSrc] = await Promise.all([
+    readFile(new URL('../src/components/admin/conduct/ConductManagement.tsx', import.meta.url), 'utf8'),
+    readFile(new URL('../src/pages/admin/ScanRecorder.tsx', import.meta.url), 'utf8'),
+  ]);
+
+  assert.equal(conductMgmt.includes('saveLockRef'), true);
+  const recorderRequiredCount = (conductMgmt.match(/<RecorderSelect[^>]*\brequired\b/g) ?? []).length;
+  assert.equal(recorderRequiredCount, 2, 'Both RecordTab and BulkRecordTab must pass required to RecorderSelect');
+  assert.equal(conductMgmt.includes('{isAdmin && ('), true, 'HistoryTab must gate delete button with isAdmin');
+  assert.equal(conductMgmt.includes("['student-three-banks']"), true);
+
+  assert.equal(scanSrc.includes('savingLockRef'), true);
+  assert.equal(scanSrc.includes("['public-hero-profile']"), true);
+  assert.equal(scanSrc.includes("['classroom-xp-sum']"), true);
+  assert.equal(scanSrc.includes("['student-three-banks']"), true);
+});

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   AlertCircle,
@@ -49,17 +49,10 @@ import {
 import { ThaiDatePicker } from '@/components/shared/ThaiDatePicker';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { computeRowPromotionPoints } from '@/lib/wasteBankHelpers';
+import { getBangkokTodayIso } from '@/lib/thaiDate';
 import { speakThai, thaiNumberToWords } from '@/lib/thaiSpeech';
 
 const CLASSES = ['อ.1', 'อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6'] as const;
-
-const getLocalTodayIso = (): string => {
-  const now = new Date();
-  const yyyy = now.getFullYear();
-  const mm = String(now.getMonth() + 1).padStart(2, '0');
-  const dd = String(now.getDate()).padStart(2, '0');
-  return `${yyyy}-${mm}-${dd}`;
-};
 
 type BatchInsertRow = Parameters<typeof wasteTransactionsService.insertMany>[0][number];
 
@@ -79,8 +72,9 @@ export const ClassroomWasteBatchTab = ({
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  const submitLockRef = useRef(false);
   const [selectedClass, setSelectedClass] = useState<string>('ป.1');
-  const [transactionDate, setTransactionDate] = useState<string>(getLocalTodayIso);
+  const [transactionDate, setTransactionDate] = useState<string>(() => getBangkokTodayIso());
   const [batchNotes, setBatchNotes] = useState<string>('');
   const [recorder, setRecorder] = useState<RecorderValue>(EMPTY_RECORDER);
   const [quantities, setQuantities] = useState<Record<string, Record<string, number>>>({});
@@ -299,6 +293,7 @@ export const ClassroomWasteBatchTab = ({
       void queryClient.invalidateQueries({ queryKey: ['waste-transactions'] });
       void queryClient.invalidateQueries({ queryKey: ['waste-classroom-league'] });
       void queryClient.invalidateQueries({ queryKey: ['waste-bank-showcase', 'public-results'] });
+      void queryClient.invalidateQueries({ queryKey: ['student-three-banks'] });
       onSuccess?.();
 
       void speakThai([
@@ -315,9 +310,13 @@ export const ClassroomWasteBatchTab = ({
         variant: 'destructive',
       });
     },
+    onSettled: () => {
+      submitLockRef.current = false;
+    },
   });
 
   const handleSubmitBatch = () => {
+    if (submitLockRef.current || submitMutation.isPending) return;
     if (!transactionDate) {
       toast({
         title: 'กรุณาเลือกวันที่ทำรายการ',
@@ -325,7 +324,7 @@ export const ClassroomWasteBatchTab = ({
       });
       return;
     }
-    if (!recorder.name) {
+    if (!recorder.name || (!recorder.staffId && !recorder.administratorId)) {
       toast({
         title: 'กรุณาเลือกผู้บันทึก',
         description: 'เลือกครูประจำชั้นหรือผู้ดูแลก่อนบันทึกยอดทั้งห้อง',
@@ -380,6 +379,7 @@ export const ClassroomWasteBatchTab = ({
       return;
     }
 
+    submitLockRef.current = true;
     submitMutation.mutate(payload);
   };
 

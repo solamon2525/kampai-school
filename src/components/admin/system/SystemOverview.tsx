@@ -290,6 +290,31 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v2.8.29',
+        date: '26 พ.ย. 2569',
+        title: '3 ธนาคาร: ล้างแถวเบิ้ล ป.1, กันกดส่งซ้ำทุกหน้าบันทึก, Batch ออมทรัพย์ Atomic และโปรโมชั่นหน้า ScanRecorder',
+        description:
+            'แก้ไขข้อมูลขยะ ป.1 ที่เคยถูกกดบันทึกซ้ำระดับเสี้ยววินาที (Migration 593) พร้อมย้ายยอดออมทรัพย์เช้าวันเปิดเทอม 2 และล้างช่องว่างชื่อผู้บันทึก ป้องกัน race condition ก่อนล็อกปุ่มบันทึกใน WasteBankManagement, SavingsBankManagement, ConductManagement และ ScanRecorder ปรับ record_batch_savings_deposits ให้ทำงานแบบ Atomic เพิ่ม getBangkokTodayIso() แทนวันที่ UTC และเพิ่มการคำนวณโปรโมชั่น + บังคับเลือกผู้บันทึกทุกหน้าบันทึก',
+        type: 'fix',
+        author: 'ครูณัฐพงศ์ สิงห์ชมภู',
+        tags: [
+            'Waste Bank',
+            'Conduct Bank',
+            'Savings Bank',
+            'Migration 593',
+            'Double-Submit Lock',
+            'ScanRecorder',
+            'Atomic Batch',
+        ],
+        badge: 'bg-primary',
+        items: [
+            'Migration 593 (Data Hygiene & Atomic Batch): ลบรายการขยะ ป.1 ที่ถูกกดซ้ำระดับมิลลิวินาที (9 แถวเทอม 2 = -337 แต้ม, 3 แถวเทอม 1 = -9 แต้ม) และรอบบันทึกซ้ำวันที่ 18 พ.ย. (-84 แต้ม) รวมถึงรายการความดีซ้ำ 22ms ในเทอม 1, ย้ายออมทรัพย์เช้าวันเปิดเทอม 2 (2 พ.ย.) เป็นภาคเรียนที่ 2, trim ช่องว่าง recorded_by และปรับ record_batch_savings_deposits เป็น Atomic Batch',
+            'Double-Submit Race Fix: เพิ่ม synchronous submitLockRef และย้าย setIsSubmitting(true) ก่อน async query ใน WasteBankManagement, SavingsBankManagement, ClassroomWasteBatchTab, ClassroomBatchDepositTab, ConductManagement (Record/Bulk), EcoLuckyWheelDialog และ ScanRecorder',
+            'ScanRecorder Parity & Cache Sync: คำนวณโปรโมชั่นขยะ (computeRowPromotionPoints) ใน ScanRecorder ให้ตรงหน้าธนาคารขยะหลัก พร้อม invalidate query cache ครบทั้ง 3 ธนาคาร และใช้ getBangkokTodayIso() (UTC+7) แทนวันที่ UTC ทุกฟอร์ม',
+            'Recorder Enforcement & Conduct Delete Guard: บังคับเลือกผู้บันทึก (RecorderSelect required + validation) ใน WasteBankManagement และ ConductManagement ทั้งแท็บเดี่ยวและหลายคน พร้อมซ่อนปุ่มลบในประวัติความดีสำหรับผู้ใช้ที่ไม่ใช่ Admin',
+        ],
+    },
+    {
         version: 'v2.8.28',
         date: '26 พ.ย. 2569',
         title: 'ธนาคารพอเพียง: แก้ข้อมูลเทอม 2, ใบรับรองสมุดคู่ฝาก สพป.อุดรธานี เขต 2, ความปลอดภัยเป้าหมายออม และกระเป๋า 3 ธนาคารบน /my',

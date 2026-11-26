@@ -14,6 +14,7 @@ import { Star, Plus, Minus, Trophy, History, Search, Trash2, Users, Check, Ticke
 import { useToast } from '@/hooks/use-toast';
 import { ConfirmDialog } from '../shared/ConfirmDialog';
 import { RecorderSelect, EMPTY_RECORDER, type RecorderValue } from '../shared/RecorderSelect';
+import { useAuth } from '@/contexts/AuthProvider';
 import { TableSkeleton } from '@/components/ui/loading-skeletons';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { StudentQRScanner } from '@/components/shared/StudentQRScanner';
@@ -369,6 +370,7 @@ export const ConductManagement = () => {
         queryClient.invalidateQueries({ queryKey: ['conduct-scores'] });
         queryClient.invalidateQueries({ queryKey: ['public-top-heroes'] });
         queryClient.invalidateQueries({ queryKey: ['public-hero-profile'] });
+        queryClient.invalidateQueries({ queryKey: ['student-three-banks'] });
     }, [queryClient]);
 
     useEffect(() => {
@@ -442,6 +444,7 @@ function RecordTab({ toast, triggerRefresh, refreshKey, activeTerm, isTermPendin
     const [speechComplete, setSpeechComplete] = useState(false);
     const speechRequestRef = useRef(0);
     const pendingScannedStudentIdRef = useRef<string | null>(null);
+    const saveLockRef = useRef(false);
     const closePointsConfirmation = useCallback(() => {
         speechRequestRef.current += 1;
         stopConductChime();
@@ -561,9 +564,13 @@ function RecordTab({ toast, triggerRefresh, refreshKey, activeTerm, isTermPendin
     const categoryPreset = presets.find(p => p.category === activeCategory);
 
     const handleSave = async () => {
-        if (isSaving) return;
+        if (saveLockRef.current || isSaving) return;
         if (!selectedStudentId || !reason.trim()) {
             toast({ variant: 'destructive', title: 'กรุณาเลือกนักเรียนและกรอกเหตุผล' });
+            return;
+        }
+        if (!recorder.name || (!recorder.staffId && !recorder.administratorId)) {
+            toast({ variant: 'destructive', title: 'กรุณาเลือกผู้บันทึก', description: 'เลือกครูหรือผู้บริหารก่อนบันทึกคะแนนความดี' });
             return;
         }
         const studentExists = students.some(s => s.id === selectedStudentId);
@@ -575,6 +582,7 @@ function RecordTab({ toast, triggerRefresh, refreshKey, activeTerm, isTermPendin
         if (!student) return;
 
         // ล็อกสถานะบันทึกทันทีเพื่อป้องกัน double-submit
+        saveLockRef.current = true;
         setIsSaving(true);
 
         try {
@@ -677,6 +685,7 @@ function RecordTab({ toast, triggerRefresh, refreshKey, activeTerm, isTermPendin
 
             triggerRefresh();
         } finally {
+            saveLockRef.current = false;
             setIsSaving(false);
         }
     };
@@ -753,7 +762,7 @@ function RecordTab({ toast, triggerRefresh, refreshKey, activeTerm, isTermPendin
                                 <Input value={academicYear} onChange={e => setAcademicYear(e.target.value)} disabled={isSaving} />
                             </div>
                         </div>
-                        <RecorderSelect label="ผู้บันทึก (ครู/ผอ.)" value={recorder} onChange={setRecorder} />
+                        <RecorderSelect label="ผู้บันทึก (ครู/ผอ.)" value={recorder} onChange={setRecorder} required />
                     </CardContent>
                 </Card>
 
@@ -1206,6 +1215,7 @@ function HistoryTab({ toast, triggerRefresh, refreshKey, activeTerm, isTermPendi
     triggerRefresh: () => void;
     refreshKey: number;
 } & TermTabProps) {
+    const { isAdmin } = useAuth();
     const [filterClass, setFilterClass] = useState('');
     const [filterType, setFilterType] = useState('');
     const {
@@ -1333,9 +1343,11 @@ function HistoryTab({ toast, triggerRefresh, refreshKey, activeTerm, isTermPendi
                                             {new Date(r.created_at).toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' })}
                                         </p>
                                     </div>
-                                    <Button size="icon" variant="ghost" className="flex-shrink-0" onClick={() => setDeleteId(r.id)}>
-                                        <Trash2 className="w-3.5 h-3.5 text-muted-foreground" />
-                                    </Button>
+                                    {isAdmin && (
+                                        <Button size="icon" variant="ghost" className="flex-shrink-0" onClick={() => setDeleteId(r.id)} aria-label="ลบรายการ">
+                                            <Trash2 className="w-3.5 h-3.5 text-muted-foreground" />
+                                        </Button>
+                                    )}
                                 </div>
                                 );
                             })}
@@ -1372,6 +1384,7 @@ function BulkRecordTab({ toast, triggerRefresh, refreshKey, activeTerm, isTermPe
     const [recorder, setRecorder] = useState<RecorderValue>(EMPTY_RECORDER);
     const { semester, setSemester, academicYear, setAcademicYear } = useTermFilterState(activeTerm, isTermPending);
     const [isSaving, setIsSaving] = useState(false);
+    const saveLockRef = useRef(false);
     const [isLoadingStudents, setIsLoadingStudents] = useState(false);
 
     useEffect(() => {
@@ -1438,7 +1451,7 @@ function BulkRecordTab({ toast, triggerRefresh, refreshKey, activeTerm, isTermPe
     const categoryPreset = presets.find(p => p.category === activeCategory);
 
     const handleBulkSave = async () => {
-        if (isSaving) return;
+        if (saveLockRef.current || isSaving) return;
         const currentStudentIds = new Set(students.map(s => s.id));
         const validSelectedIds = Array.from(selectedIds).filter(id => currentStudentIds.has(id));
 
@@ -1450,8 +1463,13 @@ function BulkRecordTab({ toast, triggerRefresh, refreshKey, activeTerm, isTermPe
             toast({ variant: 'destructive', title: 'กรุณาระบุเหตุผล' });
             return;
         }
+        if (!recorder.name || (!recorder.staffId && !recorder.administratorId)) {
+            toast({ variant: 'destructive', title: 'กรุณาเลือกผู้บันทึก', description: 'เลือกครูหรือผู้บริหารก่อนบันทึกคะแนนความดี' });
+            return;
+        }
 
         // ล็อกสถานะบันทึกทันทีเพื่อป้องกัน double-submit
+        saveLockRef.current = true;
         setIsSaving(true);
 
         try {
@@ -1500,6 +1518,7 @@ function BulkRecordTab({ toast, triggerRefresh, refreshKey, activeTerm, isTermPe
 
             triggerRefresh();
         } finally {
+            saveLockRef.current = false;
             setIsSaving(false);
         }
     };
@@ -1822,7 +1841,7 @@ function BulkRecordTab({ toast, triggerRefresh, refreshKey, activeTerm, isTermPe
                     </div>
 
                     {/* ผู้บันทึก */}
-                    <RecorderSelect label="ผู้บันทึก (ครู/ผอ.)" value={recorder} onChange={setRecorder} />
+                    <RecorderSelect label="ผู้บันทึก (ครู/ผอ.)" value={recorder} onChange={setRecorder} required />
 
                     {/* ปีการศึกษา */}
                     <div className="space-y-1">

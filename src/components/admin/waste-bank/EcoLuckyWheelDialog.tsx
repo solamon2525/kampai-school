@@ -61,6 +61,7 @@ export const EcoLuckyWheelDialog: React.FC<EcoLuckyWheelDialogProps> = ({
   const [selectedPrize, setSelectedPrize] = useState<LuckyPrize | null>(null);
   const [hasSpun, setHasSpun] = useState(false);
   const rotationRef = useRef(0);
+  const spinLockRef = useRef(false);
 
   // Reset state on open
   useEffect(() => {
@@ -75,8 +76,9 @@ export const EcoLuckyWheelDialog: React.FC<EcoLuckyWheelDialogProps> = ({
   const sliceAngle = 360 / numSlices;
 
   const handleSpin = () => {
-    if (isSpinning || hasSpun) return;
+    if (isSpinning || hasSpun || spinLockRef.current) return;
 
+    spinLockRef.current = true;
     setIsSpinning(true);
     setSelectedPrize(null);
 
@@ -97,14 +99,13 @@ export const EcoLuckyWheelDialog: React.FC<EcoLuckyWheelDialogProps> = ({
 
     // Duration matches CSS transition (4 seconds)
     setTimeout(async () => {
-      setIsSpinning(false);
-      setSelectedPrize(targetPrize);
-      setHasSpun(true);
-      playConductChime('add');
-
-      // Record to database
       try {
-        await wasteLuckySpinsService.recordSpin({
+        setIsSpinning(false);
+        setSelectedPrize(targetPrize);
+        playConductChime('add');
+
+        // Record to database
+        const { error } = await wasteLuckySpinsService.recordSpin({
           student_id: student.id,
           student_name: student.name,
           student_class: student.class,
@@ -114,17 +115,26 @@ export const EcoLuckyWheelDialog: React.FC<EcoLuckyWheelDialogProps> = ({
           recorded_by: recordedBy || null,
         });
 
+        if (error) throw error;
+
+        setHasSpun(true);
         if (targetPrize.points > 0) {
           toast({
             title: '🎉 ได้รับโบนัสพิเศษ!',
             description: `${student.name} ได้รับ ${targetPrize.points} แต้ม`,
           });
         }
+        onSpinComplete?.(targetPrize);
       } catch (err) {
-        console.error('Failed to record spin:', err);
+        const message = err && typeof err === 'object' && 'message' in err ? String((err as { message: unknown }).message) : 'กรุณาตรวจสอบสิทธิ์หรือลองใหม่อีกครั้ง';
+        toast({
+          title: 'บันทึกผลวงล้อไม่สำเร็จ',
+          description: message,
+          variant: 'destructive',
+        });
+      } finally {
+        spinLockRef.current = false;
       }
-
-      onSpinComplete?.(targetPrize);
     }, 4000);
   };
 

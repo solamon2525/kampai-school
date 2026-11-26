@@ -467,3 +467,54 @@ test('Final-review fix wave contracts: Bangkok claim sortDateKey, print scroll-l
   assert.equal(claimsSrc.includes("['waste-student-statement']"), true);
   assert.equal(mgmtSrc.includes('fetchPendingCount(); fetchSummaries();'), true);
 });
+
+import { getBangkokTodayIso } from '../src/lib/thaiDate.ts';
+
+test('getBangkokTodayIso returns Asia/Bangkok YYYY-MM-DD across UTC midnight boundary', () => {
+  // 2026-11-26T00:30:00+07:00 is 2026-11-25T17:30:00Z in UTC — must stay 2026-11-26 in Bangkok
+  const earlyMorningBkk = new Date('2026-11-25T17:30:00.000Z');
+  assert.equal(getBangkokTodayIso(earlyMorningBkk), '2026-11-26');
+  const afternoonBkk = new Date('2026-11-26T08:00:00.000Z');
+  assert.equal(getBangkokTodayIso(afternoonBkk), '2026-11-26');
+});
+
+test('Recording integrity contracts: WasteBank, ClassroomBatch, EcoLuckyWheel & ScanRecorder double-submit locks, Bangkok dates, recorder required, and promo parity', async () => {
+  const [mgmtSrc, batchSrc, wheelSrc, scanSrc, overviewSrc] = await Promise.all([
+    readFile(new URL('../src/components/admin/waste-bank/WasteBankManagement.tsx', import.meta.url), 'utf8'),
+    readFile(new URL('../src/components/admin/waste-bank/ClassroomWasteBatchTab.tsx', import.meta.url), 'utf8'),
+    readFile(new URL('../src/components/admin/waste-bank/EcoLuckyWheelDialog.tsx', import.meta.url), 'utf8'),
+    readFile(new URL('../src/pages/admin/ScanRecorder.tsx', import.meta.url), 'utf8'),
+    readFile(new URL('../src/components/admin/system/SystemOverview.tsx', import.meta.url), 'utf8'),
+  ]);
+
+  // 1. WasteBankManagement: submitLockRef, setIsSubmitting(true) before getForStudent, required recorder, getBangkokTodayIso
+  assert.equal(mgmtSrc.includes('submitLockRef'), true);
+  assert.equal(mgmtSrc.includes('getBangkokTodayIso'), true);
+  assert.equal(mgmtSrc.includes("new Date().toISOString().split('T')[0]"), false);
+  assert.match(mgmtSrc, /<RecorderSelect[^>]*\brequired\b/);
+  assert.ok(
+    mgmtSrc.indexOf('setIsSubmitting(true)') < mgmtSrc.indexOf('wasteSummaryService.getForStudent'),
+    'WasteBankManagement must lock submit before awaiting wasteSummaryService.getForStudent',
+  );
+
+  // 2. ClassroomWasteBatchTab: submitLockRef + getBangkokTodayIso
+  assert.equal(batchSrc.includes('submitLockRef'), true);
+  assert.equal(batchSrc.includes('getBangkokTodayIso'), true);
+
+  // 3. EcoLuckyWheelDialog: spinLockRef + destructured { error } + destructive toast
+  assert.equal(wheelSrc.includes('spinLockRef'), true);
+  assert.match(wheelSrc, /const\s*\{\s*error\s*\}\s*=\s*await\s+wasteLuckySpinsService\.recordSpin/);
+
+  // 4. ScanRecorder: savingLockRef + promos + computeRowPromotionPoints + waste cache invalidation + zero bg-white
+  assert.equal(scanSrc.includes('savingLockRef'), true);
+  assert.equal(scanSrc.includes('wastePromotionsService.getActive'), true);
+  assert.equal(scanSrc.includes('computeRowPromotionPoints'), true);
+  assert.equal(scanSrc.includes('getBangkokTodayIso'), true);
+  assert.equal(scanSrc.includes("new Date().toISOString().split('T')[0]"), false);
+  assert.equal(scanSrc.includes("['waste-student-summaries']"), true);
+  assert.equal(scanSrc.includes("['waste-transactions']"), true);
+  assert.equal(/\bbg-white\b/.test(scanSrc), false);
+
+  // 5. SystemOverview v2.8.29
+  assert.match(overviewSrc, /version:\s*['"]v2\.8\.29['"]/);
+});

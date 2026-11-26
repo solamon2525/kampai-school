@@ -27,6 +27,12 @@ const parse = (iso: string): Date | null => {
     return d;
 };
 
+/** คืนวันที่ปัจจุบันตามโซนเวลา Asia/Bangkok (UTC+7) ในรูปแบบ YYYY-MM-DD */
+export const getBangkokTodayIso = (now: Date = new Date()): string => {
+    const bangkokMs = now.getTime() + 7 * 60 * 60 * 1000;
+    return new Date(bangkokMs).toISOString().slice(0, 10);
+};
+
 /** "11 พฤษภาคม 2569" */
 export const formatThaiDateFull = (iso: string | null | undefined): string => {
     if (!iso) return '—';

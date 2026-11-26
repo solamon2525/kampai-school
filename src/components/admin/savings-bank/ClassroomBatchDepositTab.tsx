@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import {
   Users,
@@ -26,11 +26,13 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import {
   savingsTransactionsService,
+  savingsErrorMessage,
   savingsSummaryService,
   studentsService,
   termService,
   type SavingsStudentSummary,
 } from '@/services';
+import { getBangkokTodayIso } from '@/lib/thaiDate';
 import {
   RecorderSelect,
   EMPTY_RECORDER,
@@ -68,7 +70,7 @@ const fmtBaht = (n: number | null | undefined) => {
 export const ClassroomBatchDepositTab = ({ onSuccess }: Props) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const today = new Date().toISOString().split('T')[0];
+  const today = getBangkokTodayIso();
 
   const [selectedClass, setSelectedClass] = useState<string>('ป.1');
   const [transactionDate, setTransactionDate] = useState<string>(today);
@@ -76,6 +78,7 @@ export const ClassroomBatchDepositTab = ({ onSuccess }: Props) => {
   const [recorder, setRecorder] = useState<RecorderValue>(EMPTY_RECORDER);
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const submitLockRef = useRef(false);
   const [students, setStudents] = useState<StudentRowState[]>([]);
   const [projectorOpen, setProjectorOpen] = useState(false);
   const [hasDraft, setHasDraft] = useState(false);
@@ -269,6 +272,7 @@ export const ClassroomBatchDepositTab = ({ onSuccess }: Props) => {
 
   // Submit batch
   const handleSubmitBatch = async () => {
+    if (submitLockRef.current || isSubmitting) return;
     if (activeDeposits.length === 0) {
       toast({
         title: 'ไม่มีรายการฝาก',
@@ -277,7 +281,7 @@ export const ClassroomBatchDepositTab = ({ onSuccess }: Props) => {
       });
       return;
     }
-    if (!recorder.name) {
+    if (!recorder.name || (!recorder.staffId && !recorder.administratorId)) {
       toast({
         title: 'กรุณาเลือกผู้บันทึก',
         description: 'เลือกครูประจำชั้นหรือผู้ดูแลก่อนบันทึกยอด',
@@ -286,6 +290,7 @@ export const ClassroomBatchDepositTab = ({ onSuccess }: Props) => {
       return;
     }
 
+    submitLockRef.current = true;
     setIsSubmitting(true);
     try {
       const currentTerm = await termService.getActive();
@@ -306,6 +311,11 @@ export const ClassroomBatchDepositTab = ({ onSuccess }: Props) => {
       if (error) throw error;
 
       const result = Array.isArray(data) ? data[0] : null;
+      if ((result?.failed_count ?? 0) > 0) {
+        throw new Error(
+          `ไม่สามารถบันทึกได้ครบทั้งห้อง (ล้มเหลว ${result?.failed_count} รายการ) ระบบยกเลิกการอัปเดตหน้าจอเพื่อป้องกันยอดคลาดเคลื่อน`,
+        );
+      }
       const count = result?.success_count ?? activeDeposits.length;
       const sum = result?.total_amount ?? totalAmount;
 
@@ -349,15 +359,17 @@ export const ClassroomBatchDepositTab = ({ onSuccess }: Props) => {
         queryClient.invalidateQueries({ queryKey: ['savings-stats'] }),
         queryClient.invalidateQueries({ queryKey: ['savings-bank'] }),
         queryClient.invalidateQueries({ queryKey: ['savings-statement'] }),
+        queryClient.invalidateQueries({ queryKey: ['student-three-banks'] }),
       ]);
       onSuccess();
     } catch (err) {
       toast({
         title: 'เกิดข้อผิดพลาดในการบันทึก',
-        description: err instanceof Error ? err.message : 'กรุณาตรวจสอบยอดและลองใหม่อีกครั้ง',
+        description: savingsErrorMessage(err),
         variant: 'destructive',
       });
     } finally {
+      submitLockRef.current = false;
       setIsSubmitting(false);
     }
   };

@@ -205,3 +205,36 @@ test('SystemOverview.tsx prepends v2.8.28 dated 26 พ.ย. 2569 with zero banne
   assert.equal(overviewSource.includes('Kampai Hero'), false);
   assert.equal(overviewSource.includes('Hero XP'), false);
 });
+
+test('Savings recording integrity contracts: lock before withdraw balance check, failed_count batch guard, Bangkok date, and cache invalidation', async () => {
+  const [mgmtSource, batchSource, scanSource, mig593] = await Promise.all([
+    fs.promises.readFile(path.join(ROOT, 'src/components/admin/savings-bank/SavingsBankManagement.tsx'), 'utf-8'),
+    fs.promises.readFile(path.join(ROOT, 'src/components/admin/savings-bank/ClassroomBatchDepositTab.tsx'), 'utf-8'),
+    fs.promises.readFile(path.join(ROOT, 'src/pages/admin/ScanRecorder.tsx'), 'utf-8'),
+    fs.promises.readFile(path.join(ROOT, 'supabase/migrations/593_dedupe_waste_and_atomic_batch_savings.sql'), 'utf-8'),
+  ]);
+
+  assert.equal(mgmtSource.includes('submitLockRef'), true);
+  assert.equal(mgmtSource.includes('getBangkokTodayIso'), true);
+  assert.equal(mgmtSource.includes("new Date().toISOString().split('T')[0]"), false);
+  assert.ok(
+    mgmtSource.indexOf('setIsSubmitting(true)') < mgmtSource.indexOf('savingsSummaryService.getForStudent'),
+    'SavingsBankManagement must lock submit before awaiting savingsSummaryService.getForStudent',
+  );
+  assert.equal(mgmtSource.includes("['savings-student-summaries']"), true);
+  assert.equal(mgmtSource.includes("['student-three-banks']"), true);
+
+  assert.equal(batchSource.includes('submitLockRef'), true);
+  assert.equal(batchSource.includes('getBangkokTodayIso'), true);
+  assert.equal(batchSource.includes("new Date().toISOString().split('T')[0]"), false);
+  assert.equal(batchSource.includes('failed_count'), true);
+  assert.equal(batchSource.includes('savingsErrorMessage'), true);
+  assert.equal(batchSource.includes("['student-three-banks']"), true);
+
+  assert.equal(scanSource.includes('savingLockRef'), true);
+  assert.equal(scanSource.includes("['savings-student-summaries']"), true);
+  assert.equal(scanSource.includes("['savings-statement']"), true);
+
+  assert.equal(mig593.includes('CREATE OR REPLACE FUNCTION public.record_batch_savings_deposits'), true);
+  assert.equal(mig593.includes('REVOKE ALL ON FUNCTION public.record_batch_savings_deposits'), true);
+});
