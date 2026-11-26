@@ -10680,15 +10680,21 @@ export type Database = {
         }
       }
       auth_role: { Args: never; Returns: string }
+      batch_set_game_indicators: { Args: { p_mappings: Json }; Returns: Json }
       bkk_today: { Args: never; Returns: string }
       buy_student_pet: {
         Args: { p_pet_code: string; p_student_code: string }
         Returns: Json
       }
       can_approve_reward: { Args: { p_reward_id: string }; Returns: boolean }
+      child_mastery: { Args: { p_student_id: string }; Returns: Json }
       claim_reward: {
         Args: { p_code: string; p_quantity?: number; p_reward_id: string }
         Returns: string
+      }
+      class_indicator_heatmap: {
+        Args: { p_class: string; p_grade: string; p_subject_key: string }
+        Returns: Json
       }
       clean_duplicate_homeroom_assignments: { Args: never; Returns: undefined }
       count_research_rounds_today: {
@@ -11431,6 +11437,7 @@ export type Database = {
           student_code: string
         }[]
       }
+      my_mastery: { Args: { p_student_code: string }; Returns: Json }
       next_incoming_number: { Args: never; Returns: string }
       next_outgoing_number: { Args: never; Returns: string }
       parents_of_student: {

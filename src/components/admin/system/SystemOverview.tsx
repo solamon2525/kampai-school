@@ -290,6 +290,32 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v2.8.28',
+        date: '26 พ.ย. 2569',
+        title: 'ธนาคารพอเพียง: แก้ข้อมูลเทอม 2, ใบรับรองสมุดคู่ฝาก สพป.อุดรธานี เขต 2, ความปลอดภัยเป้าหมายออม และกระเป๋า 3 ธนาคารบน /my',
+        description:
+            'แก้ไขข้อมูลธุรกรรมที่ขาดภาคเรียนพร้อมทริกเกอร์เติมภาคเรียนปัจจุบันอัตโนมัติ (Migration 591), คืนค่าฟังก์ชัน my_mastery / child_mastery บนระบบ (Migration 592), ปรับหน้าสมุดคู่ฝากดิจิทัลให้แสดงสังกัด สพป.อุดรธานี เขต 2 พร้อมตราประทับฝาก/ถอนแยกสีและเลขที่บัญชีจริง, รวม query สำรองข้อมูลเข้าสู่ savingsBackupsService และปรับหน้าจัดการธนาคารพอเพียงให้สอดคล้อง Light-mode เต็มรูปแบบ รวมถึงเพิ่มการ์ดกระเป๋า 3 ธนาคาร (StudentThreeBanksCard) บนหน้านักเรียน /my',
+        type: 'feature',
+        author: 'ครูณัฐพงศ์ สิงห์ชมภู',
+        tags: [
+            'ธนาคารพอเพียง',
+            'Migration 591',
+            'Migration 592',
+            'DigitalPassbook',
+            'สพป.อุดรธานี เขต 2',
+            'StudentThreeBanksCard',
+            'Light-mode',
+        ],
+        badge: 'bg-primary',
+        items: [
+            'Migration 591 & Active-Term Trigger: ปรับแก้รายการฝากเดือน พ.ย. 2569 ที่ขาดข้อมูลปีการศึกษา/เทอมให้เป็นภาคเรียนที่ 2/2569 เพิ่ม trigger savings_txn_set_active_term เติมเทอมอัตโนมัติเมื่อบันทึกใหม่ ปรับ ClassroomBatchDepositTab ให้เรียก termService.getActive() และยกระดับความปลอดภัย delete_savings_goal, create_savings_goal, update_savings_goal_status ด้วยการตรวจสิทธิ์และรหัสนักเรียน',
+            'Migration 592 (Mastery Portal RPCs): คืนค่าฟังก์ชัน my_mastery, child_mastery, class_indicator_heatmap และ batch_set_game_indicators พร้อม fallback ค่าเริ่มต้นสถิติเมื่อยังไม่เคยเล่นเกมและจำกัดสิทธิ์ anon บนฟังก์ชันครู/ผู้ปกครอง',
+            'Digital Passbook & Goal Discovery: ปรับหัวสมุดคู่ฝากดิจิทัลเป็น "โรงเรียนบ้านคำไผ่ สพป.อุดรธานี เขต 2" แยกตราประทับ "รับฝากแล้ว" / "ถอนเงินแล้ว" ผ่าน passbookDisplay.ts ส่ง studentCode จริงเข้า DigitalPassbook ใน SavingsBank.tsx เพิ่มปุ่ม "ตั้งเป้าหมายออมเงินใหม่" และจัดการ error ผ่าน savingsErrorMessage ใน SavingsBankParentView',
+            'Admin Backups & Light-Mode Cleanup: แยก query สำรองข้อมูลธนาคารพอเพียงเข้าสู่ savingsBackupsService ใน savings.service.ts พร้อมเลือก photo_url ปรับ BackupsTabContent ใช้ TanStack Query และแทนที่ confirm() / <img> ดิบด้วย ConfirmDialog และ PersonAvatar ใน SavingsBankManagement',
+            'Student 3-Bank Unified Wallet (/my): เพิ่ม StudentThreeBanksCard และ savingsSummaryService.getForStudentCode(studentCode) บนหน้าการเรียนรู้ของฉัน (/my) รวมยอดแต้มธนาคารขยะ คะแนนธนาคารความดี และยอดเงินออมพร้อมความคืบหน้าเป้าหมายธนาคารพอเพียงในจุดเดียว',
+        ],
+    },
+    {
         version: 'v2.8.27',
         date: '25 พ.ย. 2569',
         title: 'ธนาคารความดี: แก้ไขข้อมูลเทอม 2, ยกระดับความปลอดภัยคูปอง/RPC และเพิ่มระบบสแกน QR บันทึกความดี',

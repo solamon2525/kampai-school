@@ -39,6 +39,7 @@ import { levelFromXp } from '@/services/game-play.service';
 import { CURRICULUM_SUBJECTS } from '@/lib/curriculumSubjects';
 import { RecommendedGames } from '@/components/student/RecommendedGames';
 import { RecommendedMedia } from '@/components/student/RecommendedMedia';
+import { StudentThreeBanksCard } from '@/components/student/StudentThreeBanksCard';
 
 const STORAGE_KEY = 'kampai_my_student_code';
 
@@ -210,6 +211,9 @@ const DashboardView = ({ studentCode, onLogout }: { studentCode: string; onLogou
                         </div>
                     </CardContent>
                 </Card>
+
+                {/* 1b. กระเป๋า 3 ธนาคารของฉัน */}
+                <StudentThreeBanksCard studentCode={studentCode} />
 
                 {/* 2. แนะนำเกมสำหรับคุณ (#1) */}
                 <section className="space-y-3">

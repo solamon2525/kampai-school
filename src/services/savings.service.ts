@@ -13,6 +13,11 @@ export const savingsErrorMessage = (error: unknown): string => {
   const message = error && typeof error === 'object' && 'message' in error ? String(error.message) : '';
   if (message.includes('INSUFFICIENT_BALANCE')) return 'ยอดเงินไม่พอ หรือรายการนี้ทำให้ยอดย้อนหลังติดลบ กรุณาตรวจสอบประวัติ';
   if (message.includes('INVALID_AMOUNT')) return 'กรุณากรอกจำนวนเต็มบาทที่มากกว่า 0 และน้อยกว่า 100,000,000';
+  if (message.includes('INVALID_TITLE')) return 'ชื่อเป้าหมายต้องมีความยาวอย่างน้อย 2 ตัวอักษร';
+  if (message.includes('INVALID_STATUS')) return 'สถานะเป้าหมายไม่ถูกต้อง';
+  if (message.includes('STUDENT_NOT_FOUND')) return 'ไม่พบข้อมูลนักเรียนจากรหัสนี้';
+  if (message.includes('STUDENT_CODE_VERIFICATION_REQUIRED')) return 'กรุณายืนยันรหัสนักเรียนก่อนอัปเดตหรือสร้างเป้าหมาย';
+  if (message.includes('UNAUTHORIZED')) return 'ไม่มีสิทธิ์ดำเนินการกับเป้าหมายการออมนี้';
   if (message.includes('NOT_AUTHORIZED')) return 'ไม่มีสิทธิ์บันทึกรายการ กรุณาเข้าสู่ระบบด้วยบัญชีครูหรือผู้ดูแล';
   return message || 'เกิดข้อผิดพลาด กรุณาลองใหม่';
 };
@@ -237,6 +242,13 @@ export const savingsStatementService = {
   },
 };
 
+export type StudentCodeSavingsSummary = {
+  student: StudentSavingsLookup | null;
+  current_balance: number;
+  goals: SavingsGoal[];
+  activeGoal: SavingsGoal | null;
+};
+
 export const savingsSummaryService = {
   getAll: () =>
     supabase
@@ -250,6 +262,36 @@ export const savingsSummaryService = {
       .select('*')
       .eq('student_id', studentId)
       .maybeSingle(),
+
+  getForStudentCode: async (
+    studentCode: string,
+  ): Promise<{ data: StudentCodeSavingsSummary | null; error: unknown }> => {
+    const trimmed = studentCode.trim();
+    if (!trimmed) {
+      return { data: { student: null, current_balance: 0, goals: [], activeGoal: null }, error: null };
+    }
+
+    const [lookupRes, goalsRes] = await Promise.all([
+      savingsLookupService.lookupStudent(trimmed),
+      savingsGoalsService.getByStudentCode(trimmed),
+    ]);
+    if (lookupRes.error) return { data: null, error: lookupRes.error };
+    if (goalsRes.error) return { data: null, error: goalsRes.error };
+
+    const student = (lookupRes.data ?? [])[0] ?? null;
+    const goals = goalsRes.data ?? [];
+    const activeGoal = goals.find((g) => g.status === 'in_progress') ?? null;
+
+    return {
+      data: {
+        student,
+        current_balance: Number(student?.current_balance ?? 0),
+        goals,
+        activeGoal,
+      },
+      error: null,
+    };
+  },
 
   getForParent: (studentId: string) =>
     supabase.rpc('get_parent_savings_summary', { p_student_id: studentId })

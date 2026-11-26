@@ -6,7 +6,14 @@ import { Wallet, ArrowDownToLine, ArrowUpFromLine, History, Sparkles, QrCode, Pi
 import { EmptyState } from '@/components/ui/empty-state';
 import { NoDataIllustration } from '@/components/ui/empty-illustrations';
 import { cn } from '@/lib/utils';
-import { savingsParentService, savingsSummaryService, savingsGoalsService, type SavingsGoal } from '@/services';
+import { useToast } from '@/hooks/use-toast';
+import {
+  savingsParentService,
+  savingsSummaryService,
+  savingsGoalsService,
+  savingsErrorMessage,
+  type SavingsGoal,
+} from '@/services';
 import { SaverTierBadge } from '@/components/savings/SaverTierBadge';
 import { PersonAvatar } from '@/components/shared/PersonAvatar';
 import { formatThaiDateMedium } from '@/lib/thaiDate';
@@ -26,6 +33,7 @@ const fmtBaht = (n: number | null | undefined) => {
 };
 
 export const SavingsBankParentView = ({ studentId, studentName }: Props) => {
+  const { toast } = useToast();
   const [tab, setTab] = useState<TabId>('overview');
   const query = useQuery({
     queryKey: ['savings-bank', 'parent', studentId],
@@ -175,11 +183,19 @@ export const SavingsBankParentView = ({ studentId, studentName }: Props) => {
         </div>
 
         {goals.length === 0 ? (
-          <div className="p-4 rounded-xl border border-dashed border-amber-300 bg-amber-500/5 text-center space-y-1">
+          <div className="p-4 rounded-xl border border-dashed border-amber-300 bg-amber-500/5 text-center space-y-2">
             <p className="text-xs font-bold text-foreground">ยังไม่มีเป้าหมายการออม</p>
             <p className="text-xs text-muted-foreground">
               ร่วมตั้งเป้าหมายกับลูก เช่น ซื้ออุปกรณ์การเรียน หรือของขวัญวันแม่ เพื่อสร้างแรงบันดาลใจในการออม
             </p>
+            <Button
+              type="button"
+              size="sm"
+              className="h-8 text-xs font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 mt-1"
+              onClick={() => setGoalDialogOpen(true)}
+            >
+              ตั้งเป้าหมายออมเงินใหม่
+            </Button>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -190,12 +206,34 @@ export const SavingsBankParentView = ({ studentId, studentName }: Props) => {
                 currentBalance={balance}
                 readOnly={false}
                 onStatusChange={async (goalId, st) => {
-                  await savingsGoalsService.updateStatus(goalId, st);
-                  goalsQuery.refetch();
+                  const { error } = await savingsGoalsService.updateStatus(
+                    goalId,
+                    st,
+                    summary?.student_code ?? undefined,
+                  );
+                  if (error) {
+                    toast({
+                      title: 'อัปเดตเป้าหมายไม่สำเร็จ',
+                      description: savingsErrorMessage(error),
+                      variant: 'destructive',
+                    });
+                    return;
+                  }
+                  toast({ title: 'อัปเดตเป้าหมายสำเร็จ' });
+                  void goalsQuery.refetch();
                 }}
                 onDelete={async (goalId) => {
-                  await savingsGoalsService.delete(goalId);
-                  goalsQuery.refetch();
+                  const { error } = await savingsGoalsService.delete(goalId);
+                  if (error) {
+                    toast({
+                      title: 'ลบเป้าหมายไม่สำเร็จ',
+                      description: savingsErrorMessage(error),
+                      variant: 'destructive',
+                    });
+                    return;
+                  }
+                  toast({ title: 'ลบเป้าหมายแล้ว' });
+                  void goalsQuery.refetch();
                 }}
               />
             ))}
@@ -329,6 +367,7 @@ export const SavingsBankParentView = ({ studentId, studentName }: Props) => {
         open={goalDialogOpen}
         onOpenChange={setGoalDialogOpen}
         studentId={studentId}
+        studentCode={summary?.student_code ?? undefined}
         onGoalCreated={() => void goalsQuery.refetch()}
       />
     </div>

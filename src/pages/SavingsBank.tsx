@@ -27,6 +27,7 @@ import {
   savingsSummaryService,
   savingsTransactionsService,
   savingsGoalsService,
+  savingsErrorMessage,
   getSaverTier,
   type StudentSavingsLookup,
   type SavingsHistoryRow,
@@ -99,7 +100,7 @@ export default function SavingsBank() {
     if (error) {
       toast({
         title: 'อัปเดตเป้าหมายไม่สำเร็จ',
-        description: error.message,
+        description: savingsErrorMessage(error),
         variant: 'destructive',
       });
       return;
@@ -143,7 +144,7 @@ export default function SavingsBank() {
 
     const { data, error } = await savingsLookupService.lookupStudent(trimmed);
     if (error) {
-      toast({ title: 'ค้นหาไม่สำเร็จ', description: error.message, variant: 'destructive' });
+      toast({ title: 'ค้นหาไม่สำเร็จ', description: savingsErrorMessage(error), variant: 'destructive' });
       setSearching(false);
       return;
     }
@@ -557,6 +558,7 @@ export default function SavingsBank() {
                       student={student}
                       history={history}
                       studentDepositCount={studentDepositCount}
+                      studentCode={verifiedCode}
                     />
 
                     {/* Goals Section */}

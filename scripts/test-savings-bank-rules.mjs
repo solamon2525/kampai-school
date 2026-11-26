@@ -123,3 +123,85 @@ test('SavingsBankManagement.tsx replaces raw img, confirm(), and hardcoded light
   assert.equal(mgmtSource.includes('ConfirmDialog'), true);
   assert.equal(mgmtSource.includes('PersonAvatar'), true);
 });
+
+test('savingsSummaryService.getForStudentCode delegates to lookupStudent + getByStudentCode and maps goal RPC errors', () => {
+  const savingsServiceSource = fs.readFileSync(
+    path.join(ROOT, 'src/services/savings.service.ts'),
+    'utf-8',
+  );
+  assert.match(savingsServiceSource, /getForStudentCode\s*:/);
+  const summaryStart = savingsServiceSource.indexOf('export const savingsSummaryService');
+  const summaryEnd = savingsServiceSource.indexOf('export const savingsParentService');
+  assert.notEqual(summaryStart, -1);
+  assert.notEqual(summaryEnd, -1);
+  const summaryBlock = savingsServiceSource.slice(summaryStart, summaryEnd);
+  assert.equal(summaryBlock.includes('savingsLookupService.lookupStudent'), true);
+  assert.equal(summaryBlock.includes('savingsGoalsService.getByStudentCode'), true);
+  assert.equal(savingsServiceSource.includes('STUDENT_CODE_VERIFICATION_REQUIRED'), true);
+  assert.equal(savingsServiceSource.includes('UNAUTHORIZED'), true);
+});
+
+test('SavingsBank.tsx passes studentCode={verifiedCode} to DigitalPassbook and formats errors with savingsErrorMessage', () => {
+  const savingsPageSource = fs.readFileSync(
+    path.join(ROOT, 'src/pages/SavingsBank.tsx'),
+    'utf-8',
+  );
+  assert.match(savingsPageSource, /<DigitalPassbook[\s\S]*?studentCode=\{verifiedCode\}/);
+  assert.equal(savingsPageSource.includes('savingsErrorMessage('), true);
+});
+
+test('SavingsBankParentView.tsx renders explicit goal CTA and handles goal mutation errors with toast', () => {
+  const parentViewSource = fs.readFileSync(
+    path.join(ROOT, 'src/components/parent/SavingsBankParentView.tsx'),
+    'utf-8',
+  );
+  assert.equal(parentViewSource.includes('ตั้งเป้าหมายออมเงินใหม่'), true);
+  assert.equal(parentViewSource.includes('useToast'), true);
+  assert.equal(parentViewSource.includes('savingsErrorMessage'), true);
+  assert.match(parentViewSource, /onStatusChange=\{async[\s\S]*?if\s*\(\s*error\s*\)/);
+  assert.match(parentViewSource, /onDelete=\{async[\s\S]*?if\s*\(\s*error\s*\)/);
+});
+
+test('StudentThreeBanksCard.tsx exists, queries both services, links 3 banks cleanly, and complies with light-mode rules', () => {
+  const cardPath = path.join(ROOT, 'src/components/student/StudentThreeBanksCard.tsx');
+  assert.equal(fs.existsSync(cardPath), true, 'StudentThreeBanksCard.tsx must exist');
+  const cardSource = fs.readFileSync(cardPath, 'utf-8');
+  assert.equal(cardSource.includes("'student-three-banks'"), true);
+  assert.equal(cardSource.includes('rewardClaimsService.lookupStudent'), true);
+  assert.equal(cardSource.includes('savingsSummaryService.getForStudentCode'), true);
+  assert.equal(cardSource.includes('ธนาคารขยะ'), true);
+  assert.equal(cardSource.includes('ธนาคารความดี'), true);
+  assert.equal(cardSource.includes('ธนาคารพอเพียง'), true);
+  assert.equal(cardSource.includes('/waste-bank'), true);
+  assert.equal(cardSource.includes('/virtue-bank/${studentCode}'), true);
+  assert.equal(cardSource.includes('/savings-bank'), true);
+  assert.equal(cardSource.includes('dark:'), false);
+  assert.equal(cardSource.includes('bg-white'), false);
+  assert.equal(cardSource.includes('text-black'), false);
+  assert.equal(/#[0-9a-fA-F]{3,8}/.test(cardSource), false, 'must not contain raw hex colors');
+  assert.equal(cardSource.includes('cn('), true);
+});
+
+test('MyLearning.tsx mounts StudentThreeBanksCard inside DashboardView', () => {
+  const myLearningSource = fs.readFileSync(
+    path.join(ROOT, 'src/pages/student/MyLearning.tsx'),
+    'utf-8',
+  );
+  assert.equal(myLearningSource.includes('StudentThreeBanksCard'), true);
+  assert.match(myLearningSource, /<StudentThreeBanksCard\s+studentCode=\{studentCode\}/);
+});
+
+test('SystemOverview.tsx prepends v2.8.28 dated 26 พ.ย. 2569 with zero banned virtue naming', () => {
+  const overviewSource = fs.readFileSync(
+    path.join(ROOT, 'src/components/admin/system/SystemOverview.tsx'),
+    'utf-8',
+  );
+  const idx28 = overviewSource.indexOf("version: 'v2.8.28'");
+  const idx27 = overviewSource.indexOf("version: 'v2.8.27'");
+  assert.notEqual(idx28, -1, 'v2.8.28 must exist in SystemOverview.tsx');
+  assert.notEqual(idx27, -1, 'v2.8.27 must exist in SystemOverview.tsx');
+  assert.ok(idx28 < idx27, 'v2.8.28 must be prepended before v2.8.27');
+  assert.equal(overviewSource.includes("date: '26 พ.ย. 2569'"), true);
+  assert.equal(overviewSource.includes('Kampai Hero'), false);
+  assert.equal(overviewSource.includes('Hero XP'), false);
+});
