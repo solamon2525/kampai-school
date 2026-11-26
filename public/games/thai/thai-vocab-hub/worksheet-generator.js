@@ -97,6 +97,104 @@
     return { grid, placed, gridSize };
   }
 
+  function getApprovedCategoryCount(slug, grade) {
+    const list = (window.GAME_DATA && window.GAME_DATA.words && window.GAME_DATA.words[slug]) || [];
+    const targetGrade = grade && grade !== 'all' ? grade : null;
+    let count = 0;
+    for (let i = 0; i < list.length; i++) {
+      const w = list[i];
+      if (!w || w.content_status === 'quarantined') continue;
+      if (targetGrade && w.grade !== targetGrade) continue;
+      count++;
+    }
+    return count;
+  }
+
+  function render100CategoryList() {
+    const grid = document.getElementById('ws100-cat-grid');
+    if (!grid) return;
+    const cats = (window.GAME_DATA && window.GAME_DATA.categories) || [];
+    const grade = (document.getElementById('ws-grade') && document.getElementById('ws-grade').value) || 'all';
+    const prevChecked = new Set(
+      Array.from(grid.querySelectorAll('input[type="checkbox"]:checked')).map(el => el.value)
+    );
+    const hasPrev = grid.dataset.initialized === '1';
+
+    grid.innerHTML = cats.map((cat, idx) => {
+      const count = getApprovedCategoryCount(cat.slug, grade);
+      const checked = hasPrev ? prevChecked.has(cat.slug) : idx < 4;
+      return `
+        <label class="ws100-cat-chip">
+          <input type="checkbox" name="ws100-cat" value="${sanitize(cat.slug)}" ${checked ? 'checked' : ''}>
+          <span class="ws100-cat-icon">${sanitize(cat.icon || '📚')}</span>
+          <span class="ws100-cat-name">${sanitize(cat.title || cat.slug)}</span>
+          <span class="ws100-cat-count">${count}</span>
+        </label>`;
+    }).join('');
+    grid.dataset.initialized = '1';
+    update100PoolSummary();
+  }
+
+  function getSelected100Slugs() {
+    const grid = document.getElementById('ws100-cat-grid');
+    if (!grid) return [];
+    return Array.from(grid.querySelectorAll('input[type="checkbox"]:checked')).map(el => el.value);
+  }
+
+  function setSelected100Slugs(slugs) {
+    const grid = document.getElementById('ws100-cat-grid');
+    if (!grid) return;
+    const set = new Set(slugs);
+    grid.querySelectorAll('input[type="checkbox"]').forEach((el) => {
+      el.checked = set.has(el.value);
+    });
+    update100PoolSummary();
+  }
+
+  function randomize100Categories(count) {
+    const cats = (window.GAME_DATA && window.GAME_DATA.categories) || [];
+    const shuffled = [...cats].sort(() => 0.5 - Math.random());
+    const chosen = shuffled.slice(0, Math.min(count, shuffled.length)).map(c => c.slug);
+    setSelected100Slugs(chosen);
+  }
+
+  function update100PoolSummary() {
+    const el = document.getElementById('ws100-pool-summary');
+    if (!el || !window.ThaiVocabSheet100) return;
+    const slugs = getSelected100Slugs();
+    const grade = (document.getElementById('ws-grade') && document.getElementById('ws-grade').value) || 'all';
+    if (!slugs.length) {
+      el.textContent = '⚠️ กรุณาเลือกอย่างน้อย 1 หมวดหมู่';
+      el.classList.add('is-warn');
+      return;
+    }
+    const pool = window.ThaiVocabSheet100.collectPoolWords(
+      window.GAME_DATA && window.GAME_DATA.words,
+      window.GAME_DATA && window.GAME_DATA.categories,
+      slugs,
+      grade
+    );
+    const setsPossible = Math.max(1, Math.floor(pool.length / 100));
+    el.classList.remove('is-warn');
+    el.textContent = pool.length >= 100
+      ? `✅ เลือก ${slugs.length} หมวด · คำไม่ซ้ำ ${pool.length.toLocaleString()} คำ (สร้างได้ ${setsPossible} ชุด ชุดละ 100 คำ)`
+      : `ℹ️ เลือก ${slugs.length} หมวด · มี ${pool.length} คำ (แนะนำเลือกเพิ่มให้ครบ 100 คำ หรือพิมพ์ตามจำนวนที่มี)`;
+  }
+
+  function toggleWorksheetModeUI() {
+    const typeEl = document.getElementById('ws-type');
+    const panel100 = document.getElementById('ws-100-panel');
+    const answerLabel = document.getElementById('ws-answer-key-label');
+    if (!typeEl || !panel100) return;
+    const is100 = typeEl.value === 'vocab-sheet-100';
+    panel100.style.display = is100 ? 'flex' : 'none';
+    if (answerLabel) {
+      answerLabel.textContent = is100
+        ? 'แนบแผ่นคำอ่านและคำศัพท์สำหรับครู (หน้าถัดไป)'
+        : 'แนบแผ่นเฉลยสำหรับครู (Answer Key)';
+    }
+  }
+
   function openWorksheetModal(activeCat, words) {
     let modal = document.getElementById('tvh-worksheet-modal');
     if (!modal) {
@@ -106,15 +204,16 @@
       modal.innerHTML = `
         <div class="tvh-modal-card" role="dialog" aria-modal="true" aria-labelledby="tvh-ws-title">
           <div class="tvh-modal-header">
-            <h2 id="tvh-ws-title">🖨️ สร้างใบงานแบบฝึกหัด A4 (พร้อมพิมพ์)</h2>
+            <h2 id="tvh-ws-title">🖨️ สร้างใบงานแบบฝึกหัด A4 (พร้อมพิมพ์ / PDF)</h2>
             <button type="button" class="tvh-modal-close" onclick="window.ThaiVocabWorksheet.closeModal()">×</button>
           </div>
           <div class="tvh-modal-body">
-            <p class="tvh-modal-desc">จัดหน้า A4 พอดี 1 หน้ากระดาษ พร้อมช่องคะแนนและใบเฉลยสำหรับครู</p>
+            <p class="tvh-modal-desc">จัดหน้า A4 พอดีกระดาษ รองรับชุดคำศัพท์ 100 คำแบบเลือก/สุ่มหลายหมวด พร้อมส่งออก PDF</p>
             
             <div class="tvh-form-group">
               <label for="ws-type">รูปแบบใบงาน:</label>
               <select id="ws-type" class="tvh-select">
+                <option value="vocab-sheet-100">📋 ชุดคำศัพท์ 100 คำ (ตารางเต็มแผ่น A4 เลือก/สุ่มหลายหมวด)</option>
                 <option value="dictation-10">✍️ ใบงานเขียนตามคำบอก (10 ข้อ)</option>
                 <option value="dictation-20" selected>✍️ ใบงานเขียนตามคำบอก (20 ข้อ)</option>
                 <option value="matching-10">🔗 ใบงานโยงเส้นจับคู่ความหมาย (10 ข้อ)</option>
@@ -126,31 +225,101 @@
             <div class="tvh-form-group">
               <label for="ws-grade">ระดับชั้นเป้าหมาย:</label>
               <select id="ws-grade" class="tvh-select">
-                <option value="all" selected>ทุกระดับชั้นในหมวด (ป.4 - ป.6)</option>
+                <option value="all" selected>ทุกระดับชั้น (ป.4 - ป.6)</option>
                 <option value="ป.4">เฉพาะคำศัพท์ ป.4</option>
                 <option value="ป.5">เฉพาะคำศัพท์ ป.5</option>
                 <option value="ป.6">เฉพาะคำศัพท์ ป.6</option>
               </select>
             </div>
 
+            <div id="ws-100-panel" class="ws100-panel" style="display:none">
+              <div class="ws100-section-head">
+                <span>เลือกหมวดคำศัพท์ที่ต้องการรวมในชุด (สุ่มหรือเลือกเองได้):</span>
+                <div class="ws100-quick-actions">
+                  <button type="button" class="ws100-mini-btn" id="ws100-btn-all">เลือกทั้งหมด</button>
+                  <button type="button" class="ws100-mini-btn" id="ws100-btn-clear">ล้าง</button>
+                  <button type="button" class="ws100-mini-btn" id="ws100-btn-rand4">🎲 สุ่ม 4 หมวด</button>
+                  <button type="button" class="ws100-mini-btn" id="ws100-btn-rand6">🎲 สุ่ม 6 หมวด</button>
+                </div>
+              </div>
+              <div id="ws100-cat-grid" class="ws100-cat-grid"></div>
+              <div id="ws100-pool-summary" class="ws100-pool-summary"></div>
+
+              <div class="ws100-options-grid">
+                <div class="tvh-form-group">
+                  <label for="ws100-mix">วิธีรวมคำศัพท์:</label>
+                  <select id="ws100-mix" class="tvh-select">
+                    <option value="balanced" selected>⚖️ เฉลี่ยเท่ากันทุกหมวดที่เลือก</option>
+                    <option value="random">🎲 สุ่มรวมจากทุกหมวดที่เลือก</option>
+                    <option value="sequential">🔢 เรียงตามลำดับในคลัง</option>
+                  </select>
+                </div>
+                <div class="tvh-form-group">
+                  <label for="ws100-preset">ขนาดตาราง A4 (100 ช่อง):</label>
+                  <select id="ws100-preset" class="tvh-select">
+                    <option value="5x20-portrait" selected>📄 แนวตั้ง 5×20 ช่อง (ตัวใหญ่สุด)</option>
+                    <option value="4x25-portrait">📄 แนวตั้ง 4×25 ช่อง (คำ/สำนวนยาว)</option>
+                    <option value="5x20-landscape">📃 แนวนอน 5×20 ช่อง (ช่องกว้าง)</option>
+                    <option value="10x10-landscape">📃 แนวนอน 10×10 ช่อง (จัตุรัส)</option>
+                  </select>
+                </div>
+                <div class="tvh-form-group">
+                  <label for="ws100-set-count">จำนวนชุดที่สร้าง:</label>
+                  <select id="ws100-set-count" class="tvh-select">
+                    <option value="1" selected>1 ชุด (100 คำ)</option>
+                    <option value="2">2 ชุด (200 คำ ไม่ซ้ำ)</option>
+                    <option value="3">3 ชุด (300 คำ ไม่ซ้ำ)</option>
+                    <option value="5">5 ชุด (500 คำ ไม่ซ้ำ)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="ws100-toggles">
+                <label><input type="checkbox" id="ws100-numbers" checked> แสดงเลขข้อ 1–100</label>
+                <label><input type="checkbox" id="ws100-reading"> แสดงคำอ่าน [...]</label>
+                <label><input type="checkbox" id="ws100-checkbox"> ช่องติ๊กทดสอบอ่าน ☐</label>
+              </div>
+            </div>
+
             <div class="tvh-form-group tvh-checkbox-group">
               <label>
                 <input type="checkbox" id="ws-answer-key" checked>
-                แนบแผ่นเฉลยสำหรับครู (Answer Key)
+                <span id="ws-answer-key-label">แนบแผ่นเฉลยสำหรับครู (Answer Key)</span>
               </label>
             </div>
           </div>
           <div class="tvh-modal-footer">
             <button type="button" class="cbtn" onclick="window.ThaiVocabWorksheet.closeModal()">ยกเลิก</button>
-            <button type="button" class="btn btn-primary" onclick="window.ThaiVocabWorksheet.confirmPrint()">🖨️ เปิดหน้าต่างพิมพ์ A4</button>
+            <button type="button" class="btn btn-primary" onclick="window.ThaiVocabWorksheet.confirmPrint()">🖨️ เปิดหน้าพิมพ์ / Export PDF</button>
           </div>
         </div>
       `;
       document.body.appendChild(modal);
+
+      document.getElementById('ws-type').addEventListener('change', toggleWorksheetModeUI);
+      document.getElementById('ws-grade').addEventListener('change', () => {
+        render100CategoryList();
+      });
+      document.getElementById('ws100-cat-grid').addEventListener('change', update100PoolSummary);
+      document.getElementById('ws100-btn-all').addEventListener('click', () => {
+        const cats = (window.GAME_DATA && window.GAME_DATA.categories) || [];
+        setSelected100Slugs(cats.map(c => c.slug));
+      });
+      document.getElementById('ws100-btn-clear').addEventListener('click', () => setSelected100Slugs([]));
+      document.getElementById('ws100-btn-rand4').addEventListener('click', () => randomize100Categories(4));
+      document.getElementById('ws100-btn-rand6').addEventListener('click', () => randomize100Categories(6));
     }
 
     modal.dataset.slug = activeCat ? activeCat.slug : '';
     modal.dataset.catTitle = activeCat ? activeCat.title : 'คลังคำศัพท์ภาษาไทย';
+
+    render100CategoryList();
+    if (!activeCat) {
+      document.getElementById('ws-type').value = 'vocab-sheet-100';
+    } else if (activeCat.slug) {
+      setSelected100Slugs([activeCat.slug]);
+    }
+    toggleWorksheetModeUI();
     modal.style.display = 'flex';
   }
 
@@ -168,7 +337,64 @@
     const grade = document.getElementById('ws-grade').value;
     const includeAnswerKey = document.getElementById('ws-answer-key').checked;
 
-    let allCatWords = (window.GAME_DATA && window.GAME_DATA.words && window.GAME_DATA.words[slug]) || [];
+    if (type === 'vocab-sheet-100') {
+      if (!window.ThaiVocabSheet100) {
+        alert('ระบบสร้างชุดคำศัพท์ 100 คำกำลังโหลด กรุณาลองอีกครั้งครับ');
+        return;
+      }
+      const selectedSlugs = getSelected100Slugs();
+      if (!selectedSlugs.length) {
+        alert('กรุณาเลือกอย่างน้อย 1 หมวดหมู่สำหรับรวมคำศัพท์ครับ');
+        return;
+      }
+      const pool = window.ThaiVocabSheet100.collectPoolWords(
+        window.GAME_DATA && window.GAME_DATA.words,
+        window.GAME_DATA && window.GAME_DATA.categories,
+        selectedSlugs,
+        grade
+      );
+      if (!pool.length) {
+        alert('ไม่พบคำศัพท์ในหมวดหมู่และระดับชั้นที่เลือก กรุณาเลือกตัวเลือกอื่นครับ');
+        return;
+      }
+      const cats = (window.GAME_DATA && window.GAME_DATA.categories) || [];
+      const catNames = selectedSlugs
+        .map(s => (cats.find(c => c.slug === s) || {}).title || s);
+      const categoriesSummary = catNames.length <= 3
+        ? catNames.join(' + ')
+        : `${catNames.slice(0, 2).join(' + ')} และอีก ${catNames.length - 2} หมวด`;
+
+      const mixMode = document.getElementById('ws100-mix').value;
+      const preset = document.getElementById('ws100-preset').value;
+      const setCount = Number(document.getElementById('ws100-set-count').value) || 1;
+      const showNumbers = document.getElementById('ws100-numbers').checked;
+      const showReading = document.getElementById('ws100-reading').checked;
+      const showCheckbox = document.getElementById('ws100-checkbox').checked;
+
+      closeModal();
+      const win = window.ThaiVocabSheet100.openPreviewWindow({
+        pool,
+        setSize: 100,
+        setCount,
+        mixMode,
+        preset,
+        grade,
+        categoriesSummary,
+        showNumbers,
+        showReading,
+        showCheckbox,
+        includeTeacherKey: includeAnswerKey,
+        title: 'ชุดคำศัพท์ภาษาไทย 100 คำ',
+      });
+      if (!win) {
+        alert('เบราว์เซอร์บล็อกหน้าต่างป็อปอัป กรุณาอนุญาตป็อปอัปเพื่อให้ระบบเปิดหน้าพรีวิวพิมพ์/PDF ได้ครับ');
+      }
+      return;
+    }
+
+    let allCatWords = slug
+      ? ((window.GAME_DATA && window.GAME_DATA.words && window.GAME_DATA.words[slug]) || [])
+      : Object.values((window.GAME_DATA && window.GAME_DATA.words) || {}).flat();
     if (type === 'storyboard-idioms' && !allCatWords.some(w => w && w.images && w.images.length > 0)) {
       if (window.GAME_DATA && window.GAME_DATA.words && window.GAME_DATA.words.idioms) {
         allCatWords = window.GAME_DATA.words.idioms;
