@@ -1654,6 +1654,9 @@ function switchMode(mode) {
   if (activeBtn) activeBtn.classList.add('active');
 
   // ซ่อนแผงโหมดทั้งหมด
+  if (mode !== 'match' && window.ThaiVocabMatch && typeof window.ThaiVocabMatch.cleanup === 'function') {
+    window.ThaiVocabMatch.cleanup();
+  }
   document.getElementById('words-grid').style.display = 'none';
   document.getElementById('dictation-mode').style.display = 'none';
   document.getElementById('choice-mode').style.display = 'none';
@@ -1724,6 +1727,10 @@ function switchMode(mode) {
       currentWordIndex = 0;
       loadChoiceWord();
     } else if (mode === 'match') {
+      if (wordArea) wordArea.style.display = 'none';
+      if (typeof KAMPAI !== 'undefined' && typeof KAMPAI.beginRound === 'function') {
+        KAMPAI.beginRound();
+      }
       document.getElementById('match-mode').style.display = 'flex';
       initMatchingGame();
     } else if (mode === 'listen') {
@@ -2892,135 +2899,34 @@ function flashMarkKnown(isKnown) {
   renderFlashCard();
 }
 
-// ═══ MODE 4: MATCHING GAME (จับคู่คำอ่าน) ═══
+// ═══ MODE 4: MATCHING GAME (จับคู่ความหมาย & การ์ดคว่ำ) ═══
 
 function initMatchingGame() {
-  matchedPairsCount = 0;
-  selectedMatchLeft = null;
-  selectedMatchRight = null;
-
-  const pool = getQuizWords();
-  let matchWords = shuffle([...pool]).slice(0, 4);
-
-  if (activeCategorySlug === 'antonyms') {
-    const byPair = new Map();
-    pool.forEach((w) => {
-      if (w.pair_id) byPair.set(w.pair_id, [...(byPair.get(w.pair_id) || []), w]);
-    });
-    const groups = shuffle([...byPair.values()].filter((g) => g.length >= 2)).slice(0, 2);
-    if (groups.length >= 2) matchWords = groups.flat();
-  }
-
-  const leftCol = document.getElementById('match-left');
-  const rightCol = document.getElementById('match-right');
-
-  leftCol.innerHTML = '';
-  rightCol.innerHTML = '';
-
-  let leftItems;
-  let rightItems;
-
-  if (activeCategorySlug === 'antonyms') {
-    leftItems = shuffle(matchWords.map((w) => ({ id: w.pair_id || w.word, text: w.word })));
-    rightItems = shuffle(matchWords.map((w) => {
-      const partner = pool.find((p) => p.pair_id === w.pair_id && p.word !== w.word);
-      return { id: w.pair_id || w.word, text: partner ? partner.word : w.word };
-    }));
-  } else {
-    leftItems = shuffle(matchWords.map((w) => ({ id: w.word, text: w.word })));
-    rightItems = shuffle(matchWords.map((w) => ({ id: w.word, text: w.reading })));
-  }
-
-  leftItems.forEach(item => {
-    const card = document.createElement('div');
-    card.className = 'match-card';
-    card.textContent = item.text;
-    card.onclick = () => selectMatch(item.id, card, 'left');
-    leftCol.appendChild(card);
-  });
-
-  rightItems.forEach(item => {
-    const card = document.createElement('div');
-    card.className = 'match-card';
-    card.textContent = `[ ${item.text} ]`;
-    card.onclick = () => selectMatch(item.id, card, 'right');
-    rightCol.appendChild(card);
-  });
-}
-
-function selectMatch(id, cardElement, side) {
-  if (cardElement.classList.contains('matched') || cardElement.classList.contains('error')) {
-    return;
-  }
-
-  if (side === 'left') {
-    const activeLeft = document.querySelector('#match-left .match-card.active');
-    if (activeLeft) activeLeft.classList.remove('active');
-    
-    selectedMatchLeft = { id, el: cardElement };
-    cardElement.classList.add('active');
-    
-    // พูดออกเสียงคำศัพท์
-    speakThai(id);
-  } else {
-    const activeRight = document.querySelector('#match-right .match-card.active');
-    if (activeRight) activeRight.classList.remove('active');
-    
-    selectedMatchRight = { id, el: cardElement };
-    cardElement.classList.add('active');
-  }
-
-  // หากเลือกจับคู่ทั้งสองข้าง
-  if (selectedMatchLeft && selectedMatchRight) {
-    const leftNode = selectedMatchLeft;
-    const rightNode = selectedMatchRight;
-
-    selectedMatchLeft = null;
-    selectedMatchRight = null;
-
-    if (leftNode.id === rightNode.id) {
-      // จับคู่ถูกต้อง
-      leftNode.el.classList.remove('active');
-      rightNode.el.classList.remove('active');
-      leftNode.el.classList.add('matched');
-      rightNode.el.classList.add('matched');
-
-      currentScore += CONFIG.BASE_SCORE;
-      matchedPairsCount++;
-      recordAnswer(categoryWords.find(w => w.word === leftNode.id), true);
+  if (!window.ThaiVocabMatch) return;
+  window.ThaiVocabMatch.mount({
+    getPool: () => getQuizWords(),
+    getCategorySlug: () => activeCategorySlug,
+    speak: (text) => speakThai(text),
+    getBaseScore: () => CONFIG.BASE_SCORE,
+    toast: (msg, kind) => showToast(msg, kind),
+    onCorrect: (wordItem, points) => {
+      currentScore += points;
+      recordAnswer(wordItem, true);
       updateHUD();
       KAMPAI.sound.correct();
-
-      // ตรวจสอบว่าผ่านครบหมดตารางหรือยัง
-      if (matchedPairsCount === 4) {
-        showToast('จับคู่ถูกต้องครบถ้วน! 🔗', 'correct');
-        setTimeout(() => {
-          // รีเซ็ตด่านถัดไป
-          initMatchingGame();
-        }, 1500);
-      }
-    } else {
-      // จับคู่ผิดพลาด
-      leftNode.el.classList.remove('active');
-      rightNode.el.classList.remove('active');
-      leftNode.el.classList.add('error');
-      rightNode.el.classList.add('error');
-
+    },
+    onWrong: (wordItem) => {
       currentLives--;
-      recordAnswer(categoryWords.find(w => w.word === leftNode.id), false);
+      recordAnswer(wordItem, false);
       updateHUD();
       KAMPAI.sound.wrong();
-
-      setTimeout(() => {
-        leftNode.el.classList.remove('error');
-        rightNode.el.classList.remove('error');
-        
-        if (currentLives <= 0) {
-          endGame();
-        }
-      }, 800);
-    }
-  }
+      return currentLives > 0;
+    },
+    onRoundEnd: () => {
+      endGame();
+    },
+  });
+  window.ThaiVocabMatch.start();
 }
 
 // ═══ WEB SPEECH TEXT-TO-SPEECH (ภาษาไทย) ═══
