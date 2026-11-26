@@ -88,7 +88,27 @@
   const morphSound = new MorphAudio();
 
   // ─── 2. Speech Synthesis สำหรับอ่านสะกดแจกลูกคำ ─────────────────
+  function cancelMorphSpeech() {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+  }
+
+  function buildMorphEquationText(preset, example) {
+    const core = `${example.initialName} - ${preset.vowelNameSpoken} - ${example.finalName}`;
+    return example.prefixWord
+      ? `${example.prefixWord} + ${core} = ${example.word}`
+      : `${core} = ${example.word}`;
+  }
+
+  function buildMorphSpeechText(preset, example) {
+    const core = `${example.initialName} ${preset.vowelNameSpoken} ${example.finalName}`.replace(/\s*-\s*/g, ' ');
+    const basePart = example.prefixWord ? `${example.prefixWord} ${core}` : core;
+    return `${basePart} อ่านว่า ${example.word}`;
+  }
+
   function speakPhonics(text) {
+    if (!morphSound.enabled) return;
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
@@ -173,15 +193,15 @@
         "initial": "ช",
         "initialName": "ชอ",
         "final": "ญ",
-        "finalName": "ยอ",
+        "finalName": "ญอ",
         "word": "เชิญ"
       },
       {
-        "initial": "จร",
-        "initialName": "จอ - รอ",
-        "final": "ญ",
-        "finalName": "ยอ",
-        "word": "เจริญ"
+        "initial": "ช",
+        "initialName": "ชอ",
+        "final": "ด",
+        "finalName": "ดอ",
+        "word": "เชิด"
       },
       {
         "initial": "ม",
@@ -227,17 +247,17 @@
       },
       {
         "initial": "สร",
-        "initialName": "สอ - รอ",
+        "initialName": "สอ",
         "final": "ม",
         "finalName": "มอ",
         "word": "เสริม"
       },
       {
-        "initial": "ผช",
-        "initialName": "ผอ - ชอ",
-        "final": "ญ",
-        "finalName": "ยอ",
-        "word": "เผชิญ"
+        "initial": "ถ",
+        "initialName": "ถอ",
+        "final": "ด",
+        "finalName": "ดอ",
+        "word": "เถิด"
       },
       {
         "initial": "พล",
@@ -247,18 +267,18 @@
         "word": "เพลิด"
       },
       {
-        "initial": "ตล",
-        "initialName": "ตอ - ลอ",
-        "final": "ด",
-        "finalName": "ดอ",
-        "word": "เตลิด"
+        "initial": "บ",
+        "initialName": "บอ",
+        "final": "ก",
+        "finalName": "กอ",
+        "word": "เบิก"
       },
       {
-        "initial": "ก",
-        "initialName": "กอ",
+        "initial": "ห",
+        "initialName": "หอ",
         "final": "น",
         "finalName": "นอ",
-        "word": "เกริ่น"
+        "word": "เหิน"
       },
       {
         "initial": "ข",
@@ -268,25 +288,25 @@
         "word": "เขิน"
       },
       {
-        "initial": "ป",
-        "initialName": "ปอ",
-        "final": "น",
-        "finalName": "นอ",
-        "word": "เปิ่น"
+        "initial": "จ",
+        "initialName": "จอ",
+        "final": "ม",
+        "finalName": "มอ",
+        "word": "เจิม"
       },
       {
-        "initial": "ย",
-        "initialName": "ยอ",
-        "final": "น",
-        "finalName": "นอ",
-        "word": "เยิ่น"
+        "initial": "ช",
+        "initialName": "ชอ",
+        "final": "ง",
+        "finalName": "งอ",
+        "word": "เชิง"
       },
       {
-        "initial": "น",
-        "initialName": "นอ",
-        "final": "น",
-        "finalName": "นอ",
-        "word": "เนิ่น"
+        "initial": "ท",
+        "initialName": "ทอ",
+        "final": "ด",
+        "finalName": "ดอ",
+        "word": "เทิด"
       },
       {
         "initial": "ฉ",
@@ -416,46 +436,46 @@
         "word": "เขย"
       },
       {
-        "initial": "ย้",
-        "initialName": "ยอ - ้",
+        "initial": "ส",
+        "initialName": "สอ",
         "final": "ย",
         "finalName": "ยอ",
-        "word": "เย้ย"
+        "word": "เสย"
       },
       {
-        "initial": "ะเล",
-        "initialName": "ะ - เ - ลอ",
+        "initial": "ท",
+        "initialName": "ทอ",
         "final": "ย",
         "finalName": "ยอ",
-        "word": "ละเลย"
+        "word": "เทย"
       },
       {
-        "initial": "อกเง",
-        "initialName": "ออ - กอ - เ - งอ",
+        "initial": "ว",
+        "initialName": "วอ",
         "final": "ย",
         "finalName": "ยอ",
-        "word": "งอกเงย"
+        "word": "เวย"
       },
       {
-        "initial": "ปิดเผ",
-        "initialName": "ปอ - ิ - ดอ - เ - ผอ",
+        "initial": "ห",
+        "initialName": "หอ",
         "final": "ย",
         "finalName": "ยอ",
-        "word": "เปิดเผย"
+        "word": "เหย"
       },
       {
-        "initial": "ุ้นเค",
-        "initialName": "ุ - ้ - นอ - เ - คอ",
+        "initial": "ปร",
+        "initialName": "ปอ - รอ",
         "final": "ย",
         "finalName": "ยอ",
-        "word": "คุ้นเคย"
+        "word": "เปรย"
       },
       {
-        "initial": "ฉยเม",
-        "initialName": "ฉอ - ยอ - เ - มอ",
+        "initial": "ชล",
+        "initialName": "ชอ - ลอ",
         "final": "ย",
         "finalName": "ยอ",
-        "word": "เฉยเมย"
+        "word": "เชลย"
       }
     ]
   },
@@ -853,7 +873,7 @@
       },
       {
         "initial": "สร",
-        "initialName": "สอ - รอ",
+        "initialName": "สอ",
         "final": "จ",
         "finalName": "จอ",
         "word": "เสร็จ"
@@ -862,7 +882,7 @@
         "initial": "ข",
         "initialName": "ขอ",
         "final": "ญ",
-        "finalName": "ยอ",
+        "finalName": "ญอ",
         "word": "เข็ญ"
       },
       {
@@ -929,11 +949,11 @@
         "word": "เหม็น"
       },
       {
-        "initial": "ป",
-        "initialName": "ปอ",
-        "final": "ก",
-        "finalName": "กอ",
-        "word": "เป๊ก"
+        "initial": "ด",
+        "initialName": "ดอ",
+        "final": "ด",
+        "finalName": "ดอ",
+        "word": "เด็ด"
       },
       {
         "initial": "อ",
@@ -950,11 +970,11 @@
         "word": "เข็ด"
       },
       {
-        "initial": "พ",
-        "initialName": "พอ",
-        "final": "ฌ",
-        "finalName": "ชอ",
-        "word": "เพชฌ"
+        "initial": "ห",
+        "initialName": "หอ",
+        "final": "บ",
+        "finalName": "บอ",
+        "word": "เห็บ"
       }
     ]
   },
@@ -1000,48 +1020,6 @@
         "word": "แกร็น"
       },
       {
-        "initial": "ข",
-        "initialName": "ขอ",
-        "final": "ง",
-        "finalName": "งอ",
-        "word": "แข็งแรง"
-      },
-      {
-        "initial": "ก",
-        "initialName": "กอ",
-        "final": "ง",
-        "finalName": "งอ",
-        "word": "แกร่ง"
-      },
-      {
-        "initial": "ค",
-        "initialName": "คอ",
-        "final": "น",
-        "finalName": "นอ",
-        "word": "แค่น"
-      },
-      {
-        "initial": "น",
-        "initialName": "นอ",
-        "final": "น",
-        "finalName": "นอ",
-        "word": "แน่น"
-      },
-      {
-        "initial": "ต",
-        "initialName": "ตอ",
-        "final": "ม",
-        "finalName": "มอ",
-        "word": "แต้ม"
-      },
-      {
-        "initial": "ย",
-        "initialName": "ยอ",
-        "final": "ม",
-        "finalName": "มอ",
-        "word": "แย้ม"
-      },
-      {
         "initial": "ม",
         "initialName": "มอ",
         "final": "ก",
@@ -1049,39 +1027,81 @@
         "word": "แม็ก"
       },
       {
-        "initial": "ป",
-        "initialName": "ปอ",
+        "initial": "ท",
+        "initialName": "ทอ",
         "final": "ก",
         "finalName": "กอ",
-        "word": "แป๊ก"
+        "word": "แท็ก"
       },
       {
-        "initial": "จ",
-        "initialName": "จอ",
+        "initial": "พ",
+        "initialName": "พอ",
         "final": "ก",
         "finalName": "กอ",
-        "word": "แจ๊ก"
+        "word": "แพ็ก"
       },
       {
-        "initial": "ป",
-        "initialName": "ปอ",
-        "final": "ะ",
-        "finalName": "ะ",
-        "word": "แป๊ะ"
+        "initial": "ล",
+        "initialName": "ลอ",
+        "final": "ก",
+        "finalName": "กอ",
+        "word": "แล็ก"
+      },
+      {
+        "initial": "ซ",
+        "initialName": "ซอ",
+        "final": "ก",
+        "finalName": "กอ",
+        "word": "แซ็ก"
+      },
+      {
+        "initial": "บ",
+        "initialName": "บอ",
+        "final": "ก",
+        "finalName": "กอ",
+        "word": "แบ็ก"
+      },
+      {
+        "initial": "ฟ",
+        "initialName": "ฟอ",
+        "final": "ก",
+        "finalName": "กอ",
+        "word": "แฟ็ก"
+      },
+      {
+        "initial": "ค",
+        "initialName": "คอ",
+        "final": "บ",
+        "finalName": "บอ",
+        "word": "แค็บ"
+      },
+      {
+        "initial": "กร",
+        "initialName": "กอ - รอ",
+        "final": "บ",
+        "finalName": "บอ",
+        "word": "แกร็บ"
+      },
+      {
+        "initial": "ง",
+        "initialName": "งอ",
+        "final": "บ",
+        "finalName": "บอ",
+        "word": "แง็บ"
       },
       {
         "initial": "ว",
         "initialName": "วอ",
-        "final": "น",
-        "finalName": "นอ",
-        "word": "แว่น"
+        "final": "บ",
+        "finalName": "บอ",
+        "word": "แว็บ"
       },
       {
-        "initial": "ก",
-        "initialName": "กอ",
-        "final": "น",
-        "finalName": "นอ",
-        "word": "แก่น"
+        "initial": "ผล",
+        "initialName": "ผอ - ลอ",
+        "final": "บ",
+        "finalName": "บอ",
+        "word": "แผล็บ"
       }
     ]
   },
@@ -1345,7 +1365,7 @@
       },
       {
         "initial": "ทร",
-        "initialName": "ทอ - รอ",
+        "initialName": "ซอ",
         "final": "ง",
         "finalName": "งอ",
         "word": "ทรง"
@@ -1515,7 +1535,7 @@
       },
       {
         "initial": "ทร",
-        "initialName": "ทอ - รอ",
+        "initialName": "ซอ",
         "final": "ง",
         "finalName": "งอ",
         "word": "ทรวง"
@@ -1606,71 +1626,81 @@
         "word": "นร"
       },
       {
-        "initial": "ละค",
-        "initialName": "ลอ - ะ - คอ",
+        "prefixWord": "ละ",
+        "initial": "ค",
+        "initialName": "คอ",
         "final": "ร",
         "finalName": "รอ",
         "word": "ละคร"
       },
       {
-        "initial": "เกส",
-        "initialName": "เ - กอ - สอ",
+        "prefixWord": "เก",
+        "initial": "ส",
+        "initialName": "สอ",
         "final": "ร",
         "finalName": "รอ",
         "word": "เกสร"
       },
       {
-        "initial": "วาน",
-        "initialName": "วอ - า - นอ",
+        "prefixWord": "วา",
+        "initial": "น",
+        "initialName": "นอ",
         "final": "ร",
         "finalName": "รอ",
         "word": "วานร"
       },
       {
-        "initial": "จรล",
-        "initialName": "จอ - รอ - ลอ",
+        "prefixWord": "ส",
+        "initial": "ม",
+        "initialName": "มอ",
         "final": "ร",
         "finalName": "รอ",
-        "word": "จรลี"
+        "word": "สมร"
       },
       {
-        "initial": "บว",
-        "initialName": "บอ - วอ",
+        "prefixWord": "บ",
+        "initial": "ว",
+        "initialName": "วอ",
         "final": "ร",
         "finalName": "รอ",
         "word": "บวร"
       },
       {
-        "initial": "มรณ",
-        "initialName": "มอ - รอ - นอ",
+        "prefixWord": "นิ",
+        "initial": "ก",
+        "initialName": "กอ",
         "final": "ร",
         "finalName": "รอ",
-        "word": "มรณา"
+        "word": "นิกร"
       },
       {
-        "initial": "อัมพ",
-        "initialName": "ออ - ั - มอ - พอ",
+        "prefixWord": "อัม",
+        "initial": "พ",
+        "initialName": "พอ",
         "final": "ร",
         "finalName": "รอ",
         "word": "อัมพร"
       },
       {
-        "initial": "ขจ",
-        "initialName": "ขอ - จอ",
+        "prefixWord": "ข",
+        "initial": "จ",
+        "initialName": "จอ",
         "final": "ร",
         "finalName": "รอ",
         "word": "ขจร"
       },
       {
-        "initial": "นค",
-        "initialName": "นอ - คอ",
+        "prefixWord": "น",
+        "initial": "ค",
+        "initialName": "คอ",
         "final": "ร",
         "finalName": "รอ",
         "word": "นคร"
       },
       {
-        "initial": "กำจ",
-        "initialName": "กอ - ำ - จอ",
+        "prefixWord": "กำ",
+        "initial": "จ",
+        "initialName": "จอ",
         "final": "ร",
         "finalName": "รอ",
         "word": "กำจร"
@@ -1714,7 +1744,7 @@
       modal.className = 'tvh-modal-backdrop morph-theater-backdrop';
       modal.innerHTML = `
         <div class="tvh-modal-card morph-theater-card" role="dialog" aria-modal="true" aria-labelledby="morph-theater-title">
-          {/* Header */}
+          <!-- Header -->
           <div class="morph-theater-header">
             <div class="morph-header-left">
               <span class="morph-pill-badge">นวัตกรรมสื่อการสอน</span>
@@ -1726,7 +1756,7 @@
             </div>
           </div>
 
-          {/* Preset Selector Tabs */}
+          <!-- Preset Selector Tabs -->
           <div class="morph-preset-bar" role="tablist" aria-label="เลือกสระแปลงร่าง">
             ${MORPH_PRESETS.map((p, idx) => `
               <button type="button" class="morph-preset-tab ${idx === 0 ? 'active' : ''}"
@@ -1736,7 +1766,7 @@
             `).join('')}
           </div>
 
-          {/* Rule Information Banner */}
+          <!-- Rule Information Banner -->
           <div class="morph-rule-banner">
             <div class="morph-rule-badge" id="morph-rule-type">สระเปลี่ยนรูป</div>
             <div class="morph-rule-desc" id="morph-rule-desc">
@@ -1744,13 +1774,13 @@
             </div>
           </div>
 
-          {/* ═══ THEATER STAGE (จอใหญ่ 120px+) ═══ */}
+          <!-- ═══ THEATER STAGE (จอใหญ่ 120px+) ═══ -->
           <div class="morph-stage-wrapper">
             <div class="morph-stage-screen" id="morph-stage-screen">
-              {/* Dynamic Animated Content Injected Here */}
+              <!-- Dynamic Animated Content Injected Here -->
             </div>
 
-            {/* Phonics Equation Subtitle */}
+            <!-- Phonics Equation Subtitle -->
             <div class="morph-equation-box" id="morph-equation-box">
               <span id="eq-spelling" class="eq-spelling">กอ - เออ - ดอ = เกิด</span>
               <button type="button" class="btn-voice-pill" onclick="window.ThaiVowelMorph.speakCurrent()">
@@ -1759,13 +1789,13 @@
             </div>
           </div>
 
-          {/* Examples Quick Buttons */}
+          <!-- Examples Quick Buttons -->
           <div class="morph-examples-row">
             <span class="morph-ex-label">คำตัวอย่าง:</span>
             <div id="morph-examples-chips" class="morph-examples-chips"></div>
           </div>
 
-          {/* Controls Footer */}
+          <!-- Controls Footer -->
           <div class="morph-theater-footer">
             <div class="morph-step-indicator" id="morph-step-indicator">
               <span class="step-dot active">1. พยัญชนะ+สระ</span>
@@ -1791,6 +1821,7 @@
       if (audioBtn) {
         audioBtn.addEventListener('click', () => {
           morphSound.enabled = !morphSound.enabled;
+          if (!morphSound.enabled) cancelMorphSpeech();
           audioBtn.textContent = morphSound.enabled ? '🔊 เสียง' : '🔇 ปิดเสียง';
         });
       }
@@ -1823,6 +1854,8 @@
 
     const preset = MORPH_PRESETS[currentPresetIndex];
     const example = preset.examples[currentExampleIndex] || preset.examples[0];
+    const prefixWord = example.prefixWord || '';
+    const prefixWordHtml = prefixWord ? `<span class="char-initial char-initial-leading">${prefixWord}</span>` : '';
     const initial = example.initial;
     const finalC = example.final;
     const targetWord = example.word;
@@ -1851,13 +1884,14 @@
     }
 
     // Phonics readout text
-    const spellingText = `${example.initialName} - ${preset.vowelNameSpoken} - ${example.finalName} = ${targetWord}`;
+    const spellingText = buildMorphEquationText(preset, example);
     if (eqBox) eqBox.textContent = spellingText;
 
     // ═══ RENDER STEP 1: BASE (Initial Consonant + Vowel) ═══
     if (currentStep === 1) {
       stage.innerHTML = `
         <div class="morph-char-group step-1">
+          ${prefixWordHtml}
           ${preset.baseForm.prefix ? `<span class="char-vowel char-prefix">${preset.baseForm.prefix}</span>` : ''}
           ${leadHtml}
           <div class="${slotClass}">
@@ -1874,6 +1908,7 @@
       morphSound.playWhoosh();
       stage.innerHTML = `
         <div class="morph-char-group step-2">
+          ${prefixWordHtml}
           ${preset.baseForm.prefix ? `<span class="char-vowel char-prefix">${preset.baseForm.prefix}</span>` : ''}
           ${leadHtml}
           <div class="${slotClass}">
@@ -1989,6 +2024,7 @@
         // -อ + ร -> อ ระเหยหายไป
         stage.innerHTML = `
           <div class="morph-char-group step-3 morphing word-elastic-settle">
+            ${prefixWordHtml}
             ${leadHtml}
             <div class="${slotClass}">
               <span class="char-initial">${targetInitial}</span>
@@ -1999,8 +2035,8 @@
         `;
       }
 
-      // Voice read out on resolution
-      speakPhonics(spellingText);
+      // Voice read out on resolution (only if audio enabled)
+      speakPhonics(buildMorphSpeechText(preset, example));
     }
   }
 
@@ -2115,8 +2151,7 @@
     speakCurrent() {
       const preset = MORPH_PRESETS[currentPresetIndex];
       const example = preset.examples[currentExampleIndex] || preset.examples[0];
-      const spelling = `${example.initialName} - ${preset.vowelNameSpoken} - ${example.finalName} = ${example.word}`;
-      speakPhonics(spelling);
+      speakPhonics(buildMorphSpeechText(preset, example));
     },
 
     // Utility: ตรวจสอบว่าคำในระบบเป็นสระแปลงร่างหรือไม่
