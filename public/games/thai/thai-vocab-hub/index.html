@@ -230,9 +230,26 @@
 
         <!-- 3. Choice Quiz (ทายคำ) -->
         <div id="choice-mode" class="mode-panel" style="display:none">
-            <div class="choice-card">
+            <div class="choice-card quiz-arena-card">
+                <div id="choice-hud-bar" class="quiz-hud-bar">
+                    <div class="quiz-hud-meta">
+                        <span id="choice-progress-badge" class="quiz-pill">ข้อ 1/12</span>
+                        <span id="choice-combo-badge" class="quiz-pill quiz-combo-pill">✨ คอมโบ 0</span>
+                    </div>
+                    <div class="quiz-hud-actions">
+                        <button type="button" id="choice-hint-btn" class="quiz-tool-btn">💡 ตัดตัวเลือก 50/50 (2)</button>
+                        <button type="button" id="choice-speak-btn" class="quiz-tool-btn">🔊 ฟังเสียง</button>
+                    </div>
+                </div>
+                <div class="quiz-kind-row">
+                    <span id="choice-kind-badge" class="choice-kind-badge">ทายความหมาย</span>
+                </div>
                 <div id="choice-question-text" class="choice-q">ความหมายของคำศัพท์...</div>
                 <div id="choice-options" class="options-grid"></div>
+                <div id="choice-feedback-box" class="quiz-feedback-box" style="display:none" aria-live="polite">
+                    <div id="choice-feedback-text" class="quiz-feedback-text"></div>
+                    <button type="button" id="choice-next-btn" class="btn btn-primary quiz-next-btn">ข้อถัดไป ▶</button>
+                </div>
             </div>
         </div>
 
@@ -267,10 +284,27 @@
 
         <!-- 5. Listen (ฟังเสียงทายคำ) -->
         <div id="listen-mode" class="mode-panel" style="display:none">
-            <div class="choice-card">
-                <button type="button" class="voice-btn" onclick="replayListenWord()">🔊 ฟังเสียงอีกครั้ง</button>
+            <div class="choice-card quiz-arena-card">
+                <div id="listen-hud-bar" class="quiz-hud-bar">
+                    <div class="quiz-hud-meta">
+                        <span id="listen-progress-badge" class="quiz-pill">ข้อ 1/12</span>
+                        <span id="listen-combo-badge" class="quiz-pill quiz-combo-pill">✨ คอมโบ 0</span>
+                    </div>
+                    <div class="quiz-hud-actions">
+                        <button type="button" id="listen-hint-btn" class="quiz-tool-btn">💡 ใบ้ความหมาย (2)</button>
+                    </div>
+                </div>
+                <div class="listen-audio-row">
+                    <button type="button" id="listen-play-btn" class="voice-btn listen-play-btn" onclick="replayListenWord()">🔊 ฟังปกติ</button>
+                    <button type="button" id="listen-slow-btn" class="voice-btn listen-slow-btn">🐢 ฟังช้าๆ</button>
+                </div>
                 <p class="dictation-hint" id="listen-hint">ได้ยินคำว่าอะไร? เลือกคำที่ถูกต้อง</p>
+                <div id="listen-clue-box" class="listen-clue-box" style="display:none" aria-live="polite"></div>
                 <div id="listen-options" class="options-grid"></div>
+                <div id="listen-feedback-box" class="quiz-feedback-box" style="display:none" aria-live="polite">
+                    <div id="listen-feedback-text" class="quiz-feedback-text"></div>
+                    <button type="button" id="listen-next-btn" class="btn btn-primary quiz-next-btn">ข้อถัดไป ▶</button>
+                </div>
             </div>
         </div>
 
@@ -296,21 +330,28 @@
     <!-- Bottom Toolbar -->
     <div id="bottom-bar">
         <div id="controls-row">
-            <button class="cbtn" id="btn-home" onclick="returnToHub()">← คลังหัวข้อ</button>
-            <button class="cbtn mbtn active" id="m-auto" data-kampai-action="start" onclick="switchMode('auto')">📋 ภาพรวม</button>
-            <button class="cbtn mbtn" id="m-flash" onclick="switchMode('flash')">🎲 สุ่มการ์ด</button>
-            <button class="cbtn mbtn" id="m-listen" onclick="switchMode('listen')">🎧 ฟังทายคำ</button>
-            <button class="cbtn mbtn" id="m-dictation" onclick="switchMode('dictation')">✍️ เขียนตามคำบอก</button>
-            <button class="cbtn mbtn" id="m-choice" onclick="switchMode('choice')">🎯 ทายความหมาย</button>
-            <button class="cbtn mbtn" id="m-match" onclick="switchMode('match')">🔗 จับคู่</button>
-            <button class="cbtn mbtn" id="m-visual" onclick="switchMode('visual')" style="display:none">🖼️ ภาพประกอบ</button>
-            
+            <div class="toolbar-group-student" role="group" aria-label="โหมดฝึกซ้อมนักเรียน">
+                <button class="cbtn" id="btn-home" onclick="returnToHub()">← คลังหัวข้อ</button>
+                <button class="cbtn mbtn active" id="m-auto" data-kampai-action="start" onclick="switchMode('auto')">📋 ภาพรวม</button>
+                <button class="cbtn mbtn" id="m-flash" onclick="switchMode('flash')">🎲 สุ่มการ์ด</button>
+                <button class="cbtn mbtn" id="m-listen" onclick="switchMode('listen')">🎧 ฟังทายคำ</button>
+                <button class="cbtn mbtn" id="m-dictation" onclick="switchMode('dictation')">✍️ เขียนตามคำบอก</button>
+                <button class="cbtn mbtn" id="m-choice" onclick="switchMode('choice')">🎯 ทายความหมาย</button>
+                <button class="cbtn mbtn" id="m-match" onclick="switchMode('match')">🔗 จับคู่</button>
+                <button class="cbtn mbtn" id="m-visual" onclick="switchMode('visual')" style="display:none">🖼️ ภาพประกอบ</button>
+            </div>
+
             <!-- Classroom Teacher Tools -->
-            <button class="cbtn" onclick="window.ThaiVocabClassroom.openSpinnerModal(activeCategory, categoryWords)" title="วงล้อสุ่มคำศัพท์">🎡 วงล้อสุ่ม</button>
-            <button class="cbtn" onclick="window.ThaiVocabClassroom.openTeamBattleModal(activeCategory, categoryWords)" title="แข่งขัน ๒ ทีม">⚔️ แข่ง ๒ ทีม</button>
-            <button class="cbtn" onclick="window.ThaiVocabWorksheet.openModal(activeCategory, categoryWords)" title="พิมพ์ใบงาน A4">🖨️ ใบงาน A4</button>
-            <button type="button" class="cbtn" onclick="window.ThaiVowelMorph.open()" title="ห้องเรียนสระแปลงร่างและสระลดรูป">✨ สระแปลงร่าง</button>
-            <button type="button" class="cbtn" onclick="window.ThaiReadingTrainer && window.ThaiReadingTrainer.open()" title="ฝึกอ่านคำยากและคำราชาศัพท์">📖 ฝึกอ่าน</button>
+            <div class="toolbar-group-teacher" role="group" aria-label="เครื่องมือครูและห้องเรียน">
+                <button type="button" class="cbtn toolbar-teacher-toggle" id="btn-teacher-tools-toggle" aria-expanded="false" aria-controls="teacher-tools-drawer" onclick="var g=this.closest('.toolbar-group-teacher');if(g){var o=g.classList.toggle('is-open');this.setAttribute('aria-expanded',o?'true':'false');}">🧰 เครื่องมือครู ▾</button>
+                <div id="teacher-tools-drawer" class="teacher-tools-drawer">
+                    <button class="cbtn" onclick="window.ThaiVocabClassroom.openSpinnerModal(activeCategory, categoryWords)" title="วงล้อสุ่มคำศัพท์">🎡 วงล้อสุ่ม</button>
+                    <button class="cbtn" onclick="window.ThaiVocabClassroom.openTeamBattleModal(activeCategory, categoryWords)" title="แข่งขัน ๒ ทีม">⚔️ แข่ง ๒ ทีม</button>
+                    <button class="cbtn" onclick="window.ThaiVocabWorksheet.openModal(activeCategory, categoryWords)" title="พิมพ์ใบงาน A4">🖨️ ใบงาน A4</button>
+                    <button type="button" class="cbtn" onclick="window.ThaiVowelMorph.open()" title="ห้องเรียนสระแปลงร่างและสระลดรูป">✨ สระแปลงร่าง</button>
+                    <button type="button" class="cbtn" onclick="window.ThaiReadingTrainer && window.ThaiReadingTrainer.open()" title="ฝึกอ่านคำยากและคำราชาศัพท์">📖 ฝึกอ่าน</button>
+                </div>
+            </div>
         </div>
         <div id="dots"></div>
         <div id="score-display" style="display:none">
@@ -631,6 +672,7 @@ window.KampaiVersus = window.KampaiVersus || { create:function(){return{availabl
 <script src="sound-twins.js"></script>
 <script src="reading-trainer.js"></script>
 <script src="match-engine.js"></script>
+<script src="quiz-engine.js"></script>
 <script src="game.js"></script>
 </body>
 </html>
