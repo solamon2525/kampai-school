@@ -2344,7 +2344,7 @@ body {
     flex-direction: column;
     height: auto;
     gap: 8px;
-    padding: 8px 10px 12px;
+    padding: 8px 10px 64px;
   }
   #controls-row {
     flex-direction: column;
@@ -6886,3 +6886,33 @@ body.modal-open {
   gap: 10px;
 }
 @media (max-width: 560px) { .studio-challenge-options { grid-template-columns: 1fr; } }
+
+/* Buzzer Team Battle Upgrades */
+.team-buzzer-btn {
+  cursor: pointer;
+  font-family: inherit;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.team-buzzer-btn:hover { transform: translateY(-2px); }
+.team-red.is-buzzed {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 18px rgba(239, 68, 68, 0.55);
+  transform: scale(1.03);
+}
+.team-blue.is-buzzed {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 18px rgba(59, 130, 246, 0.55);
+  transform: scale(1.03);
+}
+.battle-buzzer-status {
+  text-align: center;
+  font-size: 13.5px;
+  font-weight: 700;
+  padding: 6px 12px;
+  margin: 0 16px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #fde68a;
+}
+.battle-buzzer-status.is-red { background: rgba(239, 68, 68, 0.2); color: #fecaca; }
+.battle-buzzer-status.is-blue { background: rgba(59, 130, 246, 0.2); color: #bfdbfe; }

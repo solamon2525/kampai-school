@@ -79,6 +79,7 @@
           </div>
           <div class="tvh-modal-footer">
             <button type="button" class="cbtn" onclick="window.ThaiVocabClassroom.closeSpinner()">ปิด</button>
+            <button type="button" class="cbtn" id="btn-reroll-wheel" onclick="window.ThaiVocabClassroom.rerollWheel()">🎲 สุ่มคำใหม่บนวงล้อ</button>
             <button type="button" id="btn-spin-wheel" class="btn btn-primary" onclick="window.ThaiVocabClassroom.spinWheel()">🎯 กดหมุนวงล้อ (Spacebar)</button>
           </div>
         </div>
@@ -86,13 +87,23 @@
       document.body.appendChild(modal);
     }
 
-    const approved = (words || []).filter(w => w && w.content_status !== 'quarantined');
-    // Pick 8 to 12 words for the wheel
-    const shuffled = [...approved].sort(() => 0.5 - Math.random());
+    spinnerPoolWords = (words || []).filter(w => w && w.content_status !== 'quarantined');
+    const shuffled = [...spinnerPoolWords].sort(() => 0.5 - Math.random());
     spinnerWords = shuffled.slice(0, Math.min(10, shuffled.length));
 
     modal.style.display = 'flex';
     document.getElementById('spinner-result').style.display = 'none';
+    initSpinnerCanvas();
+  }
+
+  let spinnerPoolWords = [];
+
+  function rerollWheel() {
+    if (isSpinning || !spinnerPoolWords.length) return;
+    const shuffled = [...spinnerPoolWords].sort(() => 0.5 - Math.random());
+    spinnerWords = shuffled.slice(0, Math.min(10, shuffled.length));
+    const resBox = document.getElementById('spinner-result');
+    if (resBox) resBox.style.display = 'none';
     initSpinnerCanvas();
   }
 
@@ -227,11 +238,13 @@
     if (modal) modal.style.display = 'none';
   }
 
-  // ─── 3. Classroom Team Battle (Hot-Seat) ────────────────────────
+  // ─── 3. Classroom Team Battle (Buzzer Hot-Seat) ─────────────────
   let battleWords = [];
   let battleQuestionIndex = 0;
   let redScore = 0;
   let blueScore = 0;
+  let activeBuzzerTeam = null; // 'red' | 'blue' | null
+  let battleLocked = false;
   const WIN_SCORE = 50;
 
   function openTeamBattleModal(category, words) {
@@ -248,22 +261,31 @@
           </div>
           
           <div class="battle-scoreboard">
-            <div class="team-panel team-red">
-              <div class="team-badge">🔴 ทีมเสือไฟ (กด A)</div>
+            <button type="button" class="team-panel team-red team-buzzer-btn" id="buzzer-red-btn" onclick="window.ThaiVocabClassroom.buzzTeam('red')">
+              <div class="team-badge">🔴 ทีมเสือไฟ (กด A / แตะ)</div>
               <div class="team-score" id="battle-red-score">0</div>
-            </div>
+            </button>
             <div class="battle-vs">VS</div>
-            <div class="team-panel team-blue">
-              <div class="team-badge">🔵 ทีมมังกรฟ้า (กด L)</div>
+            <button type="button" class="team-panel team-blue team-buzzer-btn" id="buzzer-blue-btn" onclick="window.ThaiVocabClassroom.buzzTeam('blue')">
+              <div class="team-badge">🔵 ทีมมังกรฟ้า (กด L / แตะ)</div>
               <div class="team-score" id="battle-blue-score">0</div>
-            </div>
+            </button>
+          </div>
+
+          <div class="battle-buzzer-status" id="battle-buzzer-status">
+            ⚡ กดปุ่มทีม (A / L) เพื่อแย่งสิทธิ์ตอบ หรือคลิกคำตอบด้านล่าง!
           </div>
 
           <div class="battle-question-area" id="battle-qa">
-            <div class="battle-q-badge" id="battle-q-num">ข้อที่ 1 / 10</div>
+            <div class="battle-q-badge" id="battle-q-num">ข้อที่ 1 (เป้าหมาย ๕๐ แต้ม)</div>
             <div class="battle-q-prompt" id="battle-q-text">ความหมายของคำศัพท์...</div>
-            <button type="button" class="btn btn-primary" onclick="window.ThaiVocabClassroom.speakBattleWord()">🔊 ฟังเสียงคำศัพท์</button>
             <div class="battle-options-grid" id="battle-choices"></div>
+          </div>
+
+          <div class="battle-winner-card" id="battle-winner-card" style="display:none">
+            <h3 id="battle-winner-title" style="font-size:26px; font-weight:800; color:#fbbf24; margin-bottom:8px;">🏆 ผู้ชนะ</h3>
+            <p id="battle-winner-summary" style="font-size:17px; margin-bottom:16px;"></p>
+            <button type="button" class="btn btn-primary" onclick="window.ThaiVocabClassroom.resetTeamBattle()">🔄 แข่งขันรอบใหม่</button>
           </div>
 
           <div class="tvh-modal-footer">
@@ -275,11 +297,13 @@
       document.body.appendChild(modal);
     }
 
-    const approved = (words || []).filter(w => w && w.content_status !== 'quarantined');
+    const approved = (words || []).filter(w => w && w.content_status !== 'quarantined' && w.meaning);
     battleWords = [...approved].sort(() => 0.5 - Math.random());
     redScore = 0;
     blueScore = 0;
     battleQuestionIndex = 0;
+    activeBuzzerTeam = null;
+    battleLocked = false;
 
     modal.style.display = 'flex';
     updateBattleScore();
@@ -293,17 +317,52 @@
     if (blueEl) blueEl.textContent = blueScore;
   }
 
+  function buzzTeam(team) {
+    if (battleLocked) return;
+    if (team !== 'red' && team !== 'blue') return;
+    activeBuzzerTeam = team;
+    const redBtn = document.getElementById('buzzer-red-btn');
+    const blueBtn = document.getElementById('buzzer-blue-btn');
+    const statusEl = document.getElementById('battle-buzzer-status');
+    if (redBtn) redBtn.classList.toggle('is-buzzed', team === 'red');
+    if (blueBtn) blueBtn.classList.toggle('is-buzzed', team === 'blue');
+    if (statusEl) {
+      statusEl.textContent = team === 'red'
+        ? '🔴 ทีมเสือไฟได้สิทธิ์ตอบ! เลือกคำตอบด้านล่าง (+10 แต้ม)'
+        : '🔵 ทีมมังกรฟ้าได้สิทธิ์ตอบ! เลือกคำตอบด้านล่าง (+10 แต้ม)';
+      statusEl.className = 'battle-buzzer-status is-' + team;
+    }
+  }
+
   function loadBattleQuestion() {
+    const qa = document.getElementById('battle-qa');
+    const winCard = document.getElementById('battle-winner-card');
     if (battleQuestionIndex >= battleWords.length || redScore >= WIN_SCORE || blueScore >= WIN_SCORE) {
       finishBattle();
       return;
     }
+    if (qa) qa.style.display = 'flex';
+    if (winCard) winCard.style.display = 'none';
+
+    activeBuzzerTeam = null;
+    battleLocked = false;
+    const redBtn = document.getElementById('buzzer-red-btn');
+    const blueBtn = document.getElementById('buzzer-blue-btn');
+    const statusEl = document.getElementById('battle-buzzer-status');
+    if (redBtn) redBtn.classList.remove('is-buzzed');
+    if (blueBtn) blueBtn.classList.remove('is-buzzed');
+    if (statusEl) {
+      statusEl.className = 'battle-buzzer-status';
+      statusEl.textContent = '⚡ กดปุ่มทีม (A / L) เพื่อแย่งสิทธิ์ตอบ หรือคลิกคำตอบด้านล่าง!';
+    }
+
     const current = battleWords[battleQuestionIndex];
     document.getElementById('battle-q-num').textContent = `ข้อที่ ${battleQuestionIndex + 1} (เป้าหมาย ๕๐ แต้ม)`;
     document.getElementById('battle-q-text').textContent = current.meaning;
 
-    // Pick 3 decoys
-    const decoys = battleWords.filter(w => w.word !== current.word).slice(0, 3);
+    const decoys = [...battleWords.filter(w => w.word !== current.word)]
+      .sort(() => 0.5 - Math.random())
+      .slice(0, 3);
     const choices = [current, ...decoys].sort(() => 0.5 - Math.random());
 
     const grid = document.getElementById('battle-choices');
@@ -313,7 +372,7 @@
       btn.type = 'button';
       btn.className = 'battle-choice-btn';
       btn.innerHTML = `<strong>${ch.word}</strong> <span class="bc-reading">[ ${ch.reading} ]</span>`;
-      btn.onclick = () => answerBattle(ch.word === current.word, btn);
+      btn.onclick = () => answerBattle(ch.word === current.word, btn, current);
       grid.appendChild(btn);
     });
   }
@@ -325,43 +384,64 @@
     }
   }
 
-  function answerBattle(isCorrect, btn) {
+  function answerBattle(isCorrect, btn, currentItem) {
+    if (battleLocked) return;
+    const statusEl = document.getElementById('battle-buzzer-status');
     if (isCorrect) {
+      battleLocked = true;
       btn.classList.add('correct');
-      // Prompt which team got it right
-      const team = confirm('ทีมเสือไฟ (สีแดง 🔴) ตอบถูกใช่หรือไม่?\n- กด OK ให้ทีมแดง (+10 แต้ม)\n- กด Cancel ให้ทีมน้ำเงิน (+10 แต้ม)');
-      if (team) redScore += 10;
+      if (currentItem && typeof window.speakThai === 'function') {
+        window.speakThai(currentItem.word);
+      }
+      const winnerTeam = activeBuzzerTeam || 'red';
+      if (winnerTeam === 'red') redScore += 10;
       else blueScore += 10;
       updateBattleScore();
+      if (statusEl) {
+        statusEl.textContent = winnerTeam === 'red'
+          ? '🎉 ทีมเสือไฟตอบถูก! +10 แต้ม'
+          : '🎉 ทีมมังกรฟ้าตอบถูก! +10 แต้ม';
+      }
       if (typeof window.triggerConfetti === 'function') window.triggerConfetti();
+      setTimeout(() => {
+        battleQuestionIndex++;
+        loadBattleQuestion();
+      }, 1100);
     } else {
       btn.classList.add('wrong');
+      btn.disabled = true;
+      if (activeBuzzerTeam) {
+        const other = activeBuzzerTeam === 'red' ? 'blue' : 'red';
+        buzzTeam(other);
+        if (statusEl) {
+          statusEl.textContent = other === 'blue'
+            ? '❌ ทีมแดงตอบผิด! โยนสิทธิ์ให้ 🔵 ทีมมังกรฟ้าตอบแทน'
+            : '❌ ทีมน้ำเงินตอบผิด! โยนสิทธิ์ให้ 🔴 ทีมเสือไฟตอบแทน';
+        }
+      }
     }
-
-    setTimeout(() => {
-      battleQuestionIndex++;
-      loadBattleQuestion();
-    }, 1200);
   }
 
   function finishBattle() {
     const qa = document.getElementById('battle-qa');
-    if (!qa) return;
+    const winCard = document.getElementById('battle-winner-card');
+    const titleEl = document.getElementById('battle-winner-title');
+    const sumEl = document.getElementById('battle-winner-summary');
+    if (qa) qa.style.display = 'none';
+    if (winCard) winCard.style.display = 'block';
     const winner = redScore > blueScore ? '🔴 ทีมเสือไฟ ชนะเลิศ!' : (blueScore > redScore ? '🔵 ทีมมังกรฟ้า ชนะเลิศ!' : '🤝 เสมอกันอย่างสมศักดิ์ศรี!');
-    qa.innerHTML = `
-      <div class="battle-winner-card">
-        <h3 style="font-size:28px; font-weight:800; color:#fbbf24; margin-bottom:8px;">🏆 ${winner}</h3>
-        <p style="font-size:18px; margin-bottom:16px;">คะแนนสุดท้าย: ทีมแดง ${redScore} - ทีมน้ำเงิน ${blueScore}</p>
-        <button type="button" class="btn btn-primary" onclick="window.ThaiVocabClassroom.resetTeamBattle()">🔄 แข่งขันรอบใหม่</button>
-      </div>
-    `;
+    if (titleEl) titleEl.textContent = `🏆 ${winner}`;
+    if (sumEl) sumEl.textContent = `คะแนนสุดท้าย: ทีมแดง ${redScore} - ทีมน้ำเงิน ${blueScore}`;
     if (typeof window.triggerConfetti === 'function') window.triggerConfetti();
   }
 
   function resetTeamBattle() {
+    battleWords = [...battleWords].sort(() => 0.5 - Math.random());
     redScore = 0;
     blueScore = 0;
     battleQuestionIndex = 0;
+    activeBuzzerTeam = null;
+    battleLocked = false;
     updateBattleScore();
     loadBattleQuestion();
   }
@@ -375,6 +455,20 @@
   window.addEventListener('keydown', function (e) {
     // Only capture when not typing in input
     if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
+
+    const battleModal = document.getElementById('tvh-battle-modal');
+    if (battleModal && battleModal.style.display === 'flex') {
+      if (e.key === 'a' || e.key === 'A') {
+        e.preventDefault();
+        buzzTeam('red');
+        return;
+      }
+      if (e.key === 'l' || e.key === 'L') {
+        e.preventDefault();
+        buzzTeam('blue');
+        return;
+      }
+    }
 
     if (e.key === 'p' || e.key === 'P') {
       // Toggle projector
@@ -409,10 +503,12 @@
   window.ThaiVocabClassroom = {
     toggleProjectorMode,
     openSpinnerModal,
+    rerollWheel,
     spinWheel,
     speakSpinnerResult,
     closeSpinner,
     openTeamBattleModal,
+    buzzTeam,
     speakBattleWord,
     resetTeamBattle,
     closeTeamBattle,
