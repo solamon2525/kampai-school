@@ -111,6 +111,30 @@
     });
   }
 
+  function printA4() {
+    if (window.KampaiWorksheet && typeof window.KampaiWorksheet.printA4 === 'function') {
+      return window.KampaiWorksheet.printA4();
+    }
+    if (typeof window.print === 'function') window.print();
+  }
+
+  function mountPrintControls() {
+    const printBtn = document.getElementById('btnPrint');
+    if (!printBtn) return;
+
+    const currentText = (printBtn.textContent || '').trim();
+    if (!currentText || /^🖨️?\s*พิมพ์(\s*A4)?$/i.test(currentText)) {
+      printBtn.textContent = '📄 บันทึกเป็น PDF / พิมพ์ A4';
+    }
+    if (!printBtn.title) {
+      printBtn.title = 'สั่งพิมพ์ A4 หรือบันทึกเป็น PDF (เลือก Save as PDF / บันทึกเป็น PDF ในหน้าต่างพิมพ์ · ขอบกระดาษ: ไม่มี, ขนาด: 100%)';
+    }
+    printBtn.setAttribute('aria-label', 'บันทึกเป็น PDF หรือพิมพ์ A4');
+    if (typeof printBtn.onclick !== 'function') {
+      printBtn.onclick = printA4;
+    }
+  }
+
   function ensureRng() {
     if (window.KampaiWorksheetSets) {
       rng = window.KampaiWorksheetSets.createRng(renderSeed);
@@ -327,7 +351,7 @@
   window.KampaiTopicWorksheet = Object.freeze({
     escapeHtml,
     randomize,
-    render,
+    render, printA4,
     getSeed: () => renderSeed,
     worksheetKey,
     revealNext,
@@ -337,7 +361,7 @@
   });
 
   function boot() {
-    mountRevealControls();
+    mountPrintControls(); mountRevealControls();
     bootSets();
   }
 
