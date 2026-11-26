@@ -197,10 +197,432 @@
     };
   }
 
+  let advanceTimer = null;
+  let activeSessionId = 0;
+  let currentListenItem = null;
+  const deckCache = new Map();
+
+  function getOrCreateDeck(mode, pool, slug) {
+    const key = mode + ':' + (slug || '') + ':' + (Array.isArray(pool) ? pool.length : 0);
+    let deck = deckCache.get(key);
+    if (!deck) {
+      deck = createQuizDeck(pool, slug, 12);
+      deckCache.set(key, deck);
+    }
+    return deck;
+  }
+
+  function cleanup() {
+    activeSessionId += 1;
+    if (advanceTimer) {
+      clearTimeout(advanceTimer);
+      advanceTimer = null;
+    }
+    currentListenItem = null;
+  }
+
+  function speakSlow(text, fallbackSpeak) {
+    if (!text) return;
+    if (typeof global.speechSynthesis !== 'undefined' && typeof global.SpeechSynthesisUtterance === 'function') {
+      try {
+        global.speechSynthesis.cancel();
+        const u = new global.SpeechSynthesisUtterance(text);
+        u.lang = 'th-TH';
+        u.rate = 0.72;
+        global.speechSynthesis.speak(u);
+        return;
+      } catch (_) {
+        // fallback below
+      }
+    }
+    if (typeof fallbackSpeak === 'function') {
+      fallbackSpeak(text);
+    }
+  }
+
+  function updateComboBadge(el, streak, multiplier) {
+    if (!el) return;
+    if (streak > 0 && multiplier > 1) {
+      el.textContent = '🔥 คอมโบ ' + streak + ' (×' + multiplier + ')';
+    } else if (streak > 0) {
+      el.textContent = '🔥 คอมโบ ' + streak;
+    } else {
+      el.textContent = '✨ คอมโบ 0';
+    }
+  }
+
+  function mountChoice(callbacks) {
+    cleanup();
+    const sessionId = activeSessionId;
+    const cb = callbacks || {};
+    const pool = (typeof cb.getPool === 'function' ? cb.getPool() : []) || [];
+    const slug = (typeof cb.getCategorySlug === 'function' ? cb.getCategorySlug() : '') || '';
+    const baseScore = typeof cb.getBaseScore === 'function' ? cb.getBaseScore() : 10;
+
+    const deck = getOrCreateDeck('choice', pool, slug);
+    const roundItems = deck.nextRound();
+    if (!roundItems.length) {
+      if (typeof cb.onRoundEnd === 'function') cb.onRoundEnd();
+      return;
+    }
+
+    const doc = global.document;
+    if (!doc) return;
+
+    const progressBadge = doc.getElementById('choice-progress-badge');
+    const comboBadge = doc.getElementById('choice-combo-badge');
+    const hintBtn = doc.getElementById('choice-hint-btn');
+    const speakBtn = doc.getElementById('choice-speak-btn');
+    const kindBadge = doc.getElementById('choice-kind-badge');
+    const questionText = doc.getElementById('choice-question-text');
+    const optionsEl = doc.getElementById('choice-options');
+    const feedbackBox = doc.getElementById('choice-feedback-box');
+    const feedbackText = doc.getElementById('choice-feedback-text');
+    const nextBtn = doc.getElementById('choice-next-btn');
+    const barEl = doc.getElementById('bar');
+
+    let idx = 0;
+    let streak = 0;
+    let hintsLeft = 2;
+    let isAnswered = false;
+    let hintUsedThisQ = false;
+    let shouldEnd = false;
+    let currentQ = null;
+    let currentWord = null;
+
+    function advance() {
+      if (sessionId !== activeSessionId) return;
+      if (advanceTimer) {
+        clearTimeout(advanceTimer);
+        advanceTimer = null;
+      }
+      if (shouldEnd || idx + 1 >= roundItems.length) {
+        if (barEl) barEl.style.width = '100%';
+        if (typeof cb.onRoundEnd === 'function') cb.onRoundEnd();
+        return;
+      }
+      idx += 1;
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      if (sessionId !== activeSessionId) return;
+      if (idx >= roundItems.length) {
+        if (typeof cb.onRoundEnd === 'function') cb.onRoundEnd();
+        return;
+      }
+
+      isAnswered = false;
+      hintUsedThisQ = false;
+      shouldEnd = false;
+      currentWord = roundItems[idx];
+      currentQ = buildChoiceQuestion(currentWord, pool, slug);
+
+      if (progressBadge) progressBadge.textContent = 'ข้อ ' + (idx + 1) + '/' + roundItems.length;
+      updateComboBadge(comboBadge, streak, computeQuizCombo(baseScore, streak).multiplier);
+      if (kindBadge) kindBadge.textContent = currentQ.badge;
+      if (questionText) questionText.textContent = currentQ.prompt;
+      if (feedbackBox) feedbackBox.style.display = 'none';
+      if (feedbackText) feedbackText.textContent = '';
+      if (barEl) barEl.style.width = ((idx / roundItems.length) * 100) + '%';
+
+      if (hintBtn) {
+        hintBtn.textContent = '💡 ตัดตัวเลือก 50/50 (' + hintsLeft + ')';
+        hintBtn.disabled = hintsLeft <= 0;
+      }
+
+      if (optionsEl) {
+        optionsEl.innerHTML = '';
+        currentQ.options.forEach(function (opt) {
+          const btn = doc.createElement('button');
+          btn.type = 'button';
+          btn.className = 'option-btn';
+          btn.textContent = opt;
+          btn.onclick = function () {
+            if (isAnswered || sessionId !== activeSessionId) return;
+            isAnswered = true;
+
+            const allBtns = optionsEl.querySelectorAll('.option-btn');
+            allBtns.forEach(function (b) { b.disabled = true; });
+            if (hintBtn) hintBtn.disabled = true;
+
+            if (opt === currentQ.answer) {
+              btn.classList.add('correct');
+              streak += 1;
+              const combo = computeQuizCombo(baseScore, streak);
+              updateComboBadge(comboBadge, streak, combo.multiplier);
+              if (typeof cb.onCorrect === 'function') cb.onCorrect(currentWord, combo.points);
+            } else {
+              btn.classList.add('wrong');
+              allBtns.forEach(function (b) {
+                if (b.textContent === currentQ.answer) b.classList.add('correct');
+              });
+              streak = 0;
+              updateComboBadge(comboBadge, 0, 1);
+              if (typeof cb.onWrong === 'function') {
+                const alive = cb.onWrong(currentWord);
+                if (alive === false) shouldEnd = true;
+              }
+            }
+
+            if (feedbackText) {
+              const parts = [currentWord.word];
+              if (currentWord.reading) parts.push('[' + currentWord.reading + ']');
+              let msg = parts.join(' ') + ' — ' + currentWord.meaning;
+              if (currentWord.example) msg += ' · ตัวอย่าง: “' + currentWord.example + '”';
+              feedbackText.textContent = msg;
+            }
+            if (feedbackBox) feedbackBox.style.display = 'flex';
+
+            advanceTimer = setTimeout(advance, 1400);
+          };
+          optionsEl.appendChild(btn);
+        });
+      }
+    }
+
+    if (hintBtn) {
+      hintBtn.onclick = function () {
+        if (sessionId !== activeSessionId || isAnswered || hintUsedThisQ || hintsLeft <= 0 || !optionsEl || !currentQ) return;
+        const wrongBtns = Array.from(optionsEl.querySelectorAll('.option-btn')).filter(function (b) {
+          return !b.disabled && b.textContent !== currentQ.answer;
+        });
+        const toEliminate = shuffle(wrongBtns).slice(0, 2);
+        toEliminate.forEach(function (b) {
+          b.disabled = true;
+          b.classList.add('hint-eliminated');
+        });
+        hintUsedThisQ = true;
+        hintsLeft -= 1;
+        hintBtn.textContent = '💡 ตัดตัวเลือก 50/50 (' + hintsLeft + ')';
+        hintBtn.disabled = true;
+      };
+    }
+
+    if (speakBtn) {
+      speakBtn.onclick = function () {
+        if (sessionId !== activeSessionId || !currentWord) return;
+        if (typeof cb.speak === 'function') cb.speak(currentWord.word);
+      };
+    }
+
+    if (nextBtn) {
+      nextBtn.onclick = function () {
+        advance();
+      };
+    }
+
+    renderQuestion();
+  }
+
+  function mountListen(callbacks) {
+    cleanup();
+    const sessionId = activeSessionId;
+    const cb = callbacks || {};
+    const pool = (typeof cb.getPool === 'function' ? cb.getPool() : []) || [];
+    const slug = (typeof cb.getCategorySlug === 'function' ? cb.getCategorySlug() : '') || '';
+    const baseScore = typeof cb.getBaseScore === 'function' ? cb.getBaseScore() : 10;
+
+    const deck = getOrCreateDeck('listen', pool, slug);
+    const roundItems = deck.nextRound();
+    if (!roundItems.length) {
+      if (typeof cb.onRoundEnd === 'function') cb.onRoundEnd();
+      return;
+    }
+
+    const doc = global.document;
+    if (!doc) return;
+
+    const progressBadge = doc.getElementById('listen-progress-badge');
+    const comboBadge = doc.getElementById('listen-combo-badge');
+    const hintBtn = doc.getElementById('listen-hint-btn');
+    const playBtn = doc.getElementById('listen-play-btn');
+    const slowBtn = doc.getElementById('listen-slow-btn');
+    const hintText = doc.getElementById('listen-hint');
+    const clueBox = doc.getElementById('listen-clue-box');
+    const optionsEl = doc.getElementById('listen-options');
+    const feedbackBox = doc.getElementById('listen-feedback-box');
+    const feedbackText = doc.getElementById('listen-feedback-text');
+    const nextBtn = doc.getElementById('listen-next-btn');
+    const barEl = doc.getElementById('bar');
+
+    let idx = 0;
+    let streak = 0;
+    let hintsLeft = 2;
+    let isAnswered = false;
+    let hintUsedThisQ = false;
+    let shouldEnd = false;
+    let currentQ = null;
+    let currentWord = null;
+
+    function advance() {
+      if (sessionId !== activeSessionId) return;
+      if (advanceTimer) {
+        clearTimeout(advanceTimer);
+        advanceTimer = null;
+      }
+      if (shouldEnd || idx + 1 >= roundItems.length) {
+        if (barEl) barEl.style.width = '100%';
+        if (typeof cb.onRoundEnd === 'function') cb.onRoundEnd();
+        return;
+      }
+      idx += 1;
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      if (sessionId !== activeSessionId) return;
+      if (idx >= roundItems.length) {
+        if (typeof cb.onRoundEnd === 'function') cb.onRoundEnd();
+        return;
+      }
+
+      isAnswered = false;
+      hintUsedThisQ = false;
+      shouldEnd = false;
+      currentWord = roundItems[idx];
+      currentListenItem = currentWord;
+      currentQ = buildListenQuestion(currentWord, pool, slug);
+
+      if (progressBadge) progressBadge.textContent = 'ข้อ ' + (idx + 1) + '/' + roundItems.length;
+      updateComboBadge(comboBadge, streak, computeQuizCombo(baseScore, streak).multiplier);
+      if (hintText) hintText.textContent = currentQ.prompt;
+      if (clueBox) {
+        clueBox.style.display = 'none';
+        clueBox.textContent = '';
+      }
+      if (feedbackBox) feedbackBox.style.display = 'none';
+      if (feedbackText) feedbackText.textContent = '';
+      if (barEl) barEl.style.width = ((idx / roundItems.length) * 100) + '%';
+
+      if (hintBtn) {
+        hintBtn.textContent = '💡 ใบ้ความหมาย (' + hintsLeft + ')';
+        hintBtn.disabled = hintsLeft <= 0;
+      }
+
+      if (optionsEl) {
+        optionsEl.innerHTML = '';
+        currentQ.options.forEach(function (opt) {
+          const btn = doc.createElement('button');
+          btn.type = 'button';
+          btn.className = 'option-btn';
+          btn.textContent = opt;
+          btn.onclick = function () {
+            if (isAnswered || sessionId !== activeSessionId) return;
+            isAnswered = true;
+
+            const allBtns = optionsEl.querySelectorAll('.option-btn');
+            allBtns.forEach(function (b) { b.disabled = true; });
+            if (hintBtn) hintBtn.disabled = true;
+
+            if (opt === currentQ.answer) {
+              btn.classList.add('correct');
+              streak += 1;
+              const combo = computeQuizCombo(baseScore, streak);
+              updateComboBadge(comboBadge, streak, combo.multiplier);
+              if (typeof cb.onCorrect === 'function') cb.onCorrect(currentWord, combo.points);
+            } else {
+              btn.classList.add('wrong');
+              allBtns.forEach(function (b) {
+                if (b.textContent === currentQ.answer) b.classList.add('correct');
+              });
+              streak = 0;
+              updateComboBadge(comboBadge, 0, 1);
+              if (typeof cb.onWrong === 'function') {
+                const alive = cb.onWrong(currentWord);
+                if (alive === false) shouldEnd = true;
+              }
+            }
+
+            if (feedbackText) {
+              const parts = [currentWord.word];
+              if (currentWord.reading) parts.push('[' + currentWord.reading + ']');
+              feedbackText.textContent = parts.join(' ') + ' — ' + currentWord.meaning;
+            }
+            if (feedbackBox) feedbackBox.style.display = 'flex';
+
+            advanceTimer = setTimeout(advance, 1400);
+          };
+          optionsEl.appendChild(btn);
+        });
+      }
+
+      if (typeof cb.speak === 'function') {
+        cb.speak(currentWord.word);
+      }
+    }
+
+    if (playBtn) {
+      playBtn.onclick = function () {
+        if (sessionId !== activeSessionId || !currentWord) return;
+        if (typeof cb.speak === 'function') cb.speak(currentWord.word);
+      };
+    }
+
+    if (slowBtn) {
+      slowBtn.onclick = function () {
+        if (sessionId !== activeSessionId || !currentWord) return;
+        speakSlow(currentWord.word, cb.speak);
+      };
+    }
+
+    if (hintBtn) {
+      hintBtn.onclick = function () {
+        if (sessionId !== activeSessionId || isAnswered || hintUsedThisQ || hintsLeft <= 0 || !currentWord) return;
+        if (clueBox) {
+          clueBox.textContent = 'ความหมาย: ' + currentWord.meaning;
+          clueBox.style.display = 'block';
+        }
+        hintUsedThisQ = true;
+        hintsLeft -= 1;
+        hintBtn.textContent = '💡 ใบ้ความหมาย (' + hintsLeft + ')';
+        hintBtn.disabled = true;
+      };
+    }
+
+    if (nextBtn) {
+      nextBtn.onclick = function () {
+        advance();
+      };
+    }
+
+    renderQuestion();
+  }
+
+  function bindTeacherToolsToggle() {
+    const doc = global.document;
+    if (!doc) return;
+    const btn = doc.getElementById('btn-teacher-tools-toggle');
+    const drawer = doc.getElementById('teacher-tools-drawer');
+    if (!btn || !drawer || btn.dataset.quizTeacherBound) return;
+    btn.dataset.quizTeacherBound = '1';
+    btn.addEventListener('click', function () {
+      const group = btn.closest('.toolbar-group-teacher');
+      if (group && btn.hasAttribute('onclick')) {
+        const isOpen = group.classList.contains('is-open');
+        drawer.classList.toggle('open', isOpen);
+        btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      } else {
+        const isOpen = drawer.classList.toggle('open');
+        if (group) group.classList.toggle('is-open', isOpen);
+        btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      }
+    });
+  }
+
+  function getCurrentListenWord() {
+    return currentListenItem;
+  }
+
   global.ThaiVocabQuiz = {
     createQuizDeck: createQuizDeck,
     buildChoiceQuestion: buildChoiceQuestion,
     buildListenQuestion: buildListenQuestion,
     computeQuizCombo: computeQuizCombo,
+    mountChoice: mountChoice,
+    mountListen: mountListen,
+    cleanup: cleanup,
+    bindTeacherToolsToggle: bindTeacherToolsToggle,
+    getCurrentListenWord: getCurrentListenWord,
   };
 })(typeof window !== 'undefined' ? window : globalThis);

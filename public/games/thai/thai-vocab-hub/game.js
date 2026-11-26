@@ -1657,6 +1657,12 @@ function switchMode(mode) {
   if (mode !== 'match' && window.ThaiVocabMatch && typeof window.ThaiVocabMatch.cleanup === 'function') {
     window.ThaiVocabMatch.cleanup();
   }
+  if (mode !== 'choice' && mode !== 'listen' && window.ThaiVocabQuiz && typeof window.ThaiVocabQuiz.cleanup === 'function') {
+    window.ThaiVocabQuiz.cleanup();
+  }
+  if (window.ThaiVocabQuiz && typeof window.ThaiVocabQuiz.bindTeacherToolsToggle === 'function') {
+    window.ThaiVocabQuiz.bindTeacherToolsToggle();
+  }
   document.getElementById('words-grid').style.display = 'none';
   document.getElementById('dictation-mode').style.display = 'none';
   document.getElementById('choice-mode').style.display = 'none';
@@ -1722,10 +1728,12 @@ function switchMode(mode) {
       currentWordIndex = 0;
       loadDictationWord();
     } else if (mode === 'choice') {
+      if (wordArea) wordArea.style.display = 'none';
+      if (typeof KAMPAI !== 'undefined' && typeof KAMPAI.beginRound === 'function') {
+        KAMPAI.beginRound();
+      }
       document.getElementById('choice-mode').style.display = 'block';
-      quizList = shuffle([...getQuizWords()]);
-      currentWordIndex = 0;
-      loadChoiceWord();
+      startChoiceQuiz();
     } else if (mode === 'match') {
       if (wordArea) wordArea.style.display = 'none';
       if (typeof KAMPAI !== 'undefined' && typeof KAMPAI.beginRound === 'function') {
@@ -1734,10 +1742,12 @@ function switchMode(mode) {
       document.getElementById('match-mode').style.display = 'flex';
       initMatchingGame();
     } else if (mode === 'listen') {
+      if (wordArea) wordArea.style.display = 'none';
+      if (typeof KAMPAI !== 'undefined' && typeof KAMPAI.beginRound === 'function') {
+        KAMPAI.beginRound();
+      }
       document.getElementById('listen-mode').style.display = 'block';
-      quizList = shuffle([...getQuizWords()]);
-      currentWordIndex = 0;
-      loadListenWord();
+      startListenQuiz();
     }
   }
 }
@@ -2506,174 +2516,73 @@ function handleDictationKey(e) {
 
 // ═══ MODE 3: CHOICE QUIZ (ทายความหมาย) ═══
 
-function loadChoiceWord() {
-  isAnswered = false;
-  if (currentWordIndex >= quizList.length || currentLives <= 0) {
-    endGame();
-    return;
-  }
-
-  const wordItem = quizList[currentWordIndex];
-  const pool = getQuizWords();
-
-  let questionText = `คำว่า "${wordItem.word}" มีความหมายตรงกับข้อใด?`;
-  if (activeCategorySlug === 'classifiers' && wordItem.classifier_for) {
-    questionText = `"${wordItem.classifier_for} 1 ___" — เลือกลักษณนามที่ถูก`;
-  }
-  document.getElementById('choice-question-text').textContent = questionText;
-  
-  // ซ่อนเนื้อหาการ์ดหลัก
-  document.getElementById('wfront-emoji').textContent = '🎯';
-  document.getElementById('wfront-word').textContent = 'เลือกความหมาย';
-  document.getElementById('wfront-cat').textContent = 'โหมดตอบคำถาม';
-
-  // พลิกการ์ดเฉลยด้านหลังชั่วคราว
-  document.getElementById('wback-reading').textContent = 'คำศัพท์สะกด: ' + wordItem.word;
-  document.getElementById('wback-meaning').textContent = 'ความหมายจะเฉลยหลังตอบ';
-  document.getElementById('tcard').classList.remove('flipped');
-
-  // สุ่มคำตอบลวง 3 ข้อจากคลังคำแปลอื่นในหมวดเดียวกัน
-  const decoys = pickMeaningDecoys(wordItem, pool, 3);
-  const options = shuffle([wordItem.meaning, ...decoys]);
-
-  const container = document.getElementById('choice-options');
-  container.innerHTML = '';
-
-  options.forEach((opt) => {
-    const btn = document.createElement('button');
-    btn.className = 'option-btn';
-    btn.textContent = opt;
-    btn.onclick = () => selectChoiceAnswer(opt, btn);
-    container.appendChild(btn);
-  });
-
-  const pct = (currentWordIndex / quizList.length) * 100;
-  document.getElementById('bar').style.width = `${pct}%`;
-}
-
-function selectChoiceAnswer(selectedOpt, clickedBtn) {
-  if (isAnswered) return;
-  isAnswered = true;
-
-  const wordItem = quizList[currentWordIndex];
-  const btns = document.querySelectorAll('.option-btn');
-  btns.forEach(btn => btn.disabled = true);
-
-  if (selectedOpt === wordItem.meaning) {
-    clickedBtn.classList.add('correct');
-    currentScore += CONFIG.BASE_SCORE;
-    recordAnswer(wordItem, true);
-    showToast('คำตอบถูกต้อง! 🎉', 'correct');
-    KAMPAI.sound.correct();
-  } else {
-    clickedBtn.classList.add('wrong');
-    // ไฮไลต์ข้อที่ถูกต้อง
-    btns.forEach(btn => {
-      if (btn.textContent === wordItem.meaning) btn.classList.add('correct');
-    });
-    currentLives--;
-    recordAnswer(wordItem, false);
-    showToast('ยังไม่ถูกต้องนะ 😢', 'wrong');
-    KAMPAI.sound.wrong();
-  }
-
-  // เฉลยความหมายบนการ์ดด้านหลัง
-  document.getElementById('wback-meaning').textContent = wordItem.meaning;
-  document.getElementById('tcard').classList.add('flipped');
-
-  setTimeout(() => {
-    if (currentLives <= 0) {
+function startChoiceQuiz() {
+  if (!window.ThaiVocabQuiz) return;
+  window.ThaiVocabQuiz.mountChoice({
+    getPool: () => getQuizWords(),
+    getCategorySlug: () => activeCategorySlug,
+    getBaseScore: () => CONFIG.BASE_SCORE,
+    speak: (text) => speakThai(text),
+    onCorrect: (wordItem, points) => {
+      currentScore += points;
+      recordAnswer(wordItem, true);
+      updateHUD();
+      showToast('คำตอบถูกต้อง! 🎉', 'correct');
+      KAMPAI.sound.correct();
+    },
+    onWrong: (wordItem) => {
+      currentLives--;
+      recordAnswer(wordItem, false);
+      updateHUD();
+      showToast('ยังไม่ถูกต้องนะ 😢', 'wrong');
+      KAMPAI.sound.wrong();
+      return currentLives > 0;
+    },
+    onRoundEnd: () => {
       endGame();
-    } else {
-      currentWordIndex++;
-      loadChoiceWord();
-    }
-  }, 2800);
-
-  updateHUD();
+    },
+  });
 }
 
 // ═══ MODE 5: LISTEN (ฟังเสียงทายคำ) ═══
 
-function loadListenWord() {
-  isAnswered = false;
-  if (currentWordIndex >= quizList.length || currentLives <= 0) {
-    endGame();
-    return;
-  }
-
-  const wordItem = quizList[currentWordIndex];
-  const pool = getQuizWords();
-  const hint = document.getElementById('listen-hint');
-  if (hint) {
-    hint.textContent = activeCategorySlug === 'homophones'
-      ? 'ได้ยินคำอ่านเดียวกัน — เลือกคำที่ถูกต้อง'
-      : 'ได้ยินคำว่าอะไร? เลือกคำที่ถูกต้อง';
-  }
-
-  document.getElementById('wfront-emoji').textContent = '🎧';
-  document.getElementById('wfront-word').textContent = 'ฟังเสียง...';
-  document.getElementById('wfront-cat').textContent = 'โหมดฟังทายคำ';
-  document.getElementById('wback-reading').textContent = '— ซ่อนคำตอบ —';
-  document.getElementById('wback-meaning').textContent = wordItem.meaning;
-  document.getElementById('tcard').classList.remove('flipped');
-
-  const decoys = pickWordDecoys(wordItem, pool, 3).map((w) => w.word);
-  const options = shuffle([wordItem.word, ...decoys]);
-
-  const container = document.getElementById('listen-options');
-  container.innerHTML = '';
-  options.forEach((opt) => {
-    const btn = document.createElement('button');
-    btn.className = 'option-btn';
-    btn.textContent = opt;
-    btn.onclick = () => selectListenAnswer(opt, btn);
-    container.appendChild(btn);
+function startListenQuiz() {
+  if (!window.ThaiVocabQuiz) return;
+  window.ThaiVocabQuiz.mountListen({
+    getPool: () => getQuizWords(),
+    getCategorySlug: () => activeCategorySlug,
+    getBaseScore: () => CONFIG.BASE_SCORE,
+    speak: (text) => speakThai(text),
+    onCorrect: (wordItem, points) => {
+      currentScore += points;
+      recordAnswer(wordItem, true);
+      updateHUD();
+      showToast('ถูกต้อง! 🎉', 'correct');
+      KAMPAI.sound.correct();
+    },
+    onWrong: (wordItem) => {
+      currentLives--;
+      recordAnswer(wordItem, false);
+      updateHUD();
+      showToast('ยังไม่ถูกต้องนะ 😢', 'wrong');
+      KAMPAI.sound.wrong();
+      return currentLives > 0;
+    },
+    onRoundEnd: () => {
+      endGame();
+    },
   });
-
-  speakThai(wordItem.word);
-
-  const pct = (currentWordIndex / quizList.length) * 100;
-  document.getElementById('bar').style.width = `${pct}%`;
 }
 
 function replayListenWord() {
-  if (currentWordIndex < quizList.length) speakThai(quizList[currentWordIndex].word);
-}
-
-function selectListenAnswer(selectedWord, clickedBtn) {
-  if (isAnswered) return;
-  isAnswered = true;
-  const wordItem = quizList[currentWordIndex];
-  const btns = document.querySelectorAll('#listen-options .option-btn');
-  btns.forEach((btn) => { btn.disabled = true; });
-
-  if (selectedWord === wordItem.word) {
-    clickedBtn.classList.add('correct');
-    currentScore += CONFIG.BASE_SCORE;
-    recordAnswer(wordItem, true);
-    showToast('ถูกต้อง! 🎉', 'correct');
-    KAMPAI.sound.correct();
-  } else {
-    clickedBtn.classList.add('wrong');
-    btns.forEach((btn) => {
-      if (btn.textContent === wordItem.word) btn.classList.add('correct');
-    });
-    currentLives--;
-    recordAnswer(wordItem, false);
-    showToast('ยังไม่ถูกต้องนะ 😢', 'wrong');
-    KAMPAI.sound.wrong();
+  const item = window.ThaiVocabQuiz && typeof window.ThaiVocabQuiz.getCurrentListenWord === 'function'
+    ? window.ThaiVocabQuiz.getCurrentListenWord()
+    : null;
+  if (item && item.word) {
+    speakThai(item.word);
+  } else if (currentWordIndex < quizList.length) {
+    speakThai(quizList[currentWordIndex].word);
   }
-
-  document.getElementById('wfront-word').textContent = wordItem.word;
-  document.getElementById('wback-reading').textContent = `คำอ่าน: [ ${wordItem.reading} ]`;
-  document.getElementById('tcard').classList.add('flipped');
-
-  setTimeout(() => {
-    if (currentLives <= 0) endGame();
-    else { currentWordIndex++; loadListenWord(); }
-  }, 2800);
-  updateHUD();
 }
 
 // ═══ MODE 6: FLASH (สุ่มการ์ด — รู้แล้ว/ทบทวน) ═══
@@ -2950,6 +2859,9 @@ function stopAllMediaAndTimers() {
   stopAutoplay();
   cancelSpeech();
   clearAutoplayTimers();
+  if (window.ThaiVocabQuiz && typeof window.ThaiVocabQuiz.cleanup === 'function') {
+    window.ThaiVocabQuiz.cleanup();
+  }
 }
 
 function disposeGameSession() {
