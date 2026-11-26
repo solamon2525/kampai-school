@@ -41,3 +41,4 @@ export * from './papor-evaluation.service';
 export * from './curriculum-subjects.service';
 export * from './papor-gradebook.service';
 export * from './papor-diagnostics.service';
+export * from './egg-farm.service';

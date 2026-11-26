@@ -1,4 +1,4 @@
-import { LayoutDashboard, ClipboardCheck, PenLine, Calendar, Gift, FolderOpen, QrCode, Video, FlaskConical, Package, Trophy, CheckSquare, FileSpreadsheet } from 'lucide-react';
+import { LayoutDashboard, ClipboardCheck, PenLine, Calendar, Gift, FolderOpen, QrCode, Video, FlaskConical, Package, Trophy, CheckSquare, FileSpreadsheet, Egg } from 'lucide-react';
 
 export const TEACHER_MENU = [
   { id: 'dashboard', label: 'แดชบอร์ด', icon: LayoutDashboard, path: '/teacher' },
@@ -9,6 +9,7 @@ export const TEACHER_MENU = [
   { id: 'competitions', label: 'แข่งใบงานสด', icon: Trophy, path: '/teacher/classroom-competitions' },
   { id: 'rewards', label: 'อนุมัติรางวัล', icon: Gift, path: '/teacher/rewards-approval' },
   { id: 'supplies', label: 'เบิกพัสดุ', icon: Package, path: '/teacher/supplies' },
+  { id: 'egg-farm', label: 'ฟาร์มไก่ไข่', icon: Egg, path: '/admin/dashboard/egg-farm' },
   { id: 'edu-hub', label: 'คลังสื่อของฉัน', icon: FolderOpen, path: '/teacher/edu-hub' },
   { id: 'game-research', label: 'วิจัยเกม', icon: FlaskConical, path: '/teacher/game-research' },
   { id: 'cctv', label: 'กล้องวงจรปิด', icon: Video, path: '/teacher/cctv' },

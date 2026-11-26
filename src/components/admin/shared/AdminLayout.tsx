@@ -58,6 +58,7 @@ import {
     Lightbulb,
     FlaskConical,
     Package,
+    Egg,
     Gauge,
     FileSpreadsheet,
 } from 'lucide-react';
@@ -128,6 +129,7 @@ const menuItems: MenuItem[] = [
     { type: 'item', id: 'scan', label: 'สแกน QR ด่วน', icon: QrCode, path: '/admin/dashboard/scan' },
     { type: 'item', id: 'waste-bank', label: 'ธนาคารขยะ', icon: Recycle, path: '/admin/dashboard/waste-bank', adminOnly: true },
     { type: 'item', id: 'savings-bank', label: 'ธนาคารพอเพียง', icon: Wallet, path: '/admin/dashboard/savings-bank', adminOnly: true },
+    { type: 'item', id: 'egg-farm', label: 'ฟาร์มไก่ไข่', icon: Egg, path: '/admin/dashboard/egg-farm' },
     { type: 'item', id: 'attendance', label: 'เช็คชื่อนักเรียน', icon: ClipboardCheck, path: '/admin/dashboard/attendance' },
     { type: 'item', id: 'scores', label: 'คะแนนเก็บ', icon: PenLine, path: '/admin/dashboard/scores' },
     { type: 'item', id: 'conduct', label: 'ธนาคารความดี', icon: Star, path: '/admin/dashboard/conduct' },

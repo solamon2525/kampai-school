@@ -290,6 +290,27 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v2.8.34',
+        date: '26 พ.ย. 2569',
+        title: 'ระบบฟาร์มไก่ไข่โรงเรียน: บันทึกเก็บไข่, ขายไข่, ตั้งราคา และรายงาน Excel',
+        description:
+            'เพิ่มระบบหลังบ้านสำหรับโครงการเลี้ยงไก่ไข่โรงเรียน (/admin/dashboard/egg-farm) ให้ครูและผู้บริหารบันทึกการเก็บไข่ประจำวัน บันทึกรายการขาย พร้อมตั้งค่าราคาต่อฟอง/ต่อแผง ดูรายงานรายวัน รายสัปดาห์ รายเดือน และส่งออกเป็นไฟล์ Excel (.xlsx)',
+        type: 'feature',
+        author: 'ครูณัฐพงศ์ สิงห์ชมภู',
+        tags: [
+            'Egg Farm',
+            'Teacher Recording',
+            'Sales & Pricing',
+            'Excel Export',
+        ],
+        badge: 'bg-primary',
+        items: [
+            'Database & RLS (Migration 594): เพิ่มตาราง egg_settings, egg_collections และ egg_sales พร้อมสิทธิ์ admin และ teacher',
+            'Teacher-Friendly Recording: บันทึกเก็บไข่ (ดี/ร้าว/เสีย) และขายไข่ (ฟอง/แผง) โดยใช้ RecorderSelect และ ThaiDatePicker เหมือนระบบหลังบ้านเดิม',
+            'Reports & Export: รายงานสรุปผลรายวัน รายสัปดาห์ รายเดือน พร้อมกราฟ Recharts และ Export Excel 3 ชีต (สรุปรายงาน, บันทึกเก็บไข่, บันทึกขายไข่)',
+        ],
+    },
+    {
         version: 'v2.8.33',
         date: '26 พ.ย. 2569',
         title: 'English Vocab Hub: เพิ่มระบบเฉลยจากการทายภาพในกระดาน 5×5',

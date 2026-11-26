@@ -32,7 +32,7 @@ import {
   Lightbulb,
   Package,
   Gauge,
-  Trophy, FileSpreadsheet,
+  Trophy, FileSpreadsheet, Egg,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -83,6 +83,7 @@ export const STATIC_COMMANDS: CommandEntry[] = [
   { id: 'adm-conduct', label: 'ธนาคารความดี (ความประพฤติ)', group: 'แอดมิน', icon: Star, roles: ['admin'], action: { type: 'navigate', path: '/admin/dashboard/conduct' } },
   { id: 'adm-waste', label: 'ธนาคารขยะ (admin)', group: 'แอดมิน', icon: Recycle, roles: ['admin'], action: { type: 'navigate', path: '/admin/dashboard/waste-bank' } },
   { id: 'adm-savings', label: 'ธนาคารพอเพียง (admin)', group: 'แอดมิน', icon: Wallet, roles: ['admin'], action: { type: 'navigate', path: '/admin/dashboard/savings-bank' } },
+  { id: 'adm-egg-farm', label: 'ฟาร์มไก่ไข่โรงเรียน', group: 'แอดมิน', icon: Egg, roles: ['admin', 'teacher'], keywords: ['egg', 'farm', 'chicken', 'ไก่ไข่', 'เก็บไข่', 'ขายไข่'], action: { type: 'navigate', path: '/admin/dashboard/egg-farm' } },
   { id: 'adm-reading', label: 'ธนาคารการอ่าน (admin)', group: 'แอดมิน', icon: BookOpen, roles: ['admin', 'teacher'], keywords: ['reading', 'book', 'การอ่าน', 'สมุดอ่าน'], action: { type: 'navigate', path: '/admin/dashboard/reading-bank' } },
   { id: 'adm-scan', label: 'สแกน QR ด่วน', group: 'แอดมิน', icon: QrCode, roles: ['admin', 'teacher'], shortcut: '⌃⇧S', action: { type: 'navigate', path: '/admin/dashboard/scan' } },
   { id: 'adm-docs-hub', label: 'ศูนย์เอกสาร', group: 'แอดมิน', icon: FileText, roles: ['admin'], action: { type: 'navigate', path: '/admin/dashboard/docs-hub' } },
