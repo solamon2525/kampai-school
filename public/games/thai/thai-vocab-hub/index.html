@@ -218,12 +218,30 @@
 
         <!-- 2. Dictation (เขียนตามคำบอก) -->
         <div id="dictation-mode" class="mode-panel" style="display:none">
-            <div class="dictation-card">
-                <button class="voice-btn" onclick="playVoiceOnly()">🔊 ฟังเสียงคำถามอีกครั้ง</button>
-                <p class="dictation-hint">พิมพ์คำศัพท์ภาษาไทยที่คุณได้ยินลงในช่องด้านล่าง สะกดให้ถูกต้อง!</p>
+            <div class="dictation-card quiz-arena-card">
+                <div id="dictation-hud-bar" class="quiz-hud-bar">
+                    <div class="quiz-hud-meta">
+                        <span id="dictation-progress-badge" class="quiz-pill">ข้อ 1/12</span>
+                        <span id="dictation-combo-badge" class="quiz-pill quiz-combo-pill">✨ คอมโบ 0</span>
+                    </div>
+                    <div class="quiz-hud-actions">
+                        <button type="button" id="dictation-hint-btn" class="quiz-tool-btn">💡 ใบ้ตัวอักษร (2)</button>
+                    </div>
+                </div>
+                <div class="listen-audio-row">
+                    <button type="button" id="dictation-play-btn" class="voice-btn">🔊 ฟังปกติ</button>
+                    <button type="button" id="dictation-slow-btn" class="voice-btn voice-btn-slow">🐢 ฟังช้าๆ</button>
+                </div>
+                <p class="dictation-hint">ฟังเสียงแล้วพิมพ์สะกดคำศัพท์ภาษาไทยให้ถูกต้อง</p>
+                <div id="dictation-clue-box" class="quiz-clue-box" style="display:none"></div>
                 <div class="input-row">
-                    <input type="text" id="dictation-input" placeholder="พิมพ์สะกดคำศัพท์ที่นี่..." autocomplete="off" onkeydown="handleDictationKey(event)">
-                    <button class="btn btn-primary" onclick="checkDictation()">ส่งคำตอบ</button>
+                    <input type="text" id="dictation-input" placeholder="พิมพ์สะกดคำศัพท์ที่นี่..." autocomplete="off">
+                    <button type="button" id="dictation-submit-btn" class="btn btn-primary">ส่งคำตอบ</button>
+                </div>
+                <div id="dictation-feedback-box" class="quiz-feedback-box" style="display:none">
+                    <div id="dictation-diff-row" class="dictation-diff-row"></div>
+                    <div id="dictation-feedback-text" class="quiz-feedback-text"></div>
+                    <button type="button" id="dictation-next-btn" class="quiz-next-btn">ข้อถัดไป ▶</button>
                 </div>
             </div>
         </div>

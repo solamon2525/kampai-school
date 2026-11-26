@@ -188,4 +188,17 @@ const classifiersPool = GAME_DATA.words.classifiers;
   assert.equal(c8.multiplier, 2);
 }
 
+// 5. computeSpellingDiff & maskHint
+{
+  const exact = Quiz.computeSpellingDiff('กะเพรา', 'กะเพรา');
+  assert.equal(exact.isExact, true);
+  assert.equal(exact.targetSlots.every((s) => s.status === 'ok'), true);
+
+  const wrong = Quiz.computeSpellingDiff('กระเพรา', 'กะเพรา');
+  assert.equal(wrong.isExact, false);
+  assert.equal(wrong.targetSlots[0].status, 'ok');
+  assert.ok(wrong.targetSlots.some((s) => s.status === 'wrong' || s.status === 'missing'));
+  assert.ok(wrong.maskHint.startsWith('ก '), `maskHint must start with first grapheme, got: ${wrong.maskHint}`);
+}
+
 console.log('PASS: all ThaiVocabQuiz unit tests passed.');

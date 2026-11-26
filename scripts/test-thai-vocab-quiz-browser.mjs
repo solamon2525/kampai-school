@@ -84,6 +84,22 @@ try {
     await page.waitForSelector('#listen-clue-box', { state: 'visible' });
     assert.equal(await page.isVisible('#listen-clue-box'), true, '#listen-clue-box must be visible after clicking hint');
 
+    // 2.5 Switch to Dictation mode (#m-dictation)
+    await page.click('#m-dictation');
+    await page.waitForSelector('#dictation-mode', { state: 'visible' });
+    assert.equal(await page.isVisible('#word-area'), false, '#word-area must be hidden in dictation mode');
+    const dictProgress = await page.textContent('#dictation-progress-badge');
+    assert.ok(dictProgress && dictProgress.includes('ข้อ 1/12'), `Expected ข้อ 1/12, got: ${dictProgress}`);
+
+    await page.click('#dictation-hint-btn');
+    await page.waitForSelector('#dictation-clue-box', { state: 'visible' });
+    assert.equal(await page.isVisible('#dictation-clue-box'), true, '#dictation-clue-box must be visible after hint');
+
+    await page.fill('#dictation-input', 'ทดสอบผิด');
+    await page.click('#dictation-submit-btn');
+    await page.waitForSelector('#dictation-feedback-box', { state: 'visible' });
+    assert.ok((await page.locator('#dictation-diff-row .diff-char').count()) >= 1, 'Dictation feedback must render .diff-char elements');
+
     // 3. On 360x800, toggle teacher tools drawer
     if (vp.width === 360) {
       await page.click('#btn-teacher-tools-toggle');

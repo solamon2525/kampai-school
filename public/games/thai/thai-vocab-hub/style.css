@@ -6777,3 +6777,38 @@ body.modal-open {
   color: #6b21a8;
   transform: scale(1.05);
 }
+
+/* Dictation Arena Diff */
+.dictation-diff-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  justify-content: center;
+  width: 100%;
+}
+.diff-char {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  padding: 4px 7px;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: 700;
+  border: 1.5px solid transparent;
+}
+.diff-char.ok {
+  background: rgba(22, 163, 74, 0.22);
+  border-color: #22c55e;
+  color: #bbf7d0;
+}
+.diff-char.wrong {
+  background: rgba(220, 38, 38, 0.25);
+  border-color: #ef4444;
+  color: #fecaca;
+}
+.diff-char.missing {
+  background: rgba(245, 158, 11, 0.2);
+  border-color: #f59e0b;
+  color: #fde68a;
+}

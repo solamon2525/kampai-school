@@ -27,6 +27,47 @@
     return result;
   }
 
+  let currentDictationItem = null;
+
+  function segmentThaiGraphemes(str) {
+    const text = String(str || '').trim();
+    if (!text) return [];
+    if (typeof Intl !== 'undefined' && Intl.Segmenter) {
+      const seg = new Intl.Segmenter('th', { granularity: 'grapheme' });
+      const out = [];
+      for (const s of seg.segment(text)) out.push(s.segment);
+      return out;
+    }
+    const parts = [];
+    for (let i = 0; i < text.length; i++) {
+      let ch = text[i];
+      while (i + 1 < text.length && /[\u0E31\u0E34-\u0E3A\u0E47-\u0E4E]/.test(text[i + 1])) {
+        ch += text[++i];
+      }
+      parts.push(ch);
+    }
+    return parts;
+  }
+
+  function computeSpellingDiff(attempt, target) {
+    const cleanAttempt = String(attempt || '').trim();
+    const cleanTarget = String(target || '').trim();
+    const targetG = segmentThaiGraphemes(cleanTarget);
+    const attemptG = segmentThaiGraphemes(cleanAttempt);
+    const isExact = cleanAttempt === cleanTarget;
+
+    const targetSlots = targetG.map((ch, i) => {
+      if (i >= attemptG.length) return { char: ch, status: 'missing' };
+      return { char: ch, status: attemptG[i] === ch ? 'ok' : 'wrong' };
+    });
+
+    const maskHint = targetG.length
+      ? targetG[0] + ' ' + targetG.slice(1).map(() => '_').join(' ') + ' (' + targetG.length + ' ตัวอักษร)'
+      : '';
+
+    return { isExact, targetSlots, maskHint, graphemeCount: targetG.length };
+  }
+
   function shuffle(arr) {
     const copy = arr.slice();
     for (let i = copy.length - 1; i > 0; i--) {
@@ -614,15 +655,207 @@
     return currentListenItem;
   }
 
+  function getCurrentDictationWord() {
+    return currentDictationItem;
+  }
+
+  function mountDictation(callbacks) {
+    cleanup();
+    const sessionId = activeSessionId;
+    const cb = callbacks || {};
+    const pool = (typeof cb.getPool === 'function' ? cb.getPool() : []) || [];
+    const slug = (typeof cb.getCategorySlug === 'function' ? cb.getCategorySlug() : '') || '';
+    const baseScore = typeof cb.getBaseScore === 'function' ? cb.getBaseScore() : 10;
+
+    const deck = getOrCreateDeck('dictation', pool, slug);
+    const roundItems = deck.nextRound();
+    if (!roundItems.length) {
+      if (typeof cb.onRoundEnd === 'function') cb.onRoundEnd();
+      return;
+    }
+
+    const doc = global.document;
+    if (!doc) return;
+
+    const progressBadge = doc.getElementById('dictation-progress-badge');
+    const comboBadge = doc.getElementById('dictation-combo-badge');
+    const hintBtn = doc.getElementById('dictation-hint-btn');
+    const playBtn = doc.getElementById('dictation-play-btn');
+    const slowBtn = doc.getElementById('dictation-slow-btn');
+    const clueBox = doc.getElementById('dictation-clue-box');
+    const inputEl = doc.getElementById('dictation-input');
+    const submitBtn = doc.getElementById('dictation-submit-btn');
+    const feedbackBox = doc.getElementById('dictation-feedback-box');
+    const diffRow = doc.getElementById('dictation-diff-row');
+    const feedbackText = doc.getElementById('dictation-feedback-text');
+    const nextBtn = doc.getElementById('dictation-next-btn');
+    const barEl = doc.getElementById('bar');
+
+    let idx = 0;
+    let streak = 0;
+    let hintsLeft = 2;
+    let isAnswered = false;
+    let hintUsedThisQ = false;
+    let shouldEnd = false;
+    let currentWord = null;
+
+    function advance() {
+      if (sessionId !== activeSessionId) return;
+      if (advanceTimer) {
+        clearTimeout(advanceTimer);
+        advanceTimer = null;
+      }
+      if (shouldEnd || idx + 1 >= roundItems.length) {
+        if (barEl) barEl.style.width = '100%';
+        if (typeof cb.onRoundEnd === 'function') cb.onRoundEnd();
+        return;
+      }
+      idx += 1;
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      if (sessionId !== activeSessionId) return;
+      if (idx >= roundItems.length) {
+        if (typeof cb.onRoundEnd === 'function') cb.onRoundEnd();
+        return;
+      }
+
+      isAnswered = false;
+      hintUsedThisQ = false;
+      shouldEnd = false;
+      currentWord = roundItems[idx];
+      currentDictationItem = currentWord;
+
+      if (progressBadge) progressBadge.textContent = 'ข้อ ' + (idx + 1) + '/' + roundItems.length;
+      updateComboBadge(comboBadge, streak, computeQuizCombo(baseScore, streak).multiplier);
+      if (clueBox) {
+        clueBox.style.display = 'none';
+        clueBox.textContent = '';
+      }
+      if (feedbackBox) feedbackBox.style.display = 'none';
+      if (diffRow) diffRow.innerHTML = '';
+      if (hintBtn) {
+        hintBtn.textContent = '💡 ใบ้ตัวอักษร (' + hintsLeft + ')';
+        hintBtn.disabled = hintsLeft <= 0;
+      }
+      if (inputEl) {
+        inputEl.value = '';
+        inputEl.disabled = false;
+        inputEl.focus();
+      }
+      if (submitBtn) submitBtn.disabled = false;
+
+      if (typeof cb.speak === 'function') cb.speak(currentWord.word);
+      if (barEl) barEl.style.width = ((idx / roundItems.length) * 100) + '%';
+    }
+
+    function handleSubmit() {
+      if (sessionId !== activeSessionId || isAnswered || !currentWord || !inputEl) return;
+      const attempt = inputEl.value.trim();
+      if (!attempt) {
+        if (typeof cb.toast === 'function') cb.toast('กรุณาพิมพ์สะกดคำศัพท์ก่อนส่งคำตอบ', 'wrong');
+        return;
+      }
+
+      isAnswered = true;
+      inputEl.disabled = true;
+      if (submitBtn) submitBtn.disabled = true;
+      if (hintBtn) hintBtn.disabled = true;
+
+      const diff = computeSpellingDiff(attempt, currentWord.word);
+      if (diff.isExact) {
+        streak += 1;
+        const res = computeQuizCombo(baseScore, streak);
+        updateComboBadge(comboBadge, streak, res.multiplier);
+        if (typeof cb.onCorrect === 'function') cb.onCorrect(currentWord, res.points);
+      } else {
+        streak = 0;
+        updateComboBadge(comboBadge, streak, 1);
+        const alive = typeof cb.onWrong === 'function' ? cb.onWrong(currentWord) : true;
+        if (!alive) shouldEnd = true;
+      }
+
+      if (diffRow) {
+        diffRow.innerHTML = '';
+        diff.targetSlots.forEach((slot) => {
+          const span = doc.createElement('span');
+          span.className = 'diff-char ' + slot.status;
+          span.textContent = slot.char;
+          diffRow.appendChild(span);
+        });
+      }
+
+      if (feedbackText) {
+        const parts = [];
+        if (!diff.isExact) parts.push('คำที่ถูกต้อง: ' + currentWord.word);
+        if (currentWord.reading) parts.push('[' + currentWord.reading + ']');
+        if (currentWord.meaning) parts.push(currentWord.meaning);
+        if (currentWord.example) parts.push('ตัวอย่าง: "' + currentWord.example + '"');
+        feedbackText.textContent = parts.join(' · ');
+      }
+      if (feedbackBox) feedbackBox.style.display = 'flex';
+
+      advanceTimer = setTimeout(advance, diff.isExact ? 1400 : 2000);
+    }
+
+    if (playBtn) {
+      playBtn.onclick = function () {
+        if (sessionId !== activeSessionId || !currentWord) return;
+        if (typeof cb.speak === 'function') cb.speak(currentWord.word);
+      };
+    }
+    if (slowBtn) {
+      slowBtn.onclick = function () {
+        if (sessionId !== activeSessionId || !currentWord) return;
+        speakSlow(currentWord.word, cb.speak);
+      };
+    }
+    if (hintBtn) {
+      hintBtn.onclick = function () {
+        if (sessionId !== activeSessionId || isAnswered || hintUsedThisQ || hintsLeft <= 0 || !currentWord) return;
+        const diff = computeSpellingDiff('', currentWord.word);
+        if (clueBox) {
+          clueBox.textContent = 'คำใบ้: ' + diff.maskHint + (currentWord.meaning ? ' · ' + currentWord.meaning : '');
+          clueBox.style.display = 'block';
+        }
+        hintUsedThisQ = true;
+        hintsLeft -= 1;
+        hintBtn.textContent = '💡 ใบ้ตัวอักษร (' + hintsLeft + ')';
+        hintBtn.disabled = true;
+      };
+    }
+    if (submitBtn) submitBtn.onclick = handleSubmit;
+    if (inputEl) {
+      inputEl.onkeydown = function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          handleSubmit();
+        }
+      };
+    }
+    if (nextBtn) {
+      nextBtn.onclick = function () {
+        advance();
+      };
+    }
+
+    renderQuestion();
+  }
+
   global.ThaiVocabQuiz = {
     createQuizDeck: createQuizDeck,
     buildChoiceQuestion: buildChoiceQuestion,
     buildListenQuestion: buildListenQuestion,
     computeQuizCombo: computeQuizCombo,
+    segmentThaiGraphemes: segmentThaiGraphemes,
+    computeSpellingDiff: computeSpellingDiff,
     mountChoice: mountChoice,
     mountListen: mountListen,
+    mountDictation: mountDictation,
     cleanup: cleanup,
     bindTeacherToolsToggle: bindTeacherToolsToggle,
     getCurrentListenWord: getCurrentListenWord,
+    getCurrentDictationWord: getCurrentDictationWord,
   };
 })(typeof window !== 'undefined' ? window : globalThis);
