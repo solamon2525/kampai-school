@@ -608,6 +608,7 @@ export const savingsBackupsService = {
         .from('user_roles')
         .select('staff_id, administrator_id')
         .eq('user_id', user.id)
+        .limit(1)
         .maybeSingle();
 
       const adminId = roleRow?.administrator_id ?? user.id;

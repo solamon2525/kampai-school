@@ -67,6 +67,12 @@ test('savingsBackupsService exists in savings.service.ts and selects photo_url o
   for (const call of adminSelectMatch) {
     assert.equal(call.includes('photo_url'), true, `administrators query must select photo_url: ${call}`);
   }
+
+  assert.match(
+    backupsBlock,
+    /from\('user_roles'\)[\s\S]*?\.limit\(1\)\s*\.maybeSingle\(\)/,
+    'createSnapshot user_roles lookup must call .limit(1) before .maybeSingle()',
+  );
 });
 
 test('BackupsTabContent.tsx centralizes queries via savingsBackupsService, uses TanStack Query + ConfirmDialog + light-mode tokens', () => {
@@ -87,6 +93,19 @@ test('BackupsTabContent.tsx centralizes queries via savingsBackupsService, uses 
   assert.equal(backupsTabSource.includes('useMutation'), true);
   assert.equal(backupsTabSource.includes('ConfirmDialog'), true);
   assert.equal(backupsTabSource.includes('PersonAvatar'), true);
+
+  const invalidateIdx = backupsTabSource.indexOf("queryClient.invalidateQueries({ queryKey: ['savings-backups', 'settings'] })");
+  const clearDraftIdx = backupsTabSource.indexOf('setSettingsDraft({})');
+  assert.notEqual(invalidateIdx, -1, 'must invalidate savings-backups settings query');
+  assert.notEqual(clearDraftIdx, -1, 'must clear settingsDraft after invalidation');
+  assert.ok(
+    invalidateIdx < clearDraftIdx,
+    'invalidateQueries must run before setSettingsDraft({}) to prevent settings state flicker',
+  );
+  assert.ok(
+    backupsTabSource.includes('isError') && backupsTabSource.includes('backupsError'),
+    'BackupsTabContent must handle backupsQuery error state explicitly',
+  );
 });
 
 test('SavingsBankManagement.tsx replaces raw img, confirm(), and hardcoded light-mode violations', () => {

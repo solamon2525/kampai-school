@@ -57,7 +57,12 @@ export const BackupsTabContent = ({ summaries }: Props) => {
     queryFn: () => savingsBackupsService.getSettings(),
   });
 
-  const { data: backupsResult, isLoading: isBackupsLoading } = useQuery({
+  const {
+    data: backupsResult,
+    isLoading: isBackupsLoading,
+    isError: isBackupsError,
+    error: backupsError,
+  } = useQuery({
     queryKey: ['savings-backups', 'list'],
     queryFn: () => savingsBackupsService.listBackups(),
   });
@@ -80,11 +85,11 @@ export const BackupsTabContent = ({ summaries }: Props) => {
     mutationFn: (payload: Pick<SavingsBackupSettings, 'frequency' | 'teacherEmail' | 'teacherId' | 'enabled'>) =>
       savingsBackupsService.saveSettings(payload),
     onSuccess: async () => {
-      setSettingsDraft({});
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['savings-backups', 'settings'] }),
         queryClient.invalidateQueries({ queryKey: ['school-settings'] }),
       ]);
+      setSettingsDraft({});
       toast({
         title: 'บันทึกการตั้งค่าสำเร็จ',
         description: 'ระบบจะนำการตั้งค่าสำรองข้อมูลไปรันตามกำหนดเวลา',
@@ -368,6 +373,16 @@ export const BackupsTabContent = ({ summaries }: Props) => {
             {isBackupsLoading ? (
               <div className="p-12 text-center text-muted-foreground text-xs">
                 กำลังโหลดประวัติการสำรองข้อมูล...
+              </div>
+            ) : isBackupsError ? (
+              <div className={cn('m-4 rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-xs text-destructive flex items-start gap-3')}>
+                <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-bold">โหลดประวัติการสำรองข้อมูลไม่สำเร็จ</p>
+                  <p className="mt-1 text-destructive/90">
+                    {backupsError instanceof Error ? backupsError.message : 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล'}
+                  </p>
+                </div>
               </div>
             ) : backups.length === 0 ? (
               <div className="p-12 text-center text-muted-foreground text-xs">
