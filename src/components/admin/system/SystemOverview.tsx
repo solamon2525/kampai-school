@@ -290,6 +290,27 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v2.8.33',
+        date: '26 พ.ย. 2569',
+        title: 'English Vocab Hub: เพิ่มระบบเฉลยจากการทายภาพในกระดาน 5×5',
+        description:
+            'เพิ่มปุ่มเฉลยภาพ (👁️ เฉลยภาพ) ในด่านทายภาพของกระดาน 5×5 (Math Grid) เพื่อแสดงคำศัพท์ภาษาอังกฤษ คำอ่านภาษาไทย ความหมาย และป้ายคำศัพท์ในช่อง พร้อมอ่านเสียงคำศัพท์ให้ฟังซ้ำได้ก่อนเปิดโจทย์ตัวเลข',
+        type: 'feature',
+        author: 'ครูณัฐพงศ์ สิงห์ชมภู',
+        tags: [
+            'English Vocab Hub',
+            'Math Grid 5x5',
+            'Picture Reveal',
+            'TTS Pronunciation',
+        ],
+        badge: 'bg-primary',
+        items: [
+            'Picture Answer Reveal: เพิ่มปุ่ม 👁️ เฉลยภาพ ใน #math-pic-gate-bar แสดงคำศัพท์ (en), คำอ่าน ([th]), ความหมาย (meaning) และป้ายคำบนช่องกระดาน',
+            'Vocab Audio Replay: อ่านเสียงคำศัพท์ภาษาอังกฤษทันทีเมื่อกดเฉลย พร้อมปุ่ม 🔊 ฟังคำศัพท์ ก่อนกด ➡️ เปิดโจทย์เลข',
+            'Verification: อัปเดต Playwright E2E (tests/vocab-hub-math-grid.test.mjs) ครอบคลุมการเฉลยภาพและตรวจหน้าจอจริงทั้งเดสก์ท็อปและมือถือ',
+        ],
+    },
+    {
         version: 'v2.8.32',
         date: '26 พ.ย. 2569',
         title: 'English Vocab Hub: เพิ่มด่านทายภาพในกระดาน 5×5, ขยายตาราง, และจำกัดฟังซ้ำ 3 ครั้ง',

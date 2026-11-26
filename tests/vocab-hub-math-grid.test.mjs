@@ -121,16 +121,29 @@ async function main() {
     // Screenshot initial picture grid on desktop
     await page.screenshot({ path: path.join(ARTIFACT_DIR, 'math-grid-pic-desktop.png') });
 
-    // 3. Click cell #1 -> enters pic_asking (does NOT speak math question yet)
+    // 3. Click cell #1 -> enters pic_asking (does NOT speak math question yet, shows reveal button)
     const spokenBeforeClick = await page.evaluate(() => window.__spokenCount);
     await page.click('[data-grid-cell="0"]');
     await page.waitForSelector('#math-pic-gate-bar');
+    await page.waitForSelector('#math-grid-pic-reveal');
     await page.waitForSelector('#math-grid-pic-pass');
     const cell1Class = await page.getAttribute('[data-grid-cell="0"]', 'class');
     assert.ok(cell1Class.includes('pic_asking'), 'Cell #1 should enter pic_asking state');
     assert.equal(await page.locator('#math-grid-speak').count(), 0, 'Replay button must not appear before picture gate is passed');
     const spokenDuringPic = await page.evaluate(() => window.__spokenCount);
     assert.equal(spokenDuringPic, spokenBeforeClick, 'Entering pic_asking must not auto-speak math question');
+
+    // 3b. Click 'เฉลยภาพ' -> shows answer (en + sub) + speaks vocab word + shows cell label + speak button
+    await page.click('#math-grid-pic-reveal');
+    await page.waitForSelector('.math-pic-answer-en');
+    await page.waitForSelector('#math-grid-pic-speak');
+    await page.waitForSelector('[data-grid-cell="0"] .math-cell-pic-label');
+    const revealAnswerText = await page.textContent('.math-pic-answer-en');
+    assert.ok(revealAnswerText.includes('เฉลย #1:'), `Expected picture reveal text, got '${revealAnswerText}'`);
+    await page.waitForFunction((prev) => window.__spokenCount > prev, spokenDuringPic);
+    const spokenAfterReveal = await page.evaluate(() => window.__spokenCount);
+    assert.ok(spokenAfterReveal > spokenDuringPic, 'Clicking เฉลยภาพ should speak the picture vocabulary word');
+    await page.screenshot({ path: path.join(ARTIFACT_DIR, 'math-grid-pic-reveal-desktop.png') });
 
     // 4. Confirm picture guess -> enters asking and shows replay button with 3 remaining
     await page.click('#math-grid-pic-pass');

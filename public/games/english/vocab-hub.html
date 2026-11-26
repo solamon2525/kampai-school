@@ -613,16 +613,22 @@ body::before{content:'';position:fixed;inset:0;
 .math-grid-container{width:min(860px,94vw,calc((100vh - 225px) * 1.25));max-width:100%;display:flex;flex-direction:column;align-items:center;gap:5px;margin:0 auto}
 .math-grid-meta{width:100%;display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:clamp(13px,1.8vh,15px);color:#fff;font-weight:700;min-height:34px;flex-wrap:wrap}
 .math-grid-actions{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
-.math-btn-replay,.math-btn-reset,.math-btn-pic-pass{min-height:34px;padding:4px 12px;font-size:13px;border-radius:10px}
+.math-btn-replay,.math-btn-reset,.math-btn-pic-pass,.math-btn-pic-reveal{min-height:34px;padding:4px 12px;font-size:13px;border-radius:10px}
 .math-btn-replay{background:rgba(255,213,79,.2);border-color:#FFD54F;color:#FFE082;font-weight:800}
 .math-btn-replay:disabled,.math-btn-replay.is-exhausted{opacity:.45;cursor:not-allowed;filter:grayscale(.45);border-color:rgba(255,255,255,.25);color:rgba(255,255,255,.72);background:rgba(255,255,255,.08)}
+.math-btn-pic-reveal{background:rgba(56,189,248,.22);border-color:#7dd3fc;color:#e0f2fe;font-weight:800}
+.math-btn-pic-reveal:hover{background:rgba(56,189,248,.36)}
 .math-btn-pic-pass{background:#22c55e;border-color:#86efac;color:#052e16;font-weight:900}
 .math-btn-pic-pass:hover{background:#4ade80}
-.math-pic-gate-bar{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:5px 12px;border-radius:12px;background:rgba(255,213,79,.16);border:2px solid #FFD54F;color:#fff}
-.math-pic-gate-info{display:flex;align-items:center;gap:10px;min-width:0}
+.math-pic-gate-bar{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:5px 12px;border-radius:12px;background:rgba(255,213,79,.16);border:2px solid #FFD54F;color:#fff;flex-wrap:wrap}
+.math-pic-gate-info{display:flex;align-items:center;gap:10px;min-width:0;flex:1 1 220px}
+.math-pic-gate-actions{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
 .math-pic-gate-preview{width:40px;height:40px;border-radius:8px;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;padding:2px}
 .math-pic-gate-preview img{width:100%;height:100%;object-fit:contain}
 .math-pic-gate-text{font-size:clamp(13px,1.8vh,16px);font-weight:800;color:#FFE082;line-height:1.25}
+.math-pic-answer-en{font-size:clamp(16px,2.2vh,21px);font-weight:900;color:#fff;line-height:1.15}
+.math-pic-answer-sub{font-size:clamp(12px,1.6vh,14px);font-weight:700;color:#FFE082;line-height:1.2}
+.math-cell-pic-label{position:absolute;bottom:3px;left:4px;right:4px;background:rgba(15,23,42,.82);color:#FFE082;font-size:clamp(10px,1.3vh,12px);font-weight:800;padding:1px 4px;border-radius:6px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;z-index:2}
 .math-grid-board{width:100%;aspect-ratio:5/4;display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(5,1fr);gap:7px}
 @media (max-width:767px){.math-grid-container{width:min(540px,94vw)}.math-grid-board{aspect-ratio:1}}
 .math-cell{min-height:0;border-radius:12px;border:2px solid rgba(255,255,255,.24);background:rgba(255,255,255,.08);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation;transition:transform .12s ease,border-color .12s ease,background .12s ease;padding:4px;position:relative;user-select:none;overflow:hidden}
@@ -3147,6 +3153,7 @@ function initMysteryGrid(){
         id: i + 1,
         q: makeMathQuestion(),
         picItem: picPool[i] || null,
+        picRevealed: false,
         replaysLeft: MATH_GRID_MAX_REPLAYS,
         status: 'closed',
         team: null
@@ -3258,7 +3265,8 @@ function renderMathGrid(){
     let inner = '';
     if(c.status === 'closed' || c.status === 'pic_asking'){
       if(c.picItem){
-        inner = '<span class="math-cell-num">#' + c.id + '</span>' + mathGridCellPicHtml(c.picItem);
+        inner = '<span class="math-cell-num">#' + c.id + '</span>' + mathGridCellPicHtml(c.picItem)
+          + (c.status === 'pic_asking' && c.picRevealed ? '<span class="math-cell-pic-label">' + escapeHtml(c.picItem.en) + '</span>' : '');
       } else {
         inner = '<span class="math-cell-num">#' + c.id + '</span><span class="math-cell-icon">❓</span>';
       }
@@ -3292,15 +3300,33 @@ function renderMathGrid(){
       + '</button>'
     : '';
 
-  const picGateBarHtml = activeCell && activeCell.status === 'pic_asking' && activeCell.picItem
-    ? '<div class="math-pic-gate-bar" id="math-pic-gate-bar">'
+  let picGateBarHtml = '';
+  if(activeCell && activeCell.status === 'pic_asking' && activeCell.picItem){
+    const pItem = activeCell.picItem;
+    const isPicRevealed = !!activeCell.picRevealed;
+    const readingParts = [];
+    if(pItem.th) readingParts.push('[' + escapeHtml(pItem.th) + ']');
+    if(pItem.meaning) readingParts.push(escapeHtml(pItem.meaning));
+    const infoTextHtml = isPicRevealed
+      ? '<div><div class="math-pic-answer-en">เฉลย #' + activeCell.id + ': ' + escapeHtml(pItem.en) + '</div>'
+        + (readingParts.length ? '<div class="math-pic-answer-sub">' + readingParts.join(' · ') + '</div>' : '')
+        + '</div>'
+      : '<span class="math-pic-gate-text">🖼️ ช่อง #' + activeCell.id + ': ภาพนี้พูดภาษาอังกฤษว่าอะไร?</span>';
+    const revealBtnHtml = isPicRevealed
+      ? '<button type="button" class="math-secondary math-btn-pic-reveal" id="math-grid-pic-speak">🔊 ฟังคำศัพท์</button>'
+      : '<button type="button" class="math-secondary math-btn-pic-reveal" id="math-grid-pic-reveal">👁️ เฉลยภาพ</button>';
+    const passBtnText = isPicRevealed ? '➡️ เปิดโจทย์เลข' : '✅ ทายถูก → เปิดโจทย์เลข';
+    picGateBarHtml = '<div class="math-pic-gate-bar" id="math-pic-gate-bar">'
       + '<div class="math-pic-gate-info">'
-      + '<span class="math-pic-gate-preview">' + mathGridCellPicHtml(activeCell.picItem) + '</span>'
-      + '<span class="math-pic-gate-text">🖼️ ช่อง #' + activeCell.id + ': ภาพนี้พูดภาษาอังกฤษว่าอะไร?</span>'
+      + '<span class="math-pic-gate-preview">' + mathGridCellPicHtml(pItem) + '</span>'
+      + infoTextHtml
       + '</div>'
-      + '<button type="button" class="math-secondary math-btn-pic-pass" id="math-grid-pic-pass">✅ ทายถูก → เปิดโจทย์เลข</button>'
+      + '<div class="math-pic-gate-actions">'
+      + revealBtnHtml
+      + '<button type="button" class="math-secondary math-btn-pic-pass" id="math-grid-pic-pass">' + passBtnText + '</button>'
       + '</div>'
-    : '';
+      + '</div>';
+  }
 
   playEl.innerHTML = '<div class="math-shell grid-mode">'
     + renderMathGridSettingsHtml()
@@ -3327,6 +3353,16 @@ function renderMathGrid(){
   document.querySelectorAll('[data-grid-cell]').forEach(btn => {
     btn.onclick = () => handleMathGridCellClick(Number(btn.dataset.gridCell));
   });
+
+  const btnPicReveal = document.getElementById('math-grid-pic-reveal');
+  if(btnPicReveal && activeCell && activeCell.status === 'pic_asking'){
+    btnPicReveal.onclick = () => revealMathGridPicture(mathGridActiveIndex);
+  }
+
+  const btnPicSpeak = document.getElementById('math-grid-pic-speak');
+  if(btnPicSpeak && activeCell && activeCell.status === 'pic_asking' && activeCell.picItem){
+    btnPicSpeak.onclick = () => mathSpeakParts([activeCell.picItem.en]);
+  }
 
   const btnPicPass = document.getElementById('math-grid-pic-pass');
   if(btnPicPass && activeCell && activeCell.status === 'pic_asking'){
@@ -3372,6 +3408,14 @@ function renderMathGrid(){
       renderMathGrid();
     };
   }
+}
+function revealMathGridPicture(idx){
+  const cell = mathGridCells[idx];
+  if(!cell || cell.status !== 'pic_asking' || !cell.picItem) return;
+  cell.picRevealed = true;
+  mathGridActiveIndex = idx;
+  renderMathGrid();
+  mathSpeakParts([cell.picItem.en]);
 }
 function unlockMathGridQuestion(idx){
   const cell = mathGridCells[idx];
