@@ -1,0 +1,3 @@
+# Godot 4+ local cache
+.godot/
+*.translation

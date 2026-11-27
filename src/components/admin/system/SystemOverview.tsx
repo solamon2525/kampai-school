@@ -290,6 +290,28 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v2.8.37',
+        date: '27 พ.ย. 2569',
+        title: 'สร้างเกมมาริโอตะลุยคำไทยใหม่ด้วย Godot 4.4.1 GDScript (WebAssembly) + แก้ HUD ล้นขอบ',
+        description:
+            'สร้างเกมมาริโอตะลุยคำไทย (/play/thai-mario-vocab) ใหม่ทั้งหมดด้วยเอนจิน Godot 4.4.1 (GDScript 2.0) ส่งออกเป็น single-threaded WebAssembly (thai_mario.wasm + thai_mario.pck) เพื่อภาพพิกเซล 640×360 ฟิลเตอร์ NEAREST คมชัดระดับเกมคอนโซล พร้อมพารัลแลกซ์เมฆ/ภูเขา, ฟิสิกส์ CharacterBody2D (Coyote Time, Jump Buffer, Squash & Stretch), เสียง 8-bit Chiptune บน Godot AudioServer, การ์ดคำภาษาไทยฟอนต์ไทยคมชัด และตรึง HUD หัวใจ/ปุ่มเสียงให้อยู่ในกรอบ 100vw ไม่ล้นขวาทุกขนาดหน้าจอ',
+        type: 'refactor',
+        author: 'ครูณัฐพงศ์ สิงห์ชมภู',
+        tags: [
+            'Godot 4.4',
+            'GDScript',
+            'WebAssembly',
+            'Thai Language Game',
+            'KampaiVersus',
+        ],
+        badge: 'bg-primary',
+        items: [
+            'Godot 4.4.1 (GDScript 2.0): ย้ายแกนเกมทั้งหมดไปยัง godot-projects/thai-mario-vocab (AudioSynth, GameState, KampaiBridge, MarioPlayer, PatrolEnemy, QuestionBlock, WordPickup, HeartPickup) พร้อมชุดทดสอบ headless 12/12 ผ่านครบ',
+            'WebAssembly Wrapper & Lazy Boot: โหลด godot/thai_mario.js + .wasm + .pck แบบ lazy พร้อมเชื่อม DOM input/touch เข้ากับ JavaScriptBridge และผ่าน pnpm verify:game:all (ทั้ง static + browser)',
+            'Responsive HUD & Mobile Controls: ตรึง #hud-bar ในขอบ max-width: 100vw แก้ปัญหาหัวใจ/ป้ายเสียงตกขอบขวาบนหน้าจอ 1440px และแยก #touch-controls เหนือแผงเสียง 16px บนมือถือแนวนอน (Migration 596 + game_docs v2.0.0)',
+        ],
+    },
+    {
         version: 'v2.8.36',
         date: '27 พ.ย. 2569',
         title: 'เกมภาษาไทยใหม่: มาริโอตะลุยคำไทย (Phaser 4.2.1 · 2D Platformer)',

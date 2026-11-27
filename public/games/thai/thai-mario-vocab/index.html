@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>มาริโอตะลุยคำไทย — Phaser 2D Platformer</title>
+<title>มาริโอตะลุยคำไทย — Godot 4 GDScript</title>
 <link rel="stylesheet" href="style.css">
 <style>
 button:focus-visible, [role="button"]:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid #facc15; outline-offset: 3px; }
@@ -14,7 +14,6 @@ button:focus-visible, [role="button"]:focus-visible, a:focus-visible, input:focu
 </head>
 <body>
 
-<!-- Overlay หมุนจอ (เมื่อแนวจอไม่เหมาะบนมือถือ) -->
 <div id="rotate-overlay" aria-live="polite">
   <div class="ro-inner">
     <div class="ro-phone" aria-hidden="true">📱</div>
@@ -23,7 +22,7 @@ button:focus-visible, [role="button"]:focus-visible, a:focus-visible, input:focu
   </div>
 </div>
 
-<!-- HUD ด้านบน -->
+<!-- HUD ด้านบน (ตรึงกับกรอบหน้าจอ ไม่ล้นขวา) -->
 <div id="hud-bar">
   <div class="hud-left">
     <div id="score-container" class="hud-pill">⭐ <span id="score-value">0</span></div>
@@ -34,13 +33,21 @@ button:focus-visible, [role="button"]:focus-visible, a:focus-visible, input:focu
 </div>
 <div id="player-chip"></div>
 
-<!-- ป้ายเฉลยคำศัพท์ภาษาไทย (aria-live) -->
+<!-- ป้ายเฉลยคำศัพท์ภาษาไทย -->
 <div id="lesson-toast" class="hidden" role="status" aria-live="polite"></div>
 
-<!-- พื้นที่ Phaser 4 Canvas -->
-<div id="game-container"></div>
+<!-- พื้นที่ Godot 4.4.1 WebAssembly Canvas -->
+<div id="game-container">
+  <canvas id="godot-canvas"></canvas>
+  <div id="godot-loading" class="hidden">
+    <div class="loading-box">
+      <div class="loading-title">🍄 กำลังปลุกโลกมาริโอ Godot 4...</div>
+      <progress id="godot-progress" max="100" value="0"></progress>
+    </div>
+  </div>
+</div>
 
-<!-- ปุ่มควบคุมบนหน้าจอสัมผัส (มือถือ/แท็บเล็ต) -->
+<!-- ปุ่มควบคุมบนหน้าจอสัมผัส -->
 <div id="touch-controls" aria-hidden="true">
   <div class="touch-left">
     <button id="tbtn-left" class="tbtn" type="button" aria-label="เดินซ้าย">◀</button>
@@ -55,7 +62,7 @@ button:focus-visible, [role="button"]:focus-visible, a:focus-visible, input:focu
 <div id="blocker">
   <div class="menu-panel">
     <header class="menu-header menu-section">
-      <span class="orient-badge" id="orient-badge">🍄 ผจญภัยคำไทย · Phaser 4</span>
+      <span class="orient-badge" id="orient-badge">🍄 Godot 4.4 · GDScript 2D</span>
       <h1 id="game-title">🍄 มาริโอตะลุยคำไทย</h1>
       <p id="game-subtitle">กระโดดเก็บคำที่สะกดถูกต้อง · ห้ามเก็บคำผิด! (มีหัวใจ 5 ดวง)</p>
     </header>
@@ -117,12 +124,8 @@ window.KampaiOrient = window.KampaiOrient || { init:function(){return this;}, ge
 window.KampaiMatch = window.KampaiMatch || { create:function(){return{available:false,openMenu:function(){},report:function(){},finish:function(){return false;},leave:function(){}};} };
 window.KampaiVersus = window.KampaiVersus || { create:function(o){ var m=window.KampaiMatch&&window.KampaiMatch.create?window.KampaiMatch.create(o):null; return{available:false,openMenu:function(){if(m)m.openMenu();},report:function(s,i){if(m)m.report(s,i);},finish:function(s,i){if(m&&m.finish(s,i))return true;return false;},leave:function(){}};} };
 </script>
-<script src="/games/vendor/phaser.min.js"></script>
 <script src="config.js"></script>
 <script src="data.js"></script>
-<script src="rules.js"></script>
-<script src="audio.js"></script>
-<script src="textures.js"></script>
 <script src="game.js"></script>
 </body>
 </html>
