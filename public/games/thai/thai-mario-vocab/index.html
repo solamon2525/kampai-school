@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>มาริโอตะลุยคำไทย — Phaser 2D Platformer</title>
+<link rel="stylesheet" href="style.css">
+<style>
+button:focus-visible, [role="button"]:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid #facc15; outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- Overlay หมุนจอ (เมื่อแนวจอไม่เหมาะบนมือถือ) -->
+<div id="rotate-overlay" aria-live="polite">
+  <div class="ro-inner">
+    <div class="ro-phone" aria-hidden="true">📱</div>
+    <div class="ro-text">กรุณาหมุนเครื่องเป็น<b>แนวนอน</b></div>
+    <div class="ro-hint">↻ หมุนมือถือแล้วเกมมาริโอจะเล่นได้ทันที</div>
+  </div>
+</div>
+
+<!-- HUD ด้านบน -->
+<div id="hud-bar">
+  <div class="hud-left">
+    <div id="score-container" class="hud-pill">⭐ <span id="score-value">0</span></div>
+    <div id="word-container" class="hud-pill">📖 <span id="word-count">0</span></div>
+  </div>
+  <div id="hud-center">ด่าน 1-1</div>
+  <div id="life-container" class="hud-pill" aria-label="หัวใจคงเหลือ">❤️❤️❤️❤️❤️</div>
+</div>
+<div id="player-chip"></div>
+
+<!-- ป้ายเฉลยคำศัพท์ภาษาไทย (aria-live) -->
+<div id="lesson-toast" class="hidden" role="status" aria-live="polite"></div>
+
+<!-- พื้นที่ Phaser 4 Canvas -->
+<div id="game-container"></div>
+
+<!-- ปุ่มควบคุมบนหน้าจอสัมผัส (มือถือ/แท็บเล็ต) -->
+<div id="touch-controls" aria-hidden="true">
+  <div class="touch-left">
+    <button id="tbtn-left" class="tbtn" type="button" aria-label="เดินซ้าย">◀</button>
+    <button id="tbtn-right" class="tbtn" type="button" aria-label="เดินขวา">▶</button>
+  </div>
+  <div class="touch-right">
+    <button id="tbtn-jump" class="tbtn tbtn-jump" type="button" aria-label="กระโดด">▲ โดด</button>
+  </div>
+</div>
+
+<!-- หน้าแรก (Title Screen) -->
+<div id="blocker">
+  <div class="menu-panel">
+    <header class="menu-header menu-section">
+      <span class="orient-badge" id="orient-badge">🍄 ผจญภัยคำไทย · Phaser 4</span>
+      <h1 id="game-title">🍄 มาริโอตะลุยคำไทย</h1>
+      <p id="game-subtitle">กระโดดเก็บคำที่สะกดถูกต้อง · ห้ามเก็บคำผิด! (มีหัวใจ 5 ดวง)</p>
+    </header>
+    <div class="menu-body">
+      <aside class="menu-settings">
+        <div id="my-stats">
+          <div class="ms-cell"><div class="ms-val" id="ms-best">0</div><div class="ms-label">คะแนนสูงสุด</div></div>
+          <div class="ms-cell"><div class="ms-val" id="ms-plays">0</div><div class="ms-label">เล่นแล้ว</div></div>
+        </div>
+        <div class="menu-section">
+          <h3>🎮 วิธีเล่นและกติกา</h3>
+          <ul class="tips-list" id="tips-list"></ul>
+        </div>
+      </aside>
+      <main class="menu-play">
+        <div class="leaderboard-box">
+          <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+          <ul id="score-list" class="leaderboard-list"><li class="lb-loading">กำลังโหลด...</li></ul>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" type="button" data-kampai-action="start" onclick="startGame()">▶ เริ่มเกม</button>
+          <button class="btn btn-orange" type="button" onclick="openVersus()">🏁 แข่ง 2 คน</button>
+          <button class="btn btn-blue" type="button" onclick="KAMPAI.goHome()">🎮 กลับ</button>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+
+<!-- หน้าจบเกม (Game Over / Victory) -->
+<div id="gameover-screen">
+  <div class="menu-panel">
+    <header class="menu-header">
+      <h1 id="go-title">จบเกม!</h1>
+      <div id="go-stars">☆☆☆</div>
+      <div id="final-score">0</div>
+      <p id="go-summary" class="go-summary"></p>
+      <div id="kampai-result"></div>
+    </header>
+    <div class="leaderboard-box">
+      <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+      <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" type="button" data-kampai-action="restart" onclick="restartGame()">🔄 เล่นใหม่</button>
+      <button class="btn btn-blue" type="button" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+      <button type="button" data-kampai-action="finish-test" onclick="finishForTest()" hidden>จบเกมสำหรับทดสอบ</button>
+    </div>
+  </div>
+</div>
+
+<script src="/games/kampai-sdk.js"></script>
+<script src="/games/kampai-orient.js"></script>
+<script src="/games/kampai-match.js"></script>
+<script src="/games/kampai-versus.js"></script>
+<script>
+window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, beginRound:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){},speak:function(){},fxFlash:function(){}} };
+window.KampaiOrient = window.KampaiOrient || { init:function(){return this;}, getViewportSize:function(){return{w:innerWidth,h:innerHeight};}, isPortrait:function(){return innerHeight>innerWidth;}, isLandscape:function(){return innerWidth>=innerHeight;}, isBlocked:function(){return false;}, isPaused:function(){return false;}, canStart:function(){return true;}, setPlaying:function(){}, lock:function(){}, notifyGameStart:function(){}, refresh:function(){} };
+window.KampaiMatch = window.KampaiMatch || { create:function(){return{available:false,openMenu:function(){},report:function(){},finish:function(){return false;},leave:function(){}};} };
+window.KampaiVersus = window.KampaiVersus || { create:function(o){ var m=window.KampaiMatch&&window.KampaiMatch.create?window.KampaiMatch.create(o):null; return{available:false,openMenu:function(){if(m)m.openMenu();},report:function(s,i){if(m)m.report(s,i);},finish:function(s,i){if(m&&m.finish(s,i))return true;return false;},leave:function(){}};} };
+</script>
+<script src="/games/vendor/phaser.min.js"></script>
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="rules.js"></script>
+<script src="audio.js"></script>
+<script src="textures.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
