@@ -2,71 +2,114 @@
 <html lang="th">
 <head>
   <script src="/games/kampai-sdk.js?v=1.181.0"></script>
+  <script src="/games/media-lab-runtime.js?v=2.0.0"></script>
+  <script src="/games/engine/classify-bucket-engine.js?v=2.0.0"></script>
+  <script src="/games/engine/vocab-quiz-engine.js?v=2.0.0"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ความหมายโดยนัย — บ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root { --deep: #1e3a8a; --line: #93c5fd; --lit: #0d9488; --imp: #7c3aed; --muted: #64748b; }
-    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(145deg, #dbeafe, #eff6ff); min-height: 100%; padding: 12px; }
-    .shell { max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 1.5rem; box-shadow: 0 20px 50px rgba(15,23,42,.12); overflow: hidden; min-height: calc(100vh - 24px); display: flex; flex-direction: column; }
+    :root { --deep: #1e3a8a; --line: #93c5fd; --lit: #0f766e; --imp: #6d28d9; --muted: #475569; --ok: #15803d; --bad: #b91c1c; --ink: #0f172a; }
+    html, body { max-width: 100%; overflow-x: hidden; }
+    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(145deg, #dbeafe, #eff6ff); min-height: 100vh; padding: 12px; color: var(--ink); }
+    .shell { max-width: 1100px; width: 100%; margin: 0 auto; background: #fff; border-radius: 1.5rem; box-shadow: 0 20px 50px rgba(15,23,42,.12); overflow: hidden; min-height: calc(100vh - 24px); display: flex; flex-direction: column; }
     header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(90deg, #1e3a8a, #2563eb); color: #fff; }
-    header h1 { font-size: 1.1rem; font-weight: 800; flex: 1; }
-    .badge { font-size: .75rem; background: rgba(255,255,255,.2); padding: 4px 10px; border-radius: 999px; font-weight: 700; }
-    .btn { font-family: inherit; font-weight: 700; border: none; border-radius: 12px; padding: 10px 14px; cursor: pointer; }
+    header h1 { font-size: 1.1rem; font-weight: 800; flex: 1; min-width: 140px; }
+    .badge { font-size: .75rem; background: rgba(255,255,255,.2); padding: 4px 10px; border-radius: 999px; font-weight: 700; white-space: nowrap; }
+    .btn { font-family: inherit; font-weight: 700; border: none; border-radius: 12px; padding: 10px 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; min-width: 44px; font-size: .95rem; }
+    .btn:active { transform: scale(.97); }
+    .btn:focus-visible, .seg button:focus-visible, .ke-bucket-btn:focus-visible, .ke-option:focus-visible, .ke-btn:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
     .btn-back { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.35); padding: 8px 12px; font-size: .85rem; }
     .btn-primary { background: var(--deep); color: #fff; }
     .btn-ghost { background: #fff; color: var(--deep); border: 2px solid var(--line); }
     .toolbar { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 16px; background: #eff6ff; border-bottom: 1px solid var(--line); align-items: center; }
-    .seg { display: inline-flex; border-radius: 12px; overflow: hidden; border: 2px solid #60a5fa; }
-    .seg button { font-family: inherit; font-weight: 800; border: none; background: #fff; color: var(--deep); padding: 8px 14px; cursor: pointer; }
+    .seg { display: inline-flex; flex-wrap: wrap; border-radius: 12px; overflow: hidden; border: 2px solid #60a5fa; background: #fff; max-width: 100%; }
+    .seg button { font-family: inherit; font-weight: 800; border: none; background: #fff; color: var(--deep); padding: 8px 14px; cursor: pointer; min-height: 44px; min-width: 44px; font-size: .92rem; }
     .seg button.on { background: var(--deep); color: #fff; }
-    .hint { font-size: .85rem; color: #1e40af; font-weight: 600; flex: 1; }
+    .hint { font-size: .85rem; color: #1e40af; font-weight: 600; flex: 1; min-width: 140px; }
+    .speech-status { font-size: .88rem; font-weight: 700; color: #78350f; background: #fef3c7; border: 1px solid #f59e0b; border-radius: 10px; padding: 8px 12px; display: none; margin: 0 auto 12px; max-width: 720px; width: 100%; }
+    .speech-status.show { display: block; }
     .stage { flex: 1; padding: 16px; overflow: auto; }
     .learn-grid { display: grid; gap: 12px; max-width: 720px; margin: 0 auto 16px; }
     @media (min-width: 700px) { .learn-grid { grid-template-columns: 1fr 1fr; } }
-    .def { border-radius: 16px; padding: 16px; border: 3px solid; }
+    .def { border-radius: 16px; padding: 16px; border: 3px solid; display: flex; flex-direction: column; gap: 10px; }
     .def.lit { border-color: var(--lit); background: #f0fdfa; }
     .def.imp { border-color: var(--imp); background: #f5f3ff; }
-    .def h3 { font-size: 1.2rem; margin-bottom: 8px; }
+    .def h3 { font-size: 1.2rem; }
     .def.lit h3 { color: var(--lit); }
     .def.imp h3 { color: var(--imp); }
     .def p { font-weight: 600; line-height: 1.55; }
-    .examples { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
-    .ex { font-weight: 700; padding: 10px 12px; border-radius: 10px; font-size: .9rem; line-height: 1.45; }
+    .examples { display: flex; flex-direction: column; gap: 8px; }
+    .ex { font-weight: 700; padding: 10px 12px; border-radius: 10px; font-size: .92rem; line-height: 1.45; }
     .ex.l { background: #ccfbf1; color: #0f766e; }
-    .ex.i { background: #ede9fe; color: #6d28d9; }
-    .practice { display: none; flex-direction: column; gap: 14px; max-width: 600px; margin: 0 auto; align-items: center; }
+    .ex.i { background: #ede9fe; color: #5b21b6; }
+    .def-speak { margin-top: auto; width: 100%; font-size: .88rem; }
+    .practice { display: none; flex-direction: column; gap: 14px; max-width: 680px; margin: 0 auto; width: 100%; }
     .practice.on { display: flex; }
     .learn-panel.hide { display: none; }
-    .stmt { font-size: 1.25rem; font-weight: 800; color: var(--deep); text-align: center; line-height: 1.5; padding: 16px; background: #eff6ff; border: 2px dashed var(--line); border-radius: 14px; width: 100%; }
-    .pick { display: grid; gap: 10px; width: 100%; }
-    .pick button { font-family: inherit; font-weight: 800; font-size: .95rem; padding: 14px; border-radius: 14px; border: 3px solid var(--line); background: #fff; color: var(--deep); cursor: pointer; text-align: left; line-height: 1.4; }
-    .pick button.ok { background: #dcfce7; border-color: #86efac; color: #166534; }
-    .pick button.no { background: #fee2e2; border-color: #fca5a5; color: #991b1b; }
-    .fb { font-weight: 800; min-height: 28px; text-align: center; }
-    .streak { font-size: .9rem; color: #1e40af; font-weight: 700; }
-    .footer { padding: 10px; font-size: .8rem; color: var(--muted); text-align: center; border-top: 1px solid var(--line); }
+    .practice-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+    .submode-group { display: inline-flex; flex-wrap: wrap; gap: 8px; }
+    .ke-classify-card, .ke-quiz-card, .ke-classify-summary, .ke-quiz-summary { background: #f8fafc; border: 2px solid var(--line); border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+    .ke-classify-head, .ke-quiz-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; font-weight: 800; color: var(--deep); }
+    .ke-badge { padding: 4px 10px; border-radius: 999px; background: #dbeafe; color: var(--deep); font-size: .85rem; }
+    .ke-progress { color: var(--muted); font-size: .92rem; }
+    .ke-classify-item { text-align: center; padding: 18px 14px; background: #eff6ff; border: 2px dashed var(--line); border-radius: 14px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .ke-item-icon { font-size: clamp(42px, 10vw, 60px); line-height: 1.1; }
+    .ke-item-label { font-size: clamp(1.2rem, 3vw, 1.5rem); font-weight: 800; color: var(--deep); overflow-wrap: anywhere; }
+    .ke-item-sub { font-size: .95rem; font-weight: 700; color: var(--muted); }
+    .ke-buckets { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    @media (max-width: 480px) { .ke-buckets { grid-template-columns: 1fr; } }
+    .ke-bucket-btn { font-family: inherit; font-weight: 800; font-size: .96rem; min-height: 52px; padding: 10px 12px; border-radius: 12px; border: 2px solid var(--line); background: #fff; color: var(--deep); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; text-align: center; }
+    .ke-bucket-btn[data-bucket-id="literal"] { border-color: var(--lit); color: var(--lit); }
+    .ke-bucket-btn[data-bucket-id="implied"] { border-color: var(--imp); color: var(--imp); }
+    .ke-bucket-btn.is-correct, .ke-option.is-correct { background: #dcfce7; border-color: var(--ok); color: #14532d; }
+    .ke-bucket-btn.is-wrong, .ke-option.is-wrong { background: #fee2e2; border-color: var(--bad); color: #7f1d1d; }
+    .ke-prompt { font-size: 1.18rem; font-weight: 800; color: var(--deep); line-height: 1.5; overflow-wrap: anywhere; }
+    .ke-audio-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .ke-options { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    .ke-option, .ke-btn { font-family: inherit; font-weight: 800; font-size: .96rem; min-height: 46px; padding: 10px 14px; border-radius: 12px; border: 2px solid var(--line); background: #fff; color: var(--deep); cursor: pointer; text-align: left; overflow-wrap: anywhere; }
+    .ke-btn { background: var(--deep); color: #fff; border-color: var(--deep); text-align: center; display: inline-flex; align-items: center; justify-content: center; gap: 6px; align-self: center; }
+    .ke-classify-feedback, .ke-feedback { padding: 12px; border-radius: 12px; font-weight: 700; line-height: 1.45; background: #fff; border: 1.5px solid #cbd5e1; color: var(--ink); }
+    .ke-classify-feedback.is-good, .ke-feedback.is-good { background: #dcfce7; border-color: var(--ok); color: #14532d; }
+    .ke-classify-feedback.is-learn, .ke-feedback.is-learn { background: #fef3c7; border-color: #d97706; color: #78350f; }
+    .ke-classify-summary, .ke-quiz-summary { text-align: center; align-items: center; }
+    .footer { padding: 10px 16px; font-size: .8rem; color: var(--muted); text-align: center; border-top: 1px solid var(--line); }
     .footer a { color: var(--deep); font-weight: 700; text-decoration: none; }
+    @media (max-width: 600px) {
+      body { padding: 0; }
+      .shell { border-radius: 0; min-height: 100vh; }
+      .stage { padding: 12px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+      }
+      .btn:active { transform: none; }
+    }
   </style>
 </head>
 <body>
   <div class="shell">
     <header>
-      <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back();">← กลับคลังสื่อ</button>
+      <button type="button" class="btn btn-back" onclick="stopSpeech();if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back();">← กลับคลังสื่อ</button>
       <h1>🔍 ความหมายตรงตัว vs โดยนัย</h1>
       <span class="badge">ป.5 · ภาษาไทย</span>
     </header>
     <div class="toolbar">
       <span class="seg" id="modeSeg">
-        <button type="button" data-mode="learn" class="on">📖 เรียนรู้</button>
-        <button type="button" data-mode="practice">✏️ ฝึกทายความหมาย</button>
+        <button type="button" data-mode="learn" class="on" aria-pressed="true">📖 เรียนรู้</button>
+        <button type="button" data-mode="practice" aria-pressed="false">✏️ ฝึกทายความหมาย</button>
       </span>
-      <p class="hint">โดยนัย = ความหมายซ่อน · ไม่ได้หมายตามตัวอักษรตรงๆ</p>
-      <button type="button" class="btn btn-ghost" id="btnFs">⛶</button>
+      <p class="hint" id="hintText">โดยนัย = ความหมายซ่อน · ไม่ได้หมายตามตัวอักษรตรงๆ</p>
+      <button type="button" class="btn btn-ghost" id="btnFs" aria-label="ขยายเต็มจอ">⛶</button>
     </div>
     <div class="stage">
+      <div class="speech-status" id="speechStatus" role="status" aria-live="polite"></div>
       <div class="learn-panel" id="learn">
         <div class="learn-grid">
           <div class="def lit">
@@ -76,6 +119,7 @@
               <span class="ex l">"แมวสีขาวนอนบนเก้าอี้" = แมวตัวจริงนอนจริง</span>
               <span class="ex l">"ฝนตกหนัก" = มีฝนตกจริง</span>
             </div>
+            <button type="button" class="btn btn-ghost def-speak" data-say="ความหมายตรงตัว หมายความตามที่อ่านได้ทันที ไม่มีการอุปมา เช่น แมวสีขาวนอนบนเก้าอี้ ฝนตกหนัก">🔊 ฟังคำอธิบาย</button>
           </div>
           <div class="def imp">
             <h3>🔮 ความหมายโดยนัย</h3>
@@ -85,93 +129,245 @@
               <span class="ex i">"น้ำท่วมปาก" = ปากแข็ง ไม่พูดความลับ</span>
               <span class="ex i">"ปากหวาน" = พูดจาดี ไม่ได้หวานจริง</span>
             </div>
+            <button type="button" class="btn btn-ghost def-speak" data-say="ความหมายโดยนัย หมายความซ่อนเร้น อุปมา เปรียบเทียบ ต้องคิดตีความ เช่น เขามีหัวใจทองคำ หมายถึง ใจดี น้ำท่วมปาก หมายถึง พูดไม่ได้ ปากหวาน หมายถึง พูดจาไพเราะ">🔊 ฟังคำอธิบาย</button>
           </div>
         </div>
         <p style="text-align:center;font-weight:700;color:#1e40af;margin-top:8px">คำถามช่วย: “ถ้าเอาตามตัวอักษรได้เลยไหม?” ได้เลย = ตรงตัว · ต้องคิดเพิ่ม = โดยนัย</p>
       </div>
       <div class="practice" id="practice">
-        <p class="streak" id="streak">🔥 0 ติดต่อกัน</p>
-        <p class="stmt" id="phrase"></p>
-        <div class="pick" id="pick"></div>
-        <p class="fb" id="fb"></p>
-        <button type="button" class="btn btn-primary" id="btnNext">ข้อถัดไป</button>
+        <div class="practice-bar">
+          <div class="submode-group">
+            <button type="button" class="btn btn-primary" id="btnSubClassify">🗂️ แยกตรงตัว vs โดยนัย</button>
+            <button type="button" class="btn btn-ghost" id="btnSubQuiz">✏️ ทายความหมายโดยนัย</button>
+          </div>
+          <button type="button" class="btn btn-ghost" id="btnSpeakCurrent">🔊 ฟังข้อความ</button>
+        </div>
+        <div id="classifyEngineRoot"></div>
+        <div id="quizEngineRoot" style="display:none;"></div>
       </div>
     </div>
-    <footer>ตัวชี้วัด <strong>ท 1.1 ป.5/5</strong> · คู่ <a href="/games/thai/thai-reading-hub/index.html">คลังอ่านจับใจความ</a></footer>
+    <footer class="footer">ตัวชี้วัด <strong>ท 1.1 ป.5/5</strong> · คู่ <a href="/games/thai/thai-reading-hub/index.html">คลังอ่านจับใจความ</a></footer>
   </div>
   <script>
-    if (window.KAMPAI) window.KAMPAI.setSlug('thai-implied-meaning-media');
-
-    const ITEMS = [
-      { p: 'เขามีหัวใจทองคำ', options: ['ใจดี มีน้ำใจ', 'หัวใจทำจากทองคำ', 'ชอบสีทอง', 'ป่วยหัวใจ'], answer: 0, why: 'โดยนัย = ใจดี' },
-      { p: 'น้ำท่วมปาก', options: ['ปากแข็ง ไม่พูดความลับ', 'น้ำเข้าปากจริง', 'ชอบดื่มน้ำ', 'พูดมาก'], answer: 0, why: 'สำนวนโดยนัย' },
-      { p: 'ปากหวาน', options: ['พูดจาดี ไพเราะ', 'ปากรสหวาน', 'กินขนมมาก', 'ชอบน้ำตาล'], answer: 0, why: 'โดยนัย = พูดดี' },
-      { p: 'แมวสีขาวนอนบนเก้าอี้', options: ['แมวตัวขาวนอนบนเก้าอี้', 'คนใจดี', 'อากาศเย็น', 'ห้องสะอาด'], answer: 0, why: 'ความหมายตรงตัว' },
-      { p: 'หูตาล่าไปทั่ว', options: ['อยากรู้อยากเห็น สนใจทุกอย่าง', 'หูและตาเคลื่อนที่', 'ป่วยหูตา', 'วิ่งเร็ว'], answer: 0, why: 'โดยนัย = อยากรู้' },
-      { p: 'ฝนตกหนักมาก', options: ['มีฝนตกจริงและแรง', 'คนร้องไห้', 'น้ำท่วมปาก', 'ฟ้าผ่าใจ'], answer: 0, why: 'ตรงตัว — บรรยากาศฝน' },
-      { p: 'มือทอง', options: ['ทำงานเก่ง สร้างผลงานดี', 'มือทำจากทอง', 'ถุงมือสีทอง', 'ไม่ทำงาน'], answer: 0, why: 'โดยนัย = เก่ง' },
-      { p: 'ใจแข็ง', options: ['อดทน ไม่ยอมแพ้ง่าย', 'หัวใจแข็งเหมือนหิน', 'ป่วยหัวใจ', 'โกรธบ่อย'], answer: 0, why: 'โดยนัย = อดทน' },
-      { p: 'นกสีฟ้าบินบนท้องฟ้า', options: ['นกตัวจริงบินบนฟ้า', 'คนวิ่งเร็ว', 'ทะเลสวย', 'ใจโล่ง'], answer: 0, why: 'ตรงตัว' },
-      { p: 'น้ำใจดี', options: ['มีน้ำใจ ช่วยเหลือผู้อื่น', 'น้ำในใจใส', 'ดื่มน้ำมาก', 'ใจเย็น'], answer: 0, why: 'โดยนัย = ใจดี' },
-      { p: 'ตาไม่ดี', options: ['มองเห็นไม่ชัด สายตาไม่ดี', 'ตาโกรธ', 'ตาสีไม่สวย', 'หลับตา'], answer: 0, why: 'ส่วนใหญ่ตรงตัว — สายตา' },
-      { p: 'กินลิ้นกินเสียง', options: ['อิจฉา เห็นคนอื่นดีแล้วไม่พอใจ', 'กินอาหารเงียบๆ', 'ชอบกิน', 'ปากหวาน'], answer: 0, why: 'สำนวนโดยนัย' },
-    ];
-
-    let current = null;
-    let streak = 0;
-
-    function shuffle(a) {
-      const arr = [...a];
-      for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
+    const MEDIA_SLUG = 'thai-implied-meaning-media';
+    if (window.KAMPAI) {
+      KAMPAI.setSlug(MEDIA_SLUG);
+      if (KAMPAI.sound && typeof KAMPAI.sound.mountToggles === 'function') {
+        try { KAMPAI.sound.mountToggles(); } catch (_) {}
       }
-      return arr;
     }
 
-    function nextQ() {
-      current = ITEMS[Math.floor(Math.random() * ITEMS.length)];
-      document.getElementById('phrase').textContent = `"${current.p}"`;
-      document.getElementById('fb').textContent = '';
-      const pick = document.getElementById('pick');
-      pick.innerHTML = '';
-      shuffle(current.options.map((text, i) => ({ text, i }))).forEach(({ text, i }) => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.textContent = text;
-        btn.onclick = () => {
-          const ok = i === current.answer;
-          streak = ok ? streak + 1 : 0;
-          document.getElementById('streak').textContent = `🔥 ${streak} ติดต่อกัน`;
-          pick.querySelectorAll('button').forEach(b => {
-            b.disabled = true;
-            const idx = current.options.indexOf(b.textContent);
-            if (idx === current.answer) b.classList.add('ok');
-            else if (b === btn && !ok) b.classList.add('no');
-          });
-          document.getElementById('fb').textContent = ok ? '✓ ถูกต้อง!' : `✗ ${current.why}`;
-          document.getElementById('fb').style.color = ok ? '#16a34a' : '#dc2626';
-        };
-        pick.appendChild(btn);
+    const BUCKETS = [
+      { id: 'literal', label: 'ความหมายตรงตัว', icon: '📋' },
+      { id: 'implied', label: 'ความหมายโดยนัย', icon: '🔮' },
+    ];
+
+    const CLASSIFY_ITEMS = [
+      { id: 'im-1', icon: '💛', label: 'เขามีหัวใจทองคำ', bucketId: 'implied', reason: 'เปรียบเทียบว่าใจดี มีน้ำใจ ไม่ใช่หัวใจที่ทำจากทองจริง' },
+      { id: 'im-2', icon: '🤐', label: 'น้ำท่วมปาก', bucketId: 'implied', reason: 'สำนวนโดยนัย หมายถึงพูดไม่ออกหรือต้องเก็บความลับไว้' },
+      { id: 'im-3', icon: '🍯', label: 'ปากหวาน', bucketId: 'implied', reason: 'หมายถึงพูดจาไพเราะอ่อนหวาน ไม่ได้มีรสหวานที่ปากจริง' },
+      { id: 'im-4', icon: '🐱', label: 'แมวสีขาวนอนบนเก้าอี้', bucketId: 'literal', reason: 'สื่อตรงตามตัวอักษรว่าแมวตัวจริงกำลังนอนบนเก้าอี้' },
+      { id: 'im-5', icon: '👀', label: 'หูตาล่าไปทั่ว', bucketId: 'implied', reason: 'โดยนัยหมายถึงอยากรู้อยากเห็นหรือสังเกตไปทั่ว' },
+      { id: 'im-6', icon: '🌧️', label: 'ฝนตกหนักมาก', bucketId: 'literal', reason: 'บอกสภาพอากาศที่มีฝนตกจริง ตรงตามตัวอักษร' },
+      { id: 'im-7', icon: '🛠️', label: 'มือทอง', bucketId: 'implied', reason: 'โดยนัยหมายถึงทำงานเก่ง สร้างผลงานยอดเยี่ยม' },
+      { id: 'im-8', icon: '🪨', label: 'ใจแข็ง', bucketId: 'implied', reason: 'โดยนัยหมายถึงอดทน ไม่ยอมแพ้หรือใจอ่อนง่ายๆ' },
+      { id: 'im-9', icon: '🐦', label: 'นกสีฟ้าบินบนท้องฟ้า', bucketId: 'literal', reason: 'เล่าเหตุการณ์จริงตรงตามตัวอักษร' },
+      { id: 'im-10', icon: '💧', label: 'น้ำใจดี', bucketId: 'implied', reason: 'โดยนัยหมายถึงมีจิตใจโอบอ้อมอารี ชอบช่วยเหลือผู้อื่น' },
+      { id: 'im-11', icon: '👓', label: 'ตาไม่ดี', bucketId: 'literal', reason: 'ความหมายตรงตัว คือมองเห็นไม่ชัด สายตาไม่ดี' },
+      { id: 'im-12', icon: '😠', label: 'กินลิ้นกินเสียง', bucketId: 'implied', reason: 'สำนวนโดยนัย หมายถึงอิจฉาริษยาเมื่อเห็นผู้อื่นดีกว่า' },
+    ];
+
+    const QUIZ_ITEMS = [
+      { id: 'q-1', term: 'เขามีหัวใจทองคำ', meaning: 'ใจดี มีน้ำใจ ช่วยเหลือผู้อื่น', explain: 'โดยนัย = ใจดีงามเหมือนทองคำ', locale: 'th-TH' },
+      { id: 'q-2', term: 'น้ำท่วมปาก', meaning: 'พูดไม่ได้หรือต้องเก็บความลับไว้', explain: 'สำนวนโดยนัย = พูดความจริงไม่ได้', locale: 'th-TH' },
+      { id: 'q-3', term: 'ปากหวาน', meaning: 'พูดจาไพเราะอ่อนหวานน่าฟัง', explain: 'โดยนัย = พูดจาดี ไม่ใช่ปากรสหวาน', locale: 'th-TH' },
+      { id: 'q-4', term: 'มือทอง', meaning: 'ทำงานเก่ง สร้างผลงานยอดเยี่ยม', explain: 'โดยนัย = มีฝีมือเก่งกาจ', locale: 'th-TH' },
+      { id: 'q-5', term: 'ใจแข็ง', meaning: 'อดทน ไม่ยอมแพ้หรือใจอ่อนง่าย', explain: 'โดยนัย = จิตใจเข้มแข็งอดทน', locale: 'th-TH' },
+      { id: 'q-6', term: 'แมวสีขาวนอนบนเก้าอี้', meaning: 'แมวตัวขาวนอนบนเก้าอี้จริง (ตรงตัว)', explain: 'ความหมายตรงตัว อ่านแล้วเข้าใจได้ทันที', locale: 'th-TH' },
+      { id: 'q-7', term: 'ฝนตกหนักมาก', meaning: 'มีฝนตกลงมาจริงอย่างแรง (ตรงตัว)', explain: 'ความหมายตรงตัว บรรยายสภาพอากาศจริง', locale: 'th-TH' },
+      { id: 'q-8', term: 'กินลิ้นกินเสียง', meaning: 'อิจฉา เห็นคนอื่นดีแล้วไม่พอใจ', explain: 'สำนวนโดยนัย = ริษยาผู้อื่น', locale: 'th-TH' },
+      { id: 'q-9', term: 'หูตาล่าไปทั่ว', meaning: 'อยากรู้อยากเห็น สนใจเรื่องรอบตัว', explain: 'โดยนัย = ชอบสอดส่องสังเกตไปทั่ว', locale: 'th-TH' },
+      { id: 'q-10', term: 'น้ำใจดี', meaning: 'โอบอ้อมอารี ชอบช่วยเหลือผู้อื่น', explain: 'โดยนัย = มีเมตตา กรุณา', locale: 'th-TH' },
+    ];
+
+    let mode = 'learn';
+    let practiceSubMode = 'classify';
+    let classifySession = null;
+    let quizSession = null;
+
+    function setSpeechBanner(msg) {
+      const el = document.getElementById('speechStatus');
+      if (!el) return;
+      if (msg) {
+        el.textContent = msg;
+        el.classList.add('show');
+      } else {
+        el.textContent = '';
+        el.classList.remove('show');
+      }
+    }
+
+    function stopSpeech() {
+      if (window.KampaiMediaLab && typeof window.KampaiMediaLab.stopAllSpeech === 'function') {
+        window.KampaiMediaLab.stopAllSpeech();
+      } else {
+        try { window.KAMPAI?.sound?.stopSpeak?.(); } catch (_) {}
+        try { window.speechSynthesis?.cancel?.(); } catch (_) {}
+      }
+      setSpeechBanner('');
+    }
+
+    function speakText(text) {
+      const clean = String(text || '').trim();
+      if (!clean) return;
+      if (window.KampaiMediaLab && typeof window.KampaiMediaLab.speakSafe === 'function') {
+        const res = window.KampaiMediaLab.speakSafe(clean, { lang: 'th-TH', rate: 0.92 });
+        if (res && res.ok === false) {
+          setSpeechBanner('อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านข้อความบนหน้าจอต่อได้');
+        } else {
+          setSpeechBanner('');
+        }
+        return;
+      }
+      try {
+        if (window.KAMPAI?.sound?.speak) {
+          KAMPAI.sound.speak(clean, 'th-TH', true);
+          setSpeechBanner('');
+          return;
+        }
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const u = new SpeechSynthesisUtterance(clean);
+          u.lang = 'th-TH';
+          u.rate = 0.92;
+          window.speechSynthesis.speak(u);
+          setSpeechBanner('');
+          return;
+        }
+      } catch (_) {}
+      setSpeechBanner('อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านข้อความบนหน้าจอต่อได้');
+    }
+
+    function mountClassify() {
+      if (!window.KampaiEngines?.ClassifyBucket) return;
+      window.KampaiEngines.Quiz?.cleanup?.();
+      classifySession = window.KampaiEngines.ClassifyBucket.mount('#classifyEngineRoot', {
+        items: CLASSIFY_ITEMS,
+        buckets: BUCKETS,
+        mode: 'media',
+        roundSize: 8,
+        onAnswer: function (res) {
+          if (window.KAMPAI?.sound) {
+            try {
+              if (res.isCorrect) KAMPAI.sound.correct();
+              else KAMPAI.sound.wrong();
+            } catch (_) {}
+          }
+        },
       });
     }
 
-    document.getElementById('btnNext').onclick = nextQ;
+    function mountQuiz() {
+      if (!window.KampaiEngines?.Quiz) return;
+      window.KampaiEngines.ClassifyBucket?.cleanup?.();
+      quizSession = window.KampaiEngines.Quiz.mountChoice('#quizEngineRoot', {
+        items: QUIZ_ITEMS,
+        mode: 'media',
+        roundSize: 8,
+        locale: 'th-TH',
+        speak: speakText,
+        onAnswer: function (res) {
+          if (window.KAMPAI?.sound) {
+            try {
+              if (res.isCorrect) KAMPAI.sound.correct();
+              else KAMPAI.sound.wrong();
+            } catch (_) {}
+          }
+        },
+      });
+    }
+
+    function setPracticeSubMode(sub) {
+      stopSpeech();
+      practiceSubMode = sub === 'quiz' ? 'quiz' : 'classify';
+      const isClassify = practiceSubMode === 'classify';
+      document.getElementById('classifyEngineRoot').style.display = isClassify ? '' : 'none';
+      document.getElementById('quizEngineRoot').style.display = isClassify ? 'none' : '';
+      document.getElementById('btnSubClassify').className = 'btn ' + (isClassify ? 'btn-primary' : 'btn-ghost');
+      document.getElementById('btnSubQuiz').className = 'btn ' + (!isClassify ? 'btn-primary' : 'btn-ghost');
+      if (isClassify) mountClassify();
+      else mountQuiz();
+    }
 
     document.getElementById('modeSeg').querySelectorAll('button').forEach(btn => {
       btn.onclick = () => {
-        const pr = btn.dataset.mode === 'practice';
-        document.getElementById('modeSeg').querySelectorAll('button').forEach(b => b.classList.toggle('on', b === btn));
+        stopSpeech();
+        mode = btn.dataset.mode === 'practice' ? 'practice' : 'learn';
+        const pr = mode === 'practice';
+        document.getElementById('modeSeg').querySelectorAll('button').forEach(b => {
+          const on = b === btn;
+          b.classList.toggle('on', on);
+          b.setAttribute('aria-pressed', String(on));
+        });
         document.getElementById('learn').classList.toggle('hide', pr);
         document.getElementById('practice').classList.toggle('on', pr);
-        if (pr) nextQ();
+        document.getElementById('hintText').textContent = pr
+          ? 'ฝึกแยกความหมายตรงตัวกับโดยนัย — ไม่จับเวลา ไม่เก็บคะแนน'
+          : 'โดยนัย = ความหมายซ่อน · ไม่ได้หมายตามตัวอักษรตรงๆ';
+        if (pr) {
+          setPracticeSubMode(practiceSubMode);
+        } else {
+          window.KampaiEngines?.ClassifyBucket?.cleanup?.();
+          window.KampaiEngines?.Quiz?.cleanup?.();
+        }
       };
     });
 
+    document.querySelectorAll('.def-speak').forEach(btn => {
+      btn.addEventListener('click', () => speakText(btn.dataset.say));
+    });
+
+    document.getElementById('btnSubClassify').onclick = () => setPracticeSubMode('classify');
+    document.getElementById('btnSubQuiz').onclick = () => setPracticeSubMode('quiz');
+
+    document.getElementById('btnSpeakCurrent').onclick = () => {
+      if (practiceSubMode === 'quiz') {
+        const q = quizSession?.currentQuestion?.();
+        if (q?.item) speakText(`${q.item.term} หมายถึงข้อใด`);
+        else speakText('ฝึกทายความหมายโดยนัยครบแล้ว กดเริ่มรอบใหม่ได้');
+        return;
+      }
+      const item = classifySession?.currentItem?.();
+      if (item) speakText(`${item.label} เป็นความหมายตรงตัวหรือโดยนัย`);
+      else speakText('จำแนกความหมายครบแล้ว กดฝึกใหม่อีกครั้งได้');
+    };
+
     document.getElementById('btnFs').onclick = () => {
-      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.().catch(() => {});
       else document.exitFullscreen?.();
     };
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stopSpeech();
+    });
+    window.addEventListener('pagehide', () => {
+      stopSpeech();
+      window.KampaiEngines?.ClassifyBucket?.cleanup?.();
+      window.KampaiEngines?.Quiz?.cleanup?.();
+    });
+
+    window.getState = () => Object.freeze({
+      slug: MEDIA_SLUG,
+      mode: mode,
+      practiceSubMode: practiceSubMode,
+      totalClassifyItems: CLASSIFY_ITEMS.length,
+      totalQuizItems: QUIZ_ITEMS.length,
+      classify: classifySession ? classifySession.getState() : null,
+      quiz: quizSession ? quizSession.getState() : null,
+      reducedMotion: typeof window.matchMedia === 'function'
+        ? Boolean(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+        : false,
+    });
   </script>
 </body>
 </html>

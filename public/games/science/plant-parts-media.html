@@ -2,6 +2,7 @@
 <html lang="th">
 <head>
   <script src="/games/kampai-sdk.js?v=1.181.0"></script>
+  <script src="/games/media-lab-runtime.js?v=2.0.0"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="plant-parts-data.js"></script>
@@ -9,13 +10,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root { --deep: #166534; --line: #86efac; --muted: #64748b; --ok: #16a34a; --bad: #dc2626; }
+    :root { --deep: #166534; --line: #86efac; --muted: #475569; --ok: #15803d; --bad: #b91c1c; }
+    html, body { max-width: 100%; overflow-x: hidden; }
     body { font-family: 'Sarabun', sans-serif; background: linear-gradient(160deg, #dcfce7, #bbf7d0); min-height: 100%; padding: 12px; color: #0f172a; }
     .shell { max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 1.5rem; box-shadow: 0 20px 50px rgba(15,23,42,.12); overflow: hidden; min-height: calc(100vh - 24px); display: flex; flex-direction: column; }
     header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(90deg, #14532d, #16a34a); color: #fff; }
     header h1 { font-size: 1.1rem; font-weight: 800; flex: 1; min-width: 140px; }
     .badge { font-size: .75rem; background: rgba(255,255,255,.2); padding: 4px 10px; border-radius: 999px; font-weight: 700; }
-    .btn { font-family: inherit; font-weight: 700; border: none; border-radius: 12px; padding: 10px 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+    .btn { font-family: inherit; font-weight: 700; border: none; border-radius: 12px; padding: 10px 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; min-width: 44px; }
     .btn:active { transform: scale(.97); }
     .btn-back { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.35); padding: 8px 12px; font-size: .85rem; }
     .btn-primary { background: var(--deep); color: #fff; }
@@ -23,9 +25,11 @@
     .btn-ghost { background: #fff; color: var(--deep); border: 2px solid var(--line); }
     .toolbar { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 16px; background: #f0fdf4; border-bottom: 1px solid var(--line); align-items: center; }
     .seg { display: inline-flex; flex-wrap: wrap; border-radius: 12px; overflow: hidden; border: 2px solid #4ade80; }
-    .seg button { font-family: inherit; font-weight: 800; border: none; background: #fff; color: var(--deep); padding: 8px 12px; cursor: pointer; font-size: .82rem; }
+    .seg button { font-family: inherit; font-weight: 800; border: none; background: #fff; color: var(--deep); padding: 8px 12px; cursor: pointer; font-size: .82rem; min-height: 44px; }
     .seg button.on { background: var(--deep); color: #fff; }
     .hint { font-size: .85rem; color: #166534; font-weight: 600; flex: 1; min-width: 140px; }
+    .speech-status { font-size: .85rem; font-weight: 700; color: #92400e; background: #fef3c7; border-radius: 10px; padding: 8px 12px; display: none; margin: 8px 16px 0; }
+    .speech-status.show { display: block; }
     .stage { flex: 1; padding: 16px; overflow: auto; }
     .panel { display: none; flex-direction: column; gap: 14px; max-width: 900px; margin: 0 auto; }
     .panel.on { display: flex; }
@@ -37,18 +41,18 @@
     .tip { background: #fff; border: 2px dashed #86efac; border-radius: 12px; padding: 10px; font-size: .92rem; color: var(--muted); font-weight: 600; }
     .examples { font-size: .9rem; font-weight: 700; color: #166534; }
     .chips { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
-    .chip { font-family: inherit; font-weight: 800; border: 2px solid #86efac; background: #fff; color: var(--deep); border-radius: 999px; padding: 6px 12px; cursor: pointer; font-size: .85rem; }
+    .chip { font-family: inherit; font-weight: 800; border: 2px solid #86efac; background: #fff; color: var(--deep); border-radius: 999px; padding: 6px 12px; cursor: pointer; font-size: .85rem; min-height: 44px; }
     .chip.on { background: var(--deep); color: #fff; }
     .prompt { text-align: center; font-weight: 800; color: var(--deep); background: #ecfdf5; border: 2px dashed #86efac; border-radius: 14px; padding: 14px; font-size: 1.1rem; line-height: 1.45; }
     .pool, .choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
     @media (min-width: 760px) { .pool, .choices { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-    .card { font-family: inherit; border: 2px solid #86efac; border-radius: 14px; background: #fff; padding: 16px 12px 18px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 12px; min-height: 0; }
+    .card { font-family: inherit; border: 2px solid #86efac; border-radius: 14px; background: #fff; padding: 16px 12px 18px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 12px; min-height: 44px; }
     .card .emo { font-size: 2rem; }
     .card .lab { font-size: .85rem; font-weight: 800; color: #14532d; text-align: center; }
     .card.done { opacity: .4; pointer-events: none; background: #dcfce7; }
     .card.bad { animation: shake .35s; background: #fee2e2; border-color: #fca5a5; }
     .card.ok { background: #dcfce7; border-color: #4ade80; }
-    .choice { font-family: inherit; font-weight: 800; border: 2px solid #86efac; border-radius: 14px; background: #fff; padding: 16px 12px 18px; cursor: pointer; color: var(--deep); font-size: 1rem; min-height: 0; }
+    .choice { font-family: inherit; font-weight: 800; border: 2px solid #86efac; border-radius: 14px; background: #fff; padding: 16px 12px 18px; cursor: pointer; color: var(--deep); font-size: 1rem; min-height: 44px; }
     .choice.ok { background: #dcfce7; border-color: #16a34a; }
     .choice.bad { background: #fee2e2; border-color: #fca5a5; }
     .track { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; align-items: center; }
@@ -63,15 +67,15 @@
     .footer { padding: 10px 16px; font-size: .8rem; color: var(--muted); text-align: center; border-top: 1px solid var(--line); }
     .footer a { color: var(--deep); font-weight: 700; text-decoration: none; }
     @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
-  
-    .practice-mcq{display:none;flex-direction:column;gap:16px;max-width:700px;margin:0 auto;padding:8px 0;width:100%}
-    .practice-mcq.on{display:flex}
-    .practice-mcq .pq{font-weight:800;font-size:clamp(1.25rem,2.2vw,2rem);text-align:center;line-height:1.45;color:inherit}
-    .practice-mcq .popts{display:flex;flex-direction:column;gap:8px}
-    .practice-mcq .popt{font-family:inherit;font-weight:700;padding:12px;border:2px solid currentColor;border-radius:12px;background:#fff;cursor:pointer;text-align:left;opacity:.92}
-    .practice-mcq .popt.ok{background:#dcfce7;border-color:#86efac}
-    .practice-mcq .popt.no{background:#fee2e2;border-color:#fca5a5}
-    .practice-mcq .pfb{font-weight:800;text-align:center;min-height:24px}
+
+    .practice-mcq { display: none; flex-direction: column; gap: 16px; max-width: 700px; margin: 0 auto; padding: 8px 0; width: 100%; }
+    .practice-mcq.on { display: flex; }
+    .practice-mcq .pq { font-weight: 800; font-size: clamp(1.25rem, 2.2vw, 2rem); text-align: center; line-height: 1.45; color: inherit; }
+    .practice-mcq .popts { display: flex; flex-direction: column; gap: 8px; }
+    .practice-mcq .popt { font-family: inherit; font-weight: 700; padding: 12px; border: 2px solid #86efac; border-radius: 12px; background: #fff; cursor: pointer; text-align: left; color: #14532d; min-height: 44px; }
+    .practice-mcq .popt.ok { background: #dcfce7; border-color: #16a34a; }
+    .practice-mcq .popt.no { background: #fee2e2; border-color: #fca5a5; opacity: .75; }
+    .practice-mcq .pfb { font-weight: 800; text-align: center; min-height: 24px; }
     .activity-visual { width: 100%; height: 100%; aspect-ratio: 1 / 1; object-fit: contain; border-radius: 12px; background: #fffaf0; display: block; }
     .choice, .card { gap: 8px; }
     .choice .activity-visual, .card .activity-visual { width: 100%; height: 100%; }
@@ -82,14 +86,17 @@
     .activity-label .en-label { display: block; margin-top: 6px; font-family: Arial, sans-serif; font-size: clamp(1.25rem, 1.7vw, 1.5rem); line-height: 1.15; letter-spacing: .02em; }
     .practice-mcq .question-visual { margin: 0 auto; width: min(100%, 320px); aspect-ratio: 1 / 1; height: auto; object-fit: contain; border-radius: 12px; background: #fffaf0; }
     @media (max-width: 520px) { .activity-visual-wrap { width: 100%; } .activity-label { font-size: 1.25rem; } .activity-label .en-label { font-size: 1.25rem; } }
-
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition: none !important; scroll-behavior: auto !important; }
+      .btn:active { transform: none; }
+    }
   </style>
   <link rel="stylesheet" href="plant-parts-explorer.css" />
 </head>
 <body>
   <div class="shell">
     <header>
-      <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back();">← กลับคลังสื่อ</button>
+      <button type="button" class="btn btn-back" id="btnBack">← กลับคลังสื่อ</button>
       <h1>🌱 ส่วนของพืชดอก</h1>
       <span class="badge">ป.4 · วิทยาศาสตร์</span>
     </header>
@@ -104,6 +111,7 @@
       <p class="hint" id="hintText">แตะส่วนพืชบนแผนภาพเพื่อดูหน้าที่</p>
       <button type="button" class="btn btn-ghost" id="btnFs" aria-label="เข้าเต็มจอ">เต็มจอ</button>
     </div>
+    <div class="speech-status" id="speechStatusActivity" role="status" aria-live="polite"></div>
     <div class="stage">
       <div class="panel on" id="panel-diagram">
         <div class="diagram-row">
@@ -134,6 +142,7 @@
         <div class="choices" id="matchChoices"></div>
         <p class="fb" id="matchFb"></p>
         <div class="actions">
+          <button type="button" class="btn btn-ghost" id="btnMatchSpeak">🔊 ฟังโจทย์</button>
           <button type="button" class="btn btn-accent" id="btnMatchReveal">ดูเฉลย</button>
           <button type="button" class="btn btn-primary" id="btnMatchNext">ข้อถัดไป</button>
         </div>
@@ -144,13 +153,14 @@
         <div class="choices" id="edibleChoices"></div>
         <p class="fb" id="edibleFb"></p>
         <div class="actions">
+          <button type="button" class="btn btn-ghost" id="btnEdibleSpeak">🔊 ฟังโจทย์</button>
           <button type="button" class="btn btn-accent" id="btnEdibleReveal">ดูเฉลย</button>
           <button type="button" class="btn btn-primary" id="btnEdibleNext">ตัวอย่างถัดไป</button>
         </div>
       </div>
 
       <div class="panel" id="panel-grow">
-        <p class="prompt">เรียงลำดับการเติบโตของพืชดอก<br><small style="font-weight:700;color:#64748b">เมล็ด → ต้นอ่อน → ต้นโต → ดอก → ผล</small></p>
+        <p class="prompt">เรียงลำดับการเติบโตของพืชดอก<br><small style="font-weight:700;color:#475569">เมล็ด → ต้นอ่อน → ต้นโต → ดอก → ผล</small></p>
         <div class="track" id="growTrack"></div>
         <p class="fb" id="growFb"></p>
         <div class="pool" id="growPool"></div>
@@ -159,21 +169,28 @@
           <button type="button" class="btn btn-primary" id="btnGrowReset">เริ่มใหม่</button>
         </div>
       </div>
-    
-    <div class="practice-mcq" id="practiceMcq">
-      <p class="pq"></p>
-      <img class="question-visual" id="practiceVisual" alt="" loading="lazy">
-      <div class="popts"></div>
-      <p class="pfb"></p>
-      <button type="button" class="btn btn-primary" id="btnPracticeNext">ข้อถัดไป</button>
-    </div>
 
+      <div class="practice-mcq" id="practiceMcq">
+        <p class="pq"></p>
+        <img class="question-visual" id="practiceVisual" alt="" loading="lazy">
+        <div class="popts"></div>
+        <p class="pfb"></p>
+        <div class="actions">
+          <button type="button" class="btn btn-ghost" id="btnPracticeSpeak">🔊 ฟังคำถาม</button>
+          <button type="button" class="btn btn-primary" id="btnPracticeNext">ข้อถัดไป</button>
+        </div>
+      </div>
     </div>
     <footer class="footer">ตัวชี้วัด <strong>ว 1.2 ป.4/1</strong> · คู่เกม <a href="/play/veggie-garden">สวนผักพอเพียง</a></footer>
   </div>
   <script>
     const MEDIA_SLUG = 'plant-parts-media';
-    if (window.KAMPAI) KAMPAI.setSlug('plant-parts-media');
+    if (window.KAMPAI) {
+      KAMPAI.setSlug(MEDIA_SLUG);
+      if (KAMPAI.sound && typeof KAMPAI.sound.mountToggles === 'function') {
+        try { KAMPAI.sound.mountToggles(); } catch (_) {}
+      }
+    }
 
     const PARTS = window.PLANT_PARTS_CONTENT.parts;
 
@@ -217,8 +234,63 @@
       }
       return a;
     }
+
     function ding(ok) {
-      if (window.KAMPAI?.sound) ok ? KAMPAI.sound.correct() : KAMPAI.sound.wrong();
+      if (window.KAMPAI?.sound) {
+        try { ok ? KAMPAI.sound.correct() : KAMPAI.sound.wrong(); } catch (_) {}
+      }
+    }
+
+    function speakText(text) {
+      const clean = String(text || '').trim();
+      if (!clean) return;
+      const statusEl = document.getElementById('speechStatusActivity');
+      if (window.KampaiMediaLab && typeof window.KampaiMediaLab.speakSafe === 'function') {
+        const res = window.KampaiMediaLab.speakSafe(clean, { lang: 'th-TH', rate: 0.92 });
+        if (statusEl) {
+          if (res && res.ok === false) {
+            statusEl.textContent = 'อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านข้อความต่อได้';
+            statusEl.classList.add('show');
+          } else {
+            statusEl.textContent = '';
+            statusEl.classList.remove('show');
+          }
+        }
+        return;
+      }
+      try {
+        if (window.KAMPAI?.sound?.speak) {
+          KAMPAI.sound.speak(clean, 'th-TH', true);
+          return;
+        }
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const u = new SpeechSynthesisUtterance(clean);
+          u.lang = 'th-TH';
+          u.rate = 0.92;
+          window.speechSynthesis.speak(u);
+          return;
+        }
+      } catch (_) {}
+      if (statusEl) {
+        statusEl.textContent = 'อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านข้อความต่อได้';
+        statusEl.classList.add('show');
+      }
+    }
+
+    function stopSpeech() {
+      window.PlantExplorer?.stop?.();
+      if (window.KampaiMediaLab && typeof window.KampaiMediaLab.stopAllSpeech === 'function') {
+        window.KampaiMediaLab.stopAllSpeech();
+      } else {
+        try { window.KAMPAI?.sound?.stopSpeak?.(); } catch (_) {}
+        try { window.speechSynthesis?.cancel?.(); } catch (_) {}
+      }
+      const statusEl = document.getElementById('speechStatusActivity');
+      if (statusEl) {
+        statusEl.textContent = '';
+        statusEl.classList.remove('show');
+      }
     }
 
     const imageByPart = Object.fromEntries(PARTS.map((p) => [p.id, p.image]));
@@ -231,110 +303,73 @@
     }
 
     let mode = 'diagram';
-    let matchQ = null, edibleQ = null, growNext = 1;
+    let matchQ = null;
+    let edibleQ = null;
+    let growNext = 1;
+    let practiceIdx = 0;
 
-    
     const PRACTICE_Q = [
-  {
-    "q": "รากทำหน้าที่หลักอะไร?",
-    "opts": [
-      "ดูดน้ำและยึดลำต้น",
-      "สังเคราะห์แสง",
-      "ผลิตเมล็ด",
-      "ดึงดูดแมลง"
-    ],
-    "a": "ดูดน้ำและยึดลำต้น"
-  },
-  {
-    "q": "ใบช่วยพืชอย่างไร?",
-    "opts": [
-      "สังเคราะห์แสง",
-      "ดูดน้ำจากดิน",
-      "เก็บไข่",
-      "เดิน"
-    ],
-    "a": "สังเคราะห์แสง"
-  },
-  {
-    "q": "ดอกเกี่ยวข้องกับอะไร?",
-    "opts": [
-      "การสืบพันธุ์",
-      "ดูดน้ำ",
-      "ยึดดิน",
-      "สร้างคลอโรฟิลล์อย่างเดียว"
-    ],
-    "a": "การสืบพันธุ์"
-  },
-  {
-    "q": "ลำต้นทำหน้าที่…",
-    "opts": [
-      "ลำเลียงน้ำ/อาหาร และพยุง",
-      "ดูดน้ำจากอากาศ",
-      "สร้างรากอากาศเท่านั้น",
-      "เป็นเมล็ด"
-    ],
-    "a": "ลำเลียงน้ำ/อาหาร และพยุง"
-  },
-  {
-    "q": "ผลมักเกิดหลัง…",
-    "opts": [
-      "ดอกได้รับการผสมเกสร",
-      "ใบร่วงหมด",
-      "รากสั้นลง",
-      "ลำต้นกลวง"
-    ],
-    "a": "ดอกได้รับการผสมเกสร"
-  },
-  {
-    "q": "เราทานแครอท คือทานส่วนใดของพืช?",
-    "opts": [
-      "ราก",
-      "ใบ",
-      "ดอก",
-      "เมล็ด"
-    ],
-    "a": "ราก"
-  }
-];
-    function nextPracticeMcq(){
-      const item = PRACTICE_Q[(Math.random()*PRACTICE_Q.length)|0];
+      { q: 'รากทำหน้าที่หลักอะไร?', opts: ['ดูดน้ำและยึดลำต้น', 'สังเคราะห์แสง', 'ผลิตเมล็ด', 'ดึงดูดแมลง'], a: 'ดูดน้ำและยึดลำต้น', partId: 'root', explain: 'รากช่วยดูดน้ำและธาตุอาหารจากดิน พร้อมยึดลำต้นให้มั่นคง' },
+      { q: 'ใบช่วยพืชอย่างไร?', opts: ['สังเคราะห์แสง', 'ดูดน้ำจากดิน', 'เก็บไข่', 'เดิน'], a: 'สังเคราะห์แสง', partId: 'leaf', explain: 'ใบมีคลอโรฟิลล์รับพลังงานแสงเพื่อสร้างอาหารให้พืช' },
+      { q: 'ดอกเกี่ยวข้องกับอะไร?', opts: ['การสืบพันธุ์', 'ดูดน้ำ', 'ยึดดิน', 'สร้างคลอโรฟิลล์อย่างเดียว'], a: 'การสืบพันธุ์', partId: 'flower', explain: 'ดอกมีเกสรเพศผู้และเพศเมีย ช่วยให้เกิดการปฏิสนธิและเมล็ดรุ่นใหม่' },
+      { q: 'ลำต้นทำหน้าที่…', opts: ['ลำเลียงน้ำ/อาหาร และพยุง', 'ดูดน้ำจากอากาศ', 'สร้างรากอากาศเท่านั้น', 'เป็นเมล็ด'], a: 'ลำเลียงน้ำ/อาหาร และพยุง', partId: 'stem', explain: 'ลำต้นชูกิ่งใบและเป็นทางลำเลียงน้ำ ธาตุอาหาร และอาหาร' },
+      { q: 'ผลมักเกิดหลัง…', opts: ['ดอกได้รับการผสมเกสร', 'ใบร่วงหมด', 'รากสั้นลง', 'ลำต้นกลวง'], a: 'ดอกได้รับการผสมเกสร', partId: 'fruit', explain: 'เมื่อดอกปฏิสนธิ รังไข่จะเจริญเป็นผลเพื่อห่อหุ้มเมล็ด' },
+      { q: 'เราทานแครอท คือทานส่วนใดของพืช?', opts: ['ราก', 'ใบ', 'ดอก', 'เมล็ด'], a: 'ราก', partId: 'root', explain: 'แครอทเป็นรากสะสมอาหารอยู่ใต้ดิน' },
+    ];
+
+    function nextPracticeMcq() {
+      stopSpeech();
+      practiceIdx = (Math.random() * PRACTICE_Q.length) | 0;
+      const item = PRACTICE_Q[practiceIdx];
       const box = document.getElementById('practiceMcq');
-      if(!box) return;
+      if (!box) return;
       box.querySelector('.pq').textContent = item.q;
-      const practicePartId = ['root', 'leaf', 'flower', 'stem', 'fruit', 'root'][PRACTICE_Q.indexOf(item)] || 'root';
-      const practicePart = PARTS.find((part) => part.id === practicePartId) || PARTS[0];
+      const practicePart = PARTS.find((part) => part.id === item.partId) || PARTS[0];
       const practiceVisual = document.getElementById('practiceVisual');
       practiceVisual.src = practicePart.image;
       practiceVisual.alt = practicePart.imageAlt;
       const fb = box.querySelector('.pfb');
-      fb.textContent=''; fb.style.color='';
-      const opts = item.opts.slice().sort(()=>Math.random()-0.5);
+      fb.textContent = '';
+      fb.style.color = '';
+      const opts = shuffle(item.opts);
       const popts = box.querySelector('.popts');
-      popts.innerHTML = opts.map(o=>'<button type="button" class="popt" data-a="'+o.replace(/"/g,'&quot;')+'">'+o+'</button>').join('');
-      popts.querySelectorAll('.popt').forEach(btn=>{
-        btn.onclick=()=>{
+      popts.innerHTML = opts.map((o) => '<button type="button" class="popt" data-a="' + o.replace(/"/g, '&quot;') + '">' + o + '</button>').join('');
+      popts.querySelectorAll('.popt').forEach((btn) => {
+        btn.onclick = () => {
           const ok = btn.dataset.a === item.a;
-          btn.classList.add(ok?'ok':'no');
-          popts.querySelectorAll('.popt').forEach(b=>{
-            b.disabled=true;
-            if(b.dataset.a===item.a) b.classList.add('ok');
-          });
-          fb.textContent = ok ? '✓ ถูกต้อง!' : '✗ คำตอบ: '+item.a;
-          fb.style.color = ok ? '#16a34a' : '#dc2626';
-          if(window.KAMPAI&&KAMPAI.sound) (ok?KAMPAI.sound.correct:KAMPAI.sound.wrong)();
+          if (ok) {
+            btn.classList.add('ok');
+            popts.querySelectorAll('.popt').forEach((b) => { b.disabled = true; });
+            fb.textContent = '✓ ถูกต้อง! ' + item.explain;
+            fb.style.color = 'var(--ok)';
+            ding(true);
+          } else {
+            btn.classList.add('no');
+            btn.disabled = true;
+            fb.textContent = 'ยังไม่ตรง — ลองสังเกตหน้าที่ของส่วนพืชแล้วเลือกใหม่';
+            fb.style.color = 'var(--bad)';
+            ding(false);
+          }
         };
       });
     }
     document.getElementById('btnPracticeNext')?.addEventListener('click', nextPracticeMcq);
+    document.getElementById('btnPracticeSpeak')?.addEventListener('click', () => {
+      const item = PRACTICE_Q[practiceIdx];
+      if (item) speakText(item.q);
+    });
 
     function setMode(m) {
-      window.PlantExplorer.stop();
+      stopSpeech();
       mode = m;
       document.querySelectorAll('#modeSeg button').forEach((b) => b.classList.toggle('on', b.dataset.mode === m));
       document.querySelectorAll('.panel').forEach((p) => p.classList.toggle('on', p.id === 'panel-' + m));
-      const pmcq=document.getElementById('practiceMcq');
-      if(pmcq){ pmcq.classList.toggle('on', m==='practice'); document.querySelectorAll('.panel').forEach(p=>{ if(m==='practice') p.classList.remove('on'); }); }
-      if(m==='practice'){
+      const pmcq = document.getElementById('practiceMcq');
+      if (pmcq) {
+        pmcq.classList.toggle('on', m === 'practice');
+        if (m === 'practice') document.querySelectorAll('.panel').forEach((p) => p.classList.remove('on'));
+      }
+      if (m === 'practice') {
         document.getElementById('hintText').textContent = 'เลือกคำตอบ 4 ตัวเลือก — ฝึกสั้น';
         nextPracticeMcq();
         return;
@@ -349,6 +384,11 @@
       const b = e.target.closest('button[data-mode]');
       if (b) setMode(b.dataset.mode);
     };
+    document.getElementById('btnBack').onclick = () => {
+      stopSpeech();
+      if (window.KAMPAI && KAMPAI.goHome) KAMPAI.goHome();
+      else history.back();
+    };
     document.getElementById('btnFs').onclick = () => {
       const task = !document.fullscreenElement ? document.documentElement.requestFullscreen?.() : document.exitFullscreen?.();
       task?.catch(() => { document.getElementById('hintText').textContent = 'เครื่องนี้ไม่อนุญาตเต็มจอ ยังใช้สื่อในหน้าปกติได้'; });
@@ -359,9 +399,9 @@
       b.setAttribute('aria-label', b.textContent);
     });
 
-
     /* ---- match ---- */
     function newMatch() {
+      stopSpeech();
       matchQ = PARTS[(Math.random() * PARTS.length) | 0];
       document.getElementById('matchPrompt').innerHTML = `หน้าที่ข้อนี้ตรงกับส่วนใด?<br><span style="font-size:1.05rem;color:#14532d">${matchQ.functionTh}</span>`;
       document.getElementById('matchFb').textContent = '';
@@ -399,9 +439,13 @@
       document.getElementById('matchFb').className = 'fb ok';
       document.getElementById('matchFb').textContent = 'เฉลย: ' + matchQ.emoji + ' ' + matchQ.nameTh;
     };
+    document.getElementById('btnMatchSpeak').onclick = () => {
+      if (matchQ) speakText('หน้าที่ข้อนี้ตรงกับส่วนใด ' + matchQ.functionTh);
+    };
 
     /* ---- edible ---- */
     function newEdible() {
+      stopSpeech();
       edibleQ = EXAMPLES[(Math.random() * EXAMPLES.length) | 0];
       document.getElementById('ediblePrompt').innerHTML =
         `เรา<u>กินส่วนใด</u>ของพืชนี้เป็นหลัก?<br><span style="font-size:2rem">${edibleQ.emoji}</span> <strong>${edibleQ.nameTh}</strong>`;
@@ -439,9 +483,13 @@
       document.getElementById('edibleFb').className = 'fb ok';
       document.getElementById('edibleFb').textContent = 'เฉลย: ' + p.emoji + ' ' + p.nameTh + ' — ' + edibleQ.tip;
     };
+    document.getElementById('btnEdibleSpeak').onclick = () => {
+      if (edibleQ) speakText('เรากินส่วนใดของ ' + edibleQ.nameTh + ' เป็นหลัก');
+    };
 
     /* ---- grow ---- */
     function resetGrow() {
+      stopSpeech();
       growNext = 1;
       document.getElementById('growFb').textContent = '';
       document.getElementById('growFb').className = 'fb';
@@ -504,6 +552,23 @@
       document.getElementById('growFb').textContent = 'เฉลย: ' + GROW.map((g) => g.emoji + g.name).join(' → ');
     };
 
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stopSpeech();
+    });
+    window.addEventListener('pagehide', stopSpeech);
+
+    window.getState = () => Object.freeze({
+      slug: MEDIA_SLUG,
+      mode: mode,
+      explorer: window.PlantPartsMedia?.getState?.() || null,
+      matchPartId: matchQ ? matchQ.id : null,
+      edibleId: edibleQ ? edibleQ.id : null,
+      growNext: growNext,
+      practiceIndex: practiceIdx,
+      reducedMotion: typeof window.matchMedia === 'function'
+        ? Boolean(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+        : false,
+    });
   </script>
   <script src="plant-parts-explorer.js"></script>
 </body>

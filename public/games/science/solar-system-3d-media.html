@@ -2,6 +2,7 @@
 <html lang="th">
 <head>
   <script src="/games/kampai-sdk.js?v=1.181.0"></script>
+  <script src="/games/media-lab-runtime.js?v=2.0.0"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>🪐 ระบบสุริยะ 3 มิติ (Solar System 3D) — โรงเรียนบ้านคำไผ่</title>
@@ -30,6 +31,8 @@
     body {
       margin: 0;
       overflow: hidden;
+      max-width: 100%;
+      overflow-x: hidden;
       background-color: var(--bg-dark);
       font-family: 'Sarabun', sans-serif;
       color: var(--text-main);
@@ -38,6 +41,27 @@
       width: 100vw;
       height: 100vh;
     }
+    html { max-width: 100%; overflow-x: hidden; }
+    button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+    .speech-status {
+      position: fixed;
+      top: 64px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 150;
+      max-width: min(92vw, 540px);
+      background: rgba(254, 243, 199, 0.96);
+      color: #78350f;
+      border: 2px solid #f59e0b;
+      border-radius: 12px;
+      padding: 8px 14px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      display: none;
+      text-align: center;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    }
+    .speech-status.show { display: block; }
 
     /* ─── Top Header Navigation ─── */
     header {
@@ -494,17 +518,23 @@
 
     /* ─── Mobile Responsiveness ─── */
     @media (max-width: 768px) {
-      header { padding: 0 8px; gap: 6px; }
-      .header-left { gap: 6px; min-width: 0; }
-      .header-left h1 { font-size: 0.92rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; }
+      header { padding: 6px 8px; gap: 6px; height: auto; min-height: 56px; flex-wrap: wrap; }
+      .header-left { gap: 6px; min-width: 0; flex: 1 1 auto; }
+      .header-left h1 { font-size: 0.92rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px; }
+      .header-right { gap: 4px; flex-wrap: wrap; max-width: 100%; }
       .badge { display: none !important; }
       .btn-back { padding: 8px 10px; min-width: 44px; min-height: 44px; }
       .btn-back .btn-text { display: none; }
-      .mode-seg button { padding: 6px 10px; font-size: 0.8rem; }
-      #controlPanel { width: calc(100vw - 24px); left: 12px; max-height: 48vh; }
+      .mode-seg button { padding: 6px 9px; font-size: 0.78rem; }
+      .header-right .btn-ghost { padding: 6px 8px; font-size: 0.78rem; }
+      #controlPanel { width: calc(100vw - 24px); left: 12px; top: 104px; max-height: 45vh; }
       #quickEncPanel { display: none !important; }
       #infoPanel { width: calc(100vw - 24px); left: 12px; right: 12px; top: auto; bottom: 80px; }
       #quizChoices { grid-template-columns: 1fr; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition: none !important; scroll-behavior: auto !important; }
+      .btn:active { transform: none; }
     }
   </style>
 </head>
@@ -513,7 +543,7 @@
   <!-- ═══ HEADER ═══ -->
   <header>
     <div class="header-left">
-      <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back();" aria-label="กลับคลังสื่อ"><span class="btn-arrow">←</span><span class="btn-text"> กลับคลังสื่อ</span></button>
+      <button type="button" class="btn btn-back" id="btnBack" aria-label="กลับคลังสื่อ"><span class="btn-arrow">←</span><span class="btn-text"> กลับคลังสื่อ</span></button>
       <h1>🪐 ระบบสุริยะ 3 มิติ</h1>
       <span class="badge">ป.4–ป.6 · วิทยาศาสตร์ (ว 3.1)</span>
     </div>
@@ -526,6 +556,7 @@
       <button type="button" class="btn btn-ghost" id="btnFs" title="เต็มจอ" style="min-width:44px; min-height:44px;">⛶</button>
     </div>
   </header>
+  <div id="speechStatus" class="speech-status" role="status" aria-live="polite"></div>
 
   <!-- ═══ 3D WEBGL CANVAS ═══ -->
   <canvas id="solarCanvas"></canvas>
@@ -688,8 +719,16 @@
       const MEDIA_SLUG = 'solar-system-3d-media';
       const GAME_SLUG = 'solar-system-3d-media';
       if (window.KAMPAI && KAMPAI.setSlug) {
-        try { KAMPAI.setSlug(MEDIA_SLUG); } catch (e) {}
+        try {
+          KAMPAI.setSlug(MEDIA_SLUG);
+          if (KAMPAI.sound && typeof KAMPAI.sound.mountToggles === 'function') {
+            KAMPAI.sound.mountToggles();
+          }
+        } catch (e) {}
       }
+      const motionQuery = typeof window.matchMedia === 'function'
+        ? window.matchMedia('(prefers-reduced-motion: reduce)')
+        : null;
 
       // --- THREE.JS INITIALIZATION ---
       const canvas = document.getElementById('solarCanvas');
@@ -1160,17 +1199,50 @@
         }, 1600);
       }
 
+      function stopSpeech() {
+        if (window.KampaiMediaLab && typeof window.KampaiMediaLab.stopAllSpeech === 'function') {
+          window.KampaiMediaLab.stopAllSpeech();
+        } else {
+          try { window.KAMPAI?.sound?.stopSpeak?.(); } catch (e) {}
+          try { window.speechSynthesis?.cancel?.(); } catch (e) {}
+        }
+        const statusEl = document.getElementById('speechStatus');
+        if (statusEl) {
+          statusEl.textContent = '';
+          statusEl.classList.remove('show');
+        }
+      }
+
       function speakThai(text) {
+        const clean = String(text || '').trim();
+        if (!clean) return;
+        const statusEl = document.getElementById('speechStatus');
+        if (window.KampaiMediaLab && typeof window.KampaiMediaLab.speakSafe === 'function') {
+          const res = window.KampaiMediaLab.speakSafe(clean, { lang: 'th-TH', rate: 0.95 });
+          if (statusEl) {
+            if (res && res.ok === false) {
+              statusEl.textContent = 'อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านข้อความบนจอต่อได้';
+              statusEl.classList.add('show');
+            } else {
+              statusEl.textContent = '';
+              statusEl.classList.remove('show');
+            }
+          }
+          return;
+        }
         if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.speak) {
-          KAMPAI.sound.speak(text, 'th-TH');
+          KAMPAI.sound.speak(clean, 'th-TH', true);
         } else if ('speechSynthesis' in window) {
           try {
             window.speechSynthesis.cancel();
-            const u = new SpeechSynthesisUtterance(text);
+            const u = new SpeechSynthesisUtterance(clean);
             u.lang = 'th-TH';
             u.rate = 0.95;
             window.speechSynthesis.speak(u);
           } catch (e) {}
+        } else if (statusEl) {
+          statusEl.textContent = 'อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านข้อความบนจอต่อได้';
+          statusEl.classList.add('show');
         }
       }
 
@@ -1439,6 +1511,7 @@
       });
 
       document.getElementById('closeEncBtn').addEventListener('click', () => {
+        stopSpeech();
         isEncyclopediaMode = false;
         document.getElementById('controlPanel').style.display = 'block';
         document.getElementById('encyclopediaOverlay').style.display = 'none';
@@ -1621,6 +1694,7 @@
 
       // --- MODE TOGGLES (Learn vs Practice) ---
       function setMainMode(mode) {
+        stopSpeech();
         document.getElementById('tabLearn').classList.toggle('active', mode === 'learn');
         document.getElementById('tabPractice').classList.toggle('active', mode === 'practice');
 
@@ -1812,6 +1886,19 @@
         panelContent.style.display = 'none';
         menuToggleIcon.innerText = 'ขยาย ➕';
       }
+      if (motionQuery && motionQuery.matches) {
+        setSystemSpeed(0);
+      }
+
+      document.getElementById('btnBack').addEventListener('click', () => {
+        stopSpeech();
+        if (window.KAMPAI && KAMPAI.goHome) KAMPAI.goHome();
+        else history.back();
+      });
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) stopSpeech();
+      });
+      window.addEventListener('pagehide', stopSpeech);
 
       document.getElementById('resetViewBtn').addEventListener('click', () => {
         camera.position.set(0, 320, 650);
@@ -1861,17 +1948,25 @@
         }
       });
 
-      // window.__getState hook for automated testing & monitoring
-      window.__getState = () => ({
-        isAlignmentMode,
-        isEarthMoonMode,
-        isLightSpeedMode,
-        isCrossSectionMode,
-        isQuizMode,
-        currentQuestionIndex,
-        selectedPlanet: selectedPlanetData ? selectedPlanetData.config.id : null,
-        followedPlanetId
-      });
+      // window.__getState & window.getState hooks for automated testing & monitoring
+      function readOnlyState() {
+        return Object.freeze({
+          slug: MEDIA_SLUG,
+          mode: isQuizMode ? 'practice' : 'learn',
+          isAlignmentMode,
+          isEarthMoonMode,
+          isLightSpeedMode,
+          isCrossSectionMode,
+          isQuizMode,
+          isEncyclopediaMode,
+          currentQuestionIndex,
+          selectedPlanet: selectedPlanetData ? selectedPlanetData.config.id : null,
+          followedPlanetId,
+          reducedMotion: Boolean(motionQuery && motionQuery.matches)
+        });
+      }
+      window.__getState = readOnlyState;
+      window.getState = readOnlyState;
     })();
   </script>
 </body>

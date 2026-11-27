@@ -2,6 +2,8 @@
 <html lang="th">
 <head>
   <script src="/games/kampai-sdk.js?v=1.181.0"></script>
+  <script src="/games/media-lab-runtime.js?v=2.0.0"></script>
+  <script src="/games/engine/vocab-quiz-engine.js?v=2.0.0"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="kampai-content-kind" content="teaching-media" />
@@ -30,6 +32,10 @@
       --rhyme: #0284c7;
       --rhyme-bg: #e0f2fe;
     }
+    html, body {
+      max-width: 100%;
+      overflow-x: hidden;
+    }
     body {
       font-family: 'Sarabun', sans-serif;
       background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 50%, #fef3c7 100%);
@@ -39,6 +45,7 @@
     }
     .shell {
       max-width: 1400px;
+      width: 100%;
       margin: 0 auto;
       background: var(--paper);
       border: 2px solid var(--navy);
@@ -63,7 +70,7 @@
       font-size: clamp(1.05rem, 1.8vw, 1.45rem);
       font-weight: 800;
       flex: 1;
-      min-width: 220px;
+      min-width: 0;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -89,6 +96,7 @@
       border-radius: 12px;
       padding: 8px 14px;
       min-height: 44px;
+      min-width: 44px;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
@@ -117,6 +125,8 @@
     }
     .mode-seg {
       display: inline-flex;
+      flex-wrap: wrap;
+      max-width: 100%;
       border: 2px solid var(--navy);
       border-radius: 14px;
       overflow: hidden;
@@ -514,7 +524,8 @@
     }
     .vocab-search-input {
       flex: 1;
-      min-width: 220px;
+      min-width: 0;
+      width: 100%;
       min-height: 44px;
       border: 2px solid var(--line);
       border-radius: 10px;
@@ -665,6 +676,130 @@
       font-weight: 600;
     }
     /* Responsive */
+    .speech-status {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #78350f;
+      background: #fef3c7;
+      border: 1px solid var(--gold);
+      border-radius: 10px;
+      padding: 8px 14px;
+      margin: 10px 18px 0;
+      display: none;
+    }
+    .speech-status.show {
+      display: block;
+    }
+    .practice-subbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .practice-subbar .sub-group {
+      display: inline-flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .ke-quiz-card, .ke-quiz-summary {
+      background: #fff;
+      border: 2px solid var(--line);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .ke-quiz-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-weight: 800;
+    }
+    .ke-badge {
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--gold-bg);
+      color: var(--gold-deep);
+      font-size: 0.85rem;
+    }
+    .ke-progress {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+    .ke-prompt {
+      font-size: 1.18rem;
+      font-weight: 800;
+      color: var(--navy);
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+    .ke-audio-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .ke-options {
+      display: grid;
+      gap: 10px;
+    }
+    .ke-option, .ke-btn {
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 1rem;
+      text-align: left;
+      padding: 12px 16px;
+      border: 2px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      color: var(--ink);
+      cursor: pointer;
+      min-height: 48px;
+      overflow-wrap: anywhere;
+    }
+    .ke-btn {
+      background: var(--navy);
+      color: #fff;
+      border-color: var(--navy);
+      text-align: center;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      align-self: flex-start;
+    }
+    .ke-option.is-correct {
+      background: var(--ok-bg);
+      border-color: var(--ok);
+      color: #14532d;
+    }
+    .ke-option.is-wrong {
+      background: var(--bad-bg);
+      border-color: var(--bad);
+      color: #7f1d1d;
+    }
+    .ke-feedback {
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-weight: 700;
+      line-height: 1.5;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+    }
+    .ke-feedback.is-good {
+      background: var(--ok-bg);
+      border: 2px solid var(--ok);
+      color: #14532d;
+    }
+    .ke-feedback.is-learn {
+      background: var(--gold-bg);
+      border: 2px solid var(--gold);
+      color: #78350f;
+    }
     @media (max-width: 960px) {
       .workspace { grid-template-columns: 1fr; }
       .sidebar {
@@ -676,11 +811,22 @@
       .poem-panel { border-right: none; border-bottom: 2px solid var(--line); }
     }
     @media (max-width: 600px) {
-      body { padding: 4px; }
-      .shell { border-radius: 12px; }
+      body { padding: 0; }
+      .shell { border-radius: 0; border-left: none; border-right: none; min-height: 100vh; }
       .main-stage { padding: 12px; }
       .toolbar { gap: 6px; padding: 8px 12px; }
+      .toolbar-actions { margin-left: 0; width: 100%; }
       .mode-btn { padding: 6px 10px; font-size: 0.85rem; }
+      .speech-status { margin: 8px 12px 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+      }
+      .btn:active { transform: none; }
     }
   </style>
 </head>
@@ -688,7 +834,7 @@
 <div class="shell" id="appShell" data-active-mode="learn">
   <!-- Top Navigation Header -->
   <header>
-    <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back();">
+    <button type="button" class="btn btn-back" onclick="stopAllSpeech();if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back();">
       ← กลับคลังสื่อ
     </button>
     <h1>
@@ -729,6 +875,8 @@
     </div>
   </div>
 
+  <div class="speech-status" id="speechStatus" role="status" aria-live="polite"></div>
+
   <!-- Main Workspace Area -->
   <div class="workspace">
     <!-- Left Chapter Sidebar Navigation -->
@@ -759,6 +907,13 @@
 
       <!-- Mode 3: Practice & Meaning Challenge -->
       <div class="practice-container" id="practiceContainer">
+        <div class="practice-subbar">
+          <div class="sub-group">
+            <button type="button" class="btn btn-tts" id="btnSubChapterQuiz" onclick="setPracticeSubMode('chapter')">📝 ฝึกถอดความประจำบท</button>
+            <button type="button" class="btn btn-ghost" id="btnSubVocabQuiz" onclick="setPracticeSubMode('vocabQuiz')">🔤 ฝึกคำศัพท์วรรณคดี</button>
+          </div>
+          <span class="badge" style="background:var(--gold-bg); color:var(--gold-deep);">ไม่จับเวลา · ไม่เก็บคะแนน</span>
+        </div>
         <div class="quiz-card" id="quizCard">
           <div style="display:flex; justify-content:space-between; align-items:center;">
             <span class="badge" style="background:var(--navy); color:#fff;" id="quizChapterBadge">บทที่ ๑</span>
@@ -773,6 +928,7 @@
             </button>
           </div>
         </div>
+        <div id="vocabQuizEngineRoot" style="display:none;"></div>
       </div>
     </main>
   </div>
@@ -824,26 +980,61 @@
   let activeMode = 'learn';
   let currentQuizIndex = 0;
   let activeModalItem = null;
+  let practiceSubMode = 'chapter';
+  let vocabQuizSession = null;
 
   const dataset = window.WANNAKHADI_P4_DATA || [];
 
-  // Speech Helper (TTS with safe cancel on switch)
-  function stopAllSpeech() {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
+  function setSpeechBanner(msg) {
+    const el = document.getElementById('speechStatus');
+    if (!el) return;
+    if (msg) {
+      el.textContent = msg;
+      el.classList.add('show');
+    } else {
+      el.textContent = '';
+      el.classList.remove('show');
     }
   }
 
-  function speakText(text, rate = 0.85) {
-    stopAllSpeech();
-    if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.speak) {
-      KAMPAI.sound.speak(text, 'th');
-    } else if ('speechSynthesis' in window) {
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = 'th-TH';
-      u.rate = rate;
-      window.speechSynthesis.speak(u);
+  // Speech Helper (TTS with safe cancel on switch)
+  function stopAllSpeech() {
+    if (window.KampaiMediaLab && typeof window.KampaiMediaLab.stopAllSpeech === 'function') {
+      window.KampaiMediaLab.stopAllSpeech();
+    } else {
+      try { window.KAMPAI?.sound?.stopSpeak?.(); } catch (_) {}
+      try { window.speechSynthesis?.cancel?.(); } catch (_) {}
     }
+    setSpeechBanner('');
+  }
+
+  function speakText(text, rate = 0.85) {
+    const clean = String(text || '').trim();
+    if (!clean) return;
+    if (window.KampaiMediaLab && typeof window.KampaiMediaLab.speakSafe === 'function') {
+      const res = window.KampaiMediaLab.speakSafe(clean, { lang: 'th-TH', rate: rate });
+      if (res && res.ok === false) {
+        setSpeechBanner('อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านข้อความบนหน้าจอต่อได้');
+      } else {
+        setSpeechBanner('');
+      }
+      return;
+    }
+    stopAllSpeech();
+    try {
+      if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.speak) {
+        KAMPAI.sound.speak(clean, 'th-TH', true);
+        return;
+      }
+      if ('speechSynthesis' in window) {
+        const u = new SpeechSynthesisUtterance(clean);
+        u.lang = 'th-TH';
+        u.rate = rate;
+        window.speechSynthesis.speak(u);
+        return;
+      }
+    } catch (_) {}
+    setSpeechBanner('อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านข้อความบนหน้าจอต่อได้');
   }
 
   function speakModalWord() {
@@ -858,14 +1049,19 @@
     activeMode = mode;
     document.getElementById('appShell').setAttribute('data-active-mode', mode);
     document.querySelectorAll('.mode-btn').forEach(btn => {
-      btn.classList.toggle('on', btn.getAttribute('data-mode') === mode);
+      const on = btn.getAttribute('data-mode') === mode;
+      btn.classList.toggle('on', on);
+      btn.setAttribute('aria-pressed', String(on));
     });
 
     if (mode === 'vocab') {
+      window.KampaiEngines?.Quiz?.cleanup?.();
       renderVocabExplorer();
     } else if (mode === 'practice') {
       currentQuizIndex = 0;
-      renderPracticeQuiz();
+      setPracticeSubMode(practiceSubMode);
+    } else {
+      window.KampaiEngines?.Quiz?.cleanup?.();
     }
   }
 
@@ -924,7 +1120,8 @@
     renderChapter();
     if (activeMode === 'practice') {
       currentQuizIndex = 0;
-      renderPracticeQuiz();
+      if (practiceSubMode === 'vocabQuiz') mountVocabQuiz();
+      else renderPracticeQuiz();
     }
   }
 
@@ -968,7 +1165,7 @@
             <span class="stanza-badge">
               <span>📜</span> บทที่ ${st.stanzaIndex} · ฉันทลักษณ์: ${st.meter}
             </span>
-            <button type="button" class="btn btn-ghost" style="min-height:36px; padding:4px 10px; font-size:0.8rem;" onclick="speakText('${allLinesText}')">
+            <button type="button" class="btn btn-ghost" style="min-height:44px; padding:6px 12px; font-size:0.85rem;" onclick="speakText('${allLinesText}')">
               🔊 ฟังทั้งบท
             </button>
           </div>
@@ -1006,7 +1203,7 @@
               </div>
               <p class="trans-text">${st.translation}</p>
               <div class="trans-actions">
-                <button type="button" class="btn btn-ghost" style="min-height:36px; padding:4px 10px; font-size:0.85rem;" onclick="speakText('${st.translation}')">
+                <button type="button" class="btn btn-ghost" style="min-height:44px; padding:6px 12px; font-size:0.85rem;" onclick="speakText('${st.translation}')">
                   🎧 ฟังคำแปล
                 </button>
               </div>
@@ -1090,7 +1287,7 @@
         </div>
         <p style="font-size:0.95rem; line-height:1.5; color:#334155;">${w.meaning}</p>
         <p class="vocab-example">${w.example}</p>
-        <button type="button" class="btn btn-ghost" style="min-height:36px; padding:4px 8px; font-size:0.8rem; margin-top:auto;" onclick="speakText('${w.word}')">
+        <button type="button" class="btn btn-ghost" style="min-height:44px; padding:6px 10px; font-size:0.85rem; margin-top:auto;" onclick="speakText('${w.word}')">
           🔊 ฟังคำอ่าน
         </button>
       </div>
@@ -1166,6 +1363,77 @@
       }
     }
   }
+
+  function setPracticeSubMode(sub) {
+    stopAllSpeech();
+    practiceSubMode = sub === 'vocabQuiz' ? 'vocabQuiz' : 'chapter';
+    const isChapter = practiceSubMode === 'chapter';
+    document.getElementById('quizCard').style.display = isChapter ? '' : 'none';
+    document.getElementById('vocabQuizEngineRoot').style.display = isChapter ? 'none' : '';
+    document.getElementById('btnSubChapterQuiz').className = 'btn ' + (isChapter ? 'btn-tts' : 'btn-ghost');
+    document.getElementById('btnSubVocabQuiz').className = 'btn ' + (!isChapter ? 'btn-tts' : 'btn-ghost');
+    if (isChapter) {
+      window.KampaiEngines?.Quiz?.cleanup?.();
+      renderPracticeQuiz();
+    } else {
+      mountVocabQuiz();
+    }
+  }
+
+  function mountVocabQuiz() {
+    if (!window.KampaiEngines?.Quiz) return;
+    const ch = dataset[currentChapterIndex];
+    const poolSource = (ch && Array.isArray(ch.vocabularies) && ch.vocabularies.length >= 4)
+      ? ch.vocabularies
+      : dataset.flatMap(item => item.vocabularies || []);
+    const quizItems = poolSource.map((v, i) => ({
+      id: 'wk-' + i + '-' + v.word,
+      term: v.word,
+      reading: v.reading || '',
+      meaning: v.meaning,
+      explain: `${v.word} [${v.reading}] (${v.pos}) — ${v.meaning}`,
+      locale: 'th-TH',
+    }));
+    vocabQuizSession = window.KampaiEngines.Quiz.mountChoice('#vocabQuizEngineRoot', {
+      items: quizItems,
+      mode: 'media',
+      roundSize: Math.min(8, quizItems.length),
+      locale: 'th-TH',
+      speak: (text) => speakText(text, 0.88),
+      onAnswer: function (res) {
+        if (window.KAMPAI?.sound) {
+          try {
+            if (res.isCorrect) KAMPAI.sound.correct();
+            else KAMPAI.sound.wrong();
+          } catch (_) {}
+        }
+      },
+    });
+  }
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) stopAllSpeech();
+  });
+  window.addEventListener('pagehide', () => {
+    stopAllSpeech();
+    window.KampaiEngines?.Quiz?.cleanup?.();
+  });
+
+  window.getState = () => Object.freeze({
+    slug: MEDIA_SLUG,
+    mode: activeMode,
+    practiceSubMode: practiceSubMode,
+    chapterIndex: currentChapterIndex,
+    chapterId: dataset[currentChapterIndex]?.id || null,
+    totalChapters: dataset.length,
+    showTranslation: showTranslation,
+    showRhythm: showRhythm,
+    quizIndex: currentQuizIndex,
+    vocabQuiz: vocabQuizSession ? vocabQuizSession.getState() : null,
+    reducedMotion: typeof window.matchMedia === 'function'
+      ? Boolean(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+      : false,
+  });
 
   // Initial Boot
   window.addEventListener('DOMContentLoaded', () => {

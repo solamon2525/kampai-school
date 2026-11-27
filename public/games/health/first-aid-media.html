@@ -2,44 +2,83 @@
 <html lang="th">
 <head>
   <script src="/games/kampai-sdk.js?v=1.181.0"></script>
+  <script src="/games/media-lab-runtime.js?v=2.0.0"></script>
+  <script src="/games/engine/classify-bucket-engine.js?v=2.0.0"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ปฐมพยาบาลเบื้องต้น — สื่อการสอน — บ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
   <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{--deep:#b91c1c;--line:#fecaca;--muted:#64748b;--ok:#16a34a;--bad:#dc2626}
-    body{font-family:'Sarabun',sans-serif;background:linear-gradient(160deg,#fee2e2,#ffedd5);min-height:100%;padding:12px;color:#0f172a}
-    .shell{max-width:960px;margin:0 auto;background:#fff;border-radius:1.5rem;box-shadow:0 20px 50px rgba(15,23,42,.12);overflow:hidden;min-height:calc(100vh - 24px);display:flex;flex-direction:column}
-    header{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 16px;background:linear-gradient(90deg,#991b1b,#dc2626);color:#fff}
-    header h1{font-size:1.1rem;font-weight:800;flex:1;min-width:140px}
-    .badge{font-size:.75rem;background:rgba(255,255,255,.2);padding:4px 10px;border-radius:999px;font-weight:700}
-    .btn{font-family:inherit;font-weight:700;border:none;border-radius:12px;padding:10px 14px;cursor:pointer}
-    .btn-back{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);padding:8px 12px;font-size:.85rem}
-    .btn-primary{background:var(--deep);color:#fff}
-    .toolbar{display:flex;flex-wrap:wrap;gap:8px;padding:10px 16px;background:#fef2f2;border-bottom:1px solid var(--line);align-items:center}
-    .seg{display:inline-flex;border-radius:12px;overflow:hidden;border:2px solid #f87171}
-    .seg button{font-family:inherit;font-weight:800;border:none;background:#fff;color:var(--deep);padding:8px 14px;cursor:pointer}
-    .seg button.on{background:var(--deep);color:#fff}
-    .hint{font-size:.85rem;font-weight:600;color:#991b1b;flex:1;min-width:120px}
-    .stage{flex:1;padding:16px}
-    .panel{display:none;flex-direction:column;gap:14px;max-width:720px;margin:0 auto}
-    .panel.on{display:flex}
-    .grid{display:grid;gap:10px}@media(min-width:700px){.grid{grid-template-columns:1fr 1fr}}
-    .card{border:2px solid var(--line);border-radius:14px;padding:14px;background:#fef2f2}
-    .card h3{color:var(--deep);font-weight:800;margin-bottom:6px}
-    .card p{font-weight:600;line-height:1.5;font-size:.95rem}
-    .rice{display:grid;gap:8px;grid-template-columns:1fr 1fr;border:2px solid var(--line);border-radius:14px;padding:12px;background:#fff}
-    .rice div{font-weight:700;padding:8px;border-radius:10px;background:#fee2e2}
-    .rice strong{color:var(--deep)}
-    .tip{background:#fffbeb;border:2px dashed #fcd34d;border-radius:12px;padding:12px;font-weight:700;color:#92400e;line-height:1.45}
-    .q{font-weight:800;font-size:1.15rem;text-align:center;color:var(--deep);line-height:1.45}
-    .opts{display:flex;flex-direction:column;gap:8px}
-    .opt{font-family:inherit;font-weight:700;padding:12px;border:2px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;text-align:left}
-    .opt.ok{background:#dcfce7;border-color:#86efac}.opt.no{background:#fee2e2;border-color:#fca5a5}
-    .fb{font-weight:800;text-align:center;min-height:24px}
-    .footer{padding:10px 16px;font-size:.8rem;color:var(--muted);text-align:center;border-top:1px solid var(--line)}
-    .footer a{color:var(--deep);font-weight:700;text-decoration:none}
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --deep: #b91c1c; --line: #fecaca; --muted: #475569; --ok: #15803d; --bad: #b91c1c; --ink: #0f172a; }
+    html, body { max-width: 100%; overflow-x: hidden; }
+    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(160deg, #fee2e2, #ffedd5); min-height: 100%; padding: 12px; color: var(--ink); }
+    .shell { max-width: 960px; margin: 0 auto; background: #fff; border-radius: 1.5rem; box-shadow: 0 20px 50px rgba(15,23,42,.12); overflow: hidden; min-height: calc(100vh - 24px); display: flex; flex-direction: column; }
+    header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(90deg, #991b1b, #dc2626); color: #fff; }
+    header h1 { font-size: 1.1rem; font-weight: 800; flex: 1; min-width: 140px; }
+    .badge { font-size: .75rem; background: rgba(255,255,255,.2); padding: 4px 10px; border-radius: 999px; font-weight: 700; }
+    .btn { font-family: inherit; font-weight: 700; border: none; border-radius: 12px; padding: 10px 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; min-width: 44px; }
+    .btn:active { transform: scale(.97); }
+    .btn:focus-visible, .seg button:focus-visible, .card:focus-visible, .ke-bucket-btn:focus-visible, .ke-btn:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+    .btn-back { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.35); padding: 8px 12px; font-size: .85rem; }
+    .btn-primary { background: var(--deep); color: #fff; }
+    .btn-ghost { background: #fff; color: var(--deep); border: 2px solid var(--line); }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 16px; background: #fef2f2; border-bottom: 1px solid var(--line); align-items: center; }
+    .seg { display: inline-flex; border-radius: 12px; overflow: hidden; border: 2px solid #f87171; }
+    .seg button { font-family: inherit; font-weight: 800; border: none; background: #fff; color: var(--deep); padding: 8px 14px; cursor: pointer; min-height: 44px; font-size: .9rem; }
+    .seg button.on { background: var(--deep); color: #fff; }
+    .hint { font-size: .85rem; font-weight: 600; color: #991b1b; flex: 1; min-width: 120px; }
+    .stage { flex: 1; padding: 16px; overflow: auto; }
+    .panel { display: none; flex-direction: column; gap: 14px; max-width: 760px; margin: 0 auto; width: 100%; }
+    .panel.on { display: flex; }
+    .grid { display: grid; gap: 10px; }
+    @media (min-width: 700px) { .grid { grid-template-columns: 1fr 1fr; } }
+    .card { border: 2px solid var(--line); border-radius: 14px; padding: 14px; background: #fef2f2; text-align: left; font-family: inherit; cursor: pointer; display: flex; flex-direction: column; gap: 6px; min-height: 44px; color: var(--ink); }
+    .card h3 { color: var(--deep); font-weight: 800; font-size: 1rem; }
+    .card p { font-weight: 600; line-height: 1.5; font-size: .95rem; }
+    .card .say-hint { font-size: .8rem; font-weight: 700; color: #991b1b; margin-top: auto; padding-top: 4px; }
+    .rice-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+    .rice { display: grid; gap: 8px; grid-template-columns: 1fr 1fr; border: 2px solid var(--line); border-radius: 14px; padding: 12px; background: #fff; }
+    @media (max-width: 480px) { .rice { grid-template-columns: 1fr; } }
+    .rice div { font-weight: 700; padding: 8px; border-radius: 10px; background: #fee2e2; }
+    .rice strong { color: var(--deep); }
+    .tip { background: #fffbeb; border: 2px dashed #f59e0b; border-radius: 12px; padding: 12px; font-weight: 700; color: #92400e; line-height: 1.45; }
+    .practice-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+    .practice-note { font-size: .88rem; font-weight: 700; color: var(--deep); }
+    .speech-status { font-size: .85rem; font-weight: 700; color: #92400e; background: #fef3c7; border-radius: 10px; padding: 8px 12px; display: none; }
+    .speech-status.show { display: block; }
+    .ke-classify-card { background: #fff1f2; border: 2px solid var(--line); border-radius: 20px; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+    .ke-classify-head { display: flex; justify-content: space-between; align-items: center; font-weight: 800; color: var(--deep); font-size: .95rem; }
+    .ke-classify-item { text-align: center; padding: 18px 14px; background: #fff; border: 2px dashed #f87171; border-radius: 16px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .ke-item-icon { font-size: clamp(52px, 12vw, 78px); line-height: 1.05; }
+    .ke-item-label { font-size: clamp(1.12rem, 2.8vw, 1.42rem); font-weight: 800; color: var(--ink); line-height: 1.4; }
+    .ke-item-sub { font-size: .92rem; font-weight: 600; color: var(--muted); line-height: 1.4; }
+    .ke-buckets { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    @media (max-width: 460px) { .ke-buckets { grid-template-columns: 1fr; } }
+    .ke-bucket-btn { font-family: inherit; font-weight: 800; font-size: .95rem; min-height: 54px; padding: 10px 12px; border-radius: 14px; border: 2px solid #cbd5e1; background: #fff; color: var(--ink); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; text-align: center; }
+    .ke-bucket-btn[data-bucket-id="rice"] { border-color: #0284c7; background: #f0f9ff; color: #0c4a6e; }
+    .ke-bucket-btn[data-bucket-id="bleed"] { border-color: #dc2626; background: #fef2f2; color: #7f1d1d; }
+    .ke-bucket-btn[data-bucket-id="burn"] { border-color: #d97706; background: #fffbeb; color: #78350f; }
+    .ke-bucket-btn[data-bucket-id="emergency"] { border-color: #7c3aed; background: #f5f3ff; color: #4c1d95; }
+    .ke-bucket-btn.is-correct { outline: 3px solid #15803d; background: #dcfce7; color: #14532d; }
+    .ke-bucket-btn.is-wrong { opacity: .65; text-decoration: line-through; }
+    .ke-bucket-btn:disabled { cursor: default; }
+    .ke-classify-feedback { padding: 12px 14px; border-radius: 12px; font-weight: 700; line-height: 1.45; background: #fff; border: 1.5px solid #cbd5e1; color: var(--ink); }
+    .ke-classify-feedback.is-good { background: #dcfce7; border-color: #16a34a; color: #14532d; }
+    .ke-classify-feedback.is-learn { background: #fef3c7; border-color: #d97706; color: #78350f; }
+    .ke-btn { font-family: inherit; font-weight: 800; font-size: .95rem; min-height: 44px; padding: 10px 16px; border-radius: 12px; border: none; background: var(--deep); color: #fff; cursor: pointer; align-items: center; justify-content: center; gap: 6px; align-self: center; }
+    .ke-classify-summary { text-align: center; padding: 24px 16px; background: #fef2f2; border: 2px solid var(--line); border-radius: 20px; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+    .ke-classify-summary h3 { color: var(--deep); font-size: 1.3rem; font-weight: 800; }
+    .footer { padding: 10px 16px; font-size: .8rem; color: var(--muted); text-align: center; border-top: 1px solid var(--line); }
+    .footer a { color: var(--deep); font-weight: 700; text-decoration: none; }
+    @media (max-width: 600px) {
+      body { padding: 0; }
+      .shell { border-radius: 0; min-height: 100vh; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition: none !important; scroll-behavior: auto !important; }
+      .btn:active { transform: none; }
+    }
   </style>
 </head>
 <body>
@@ -55,11 +94,15 @@
         <button type="button" data-mode="practice">✏️ ฝึกสั้น</button>
       </span>
       <span class="hint" id="hintText">RICE · กดห้ามเลือด · น้ำเย็นแผลไหม้ · เรียกผู้ใหญ่</span>
+      <button type="button" class="btn btn-ghost" id="btnFs" aria-label="ขยายเต็มจอ">⛶</button>
     </div>
     <div class="stage">
       <div class="panel on" id="learn">
         <div class="mix-card" style="border:2px solid var(--line);border-radius:14px;padding:14px;background:#fff7ed;font-weight:700;line-height:1.5;margin-bottom:4px">
-          <p>เมื่อข้อเคล็ด/บวมเล็กน้อย ใช้หลัก <strong style="color:var(--deep)">RICE</strong></p>
+          <div class="rice-head">
+            <p>เมื่อข้อเคล็ด/บวมเล็กน้อย ใช้หลัก <strong style="color:var(--deep)">RICE</strong></p>
+            <button type="button" class="btn btn-ghost" id="btnSpeakRice">🔊 ฟังหลัก RICE</button>
+          </div>
         </div>
         <div class="rice">
           <div><strong>R</strong> Rest — พักส่วนที่เจ็บ</div>
@@ -67,86 +110,202 @@
           <div><strong>C</strong> Compression — พันผ้ายืดพอดี</div>
           <div><strong>E</strong> Elevation — ยกสูงกว่าหัวใจ</div>
         </div>
-        <div class="grid">
-          <div class="card">
+        <div class="grid" id="aidCards">
+          <button type="button" class="card" data-say="เมื่อเลือดออก ใช้ผ้าสะอาดกดแน่นตรงจุดเลือดออก ถ้าผ้าเปียกเลือด ให้วางผ้าใหม่ทับแล้วกดต่อ อย่ารื้อผ้าเก่าออก">
             <h3>🩸 เลือดออก</h3>
             <p>ใช้ผ้าสะอาดกดแน่นตรงจุดเลือดออก · ถ้าผ้าเปียกเลือด ให้วางผ้าใหม่ทับแล้วกดต่อ · อย่ารื้อผ้าเก่าออก</p>
-          </div>
-          <div class="card">
+            <span class="say-hint">🔊 แตะเพื่อฟังคำอธิบาย</span>
+          </button>
+          <button type="button" class="card" data-say="แผลไหม้เล็กน้อย ใช้น้ำเย็นไหลผ่านหลายนาที ห้ามทาเนย น้ำมัน หรือยาสีฟัน และอย่าเจาะตุ่มน้ำ">
             <h3>🔥 แผลไหม้เล็กน้อย</h3>
             <p>ใช้น้ำเย็นไหลผ่านหลายนาที · ห้ามทาเนย/น้ำมัน/ยาสีฟัน · อย่าเจาะตุ่มน้ำ</p>
-          </div>
-          <div class="card">
+            <span class="say-hint">🔊 แตะเพื่อฟังคำอธิบาย</span>
+          </button>
+          <button type="button" class="card" data-say="เมื่อใดควรเรียกผู้ใหญ่ทันที เช่น เลือดออกมาก หมดสติ หายใจลำบาก กระดูกอาจหัก หรือหัวกระแทกแล้วง่วง ให้เรียกครูหรือผู้ปกครองทันที">
             <h3>📞 เรียกผู้ใหญ่</h3>
             <p>เลือดออกมาก · หมดสติ · หายใจลำบาก · กระดูกอาจหัก · หัวกระแทกแล้วง่วง — เรียกครู/ผู้ปกครองทันที</p>
-          </div>
-          <div class="card">
+            <span class="say-hint">🔊 แตะเพื่อฟังคำอธิบาย</span>
+          </button>
+          <button type="button" class="card" data-say="ก่อนช่วยเหลือ ควรล้างมือหรือใส่ถุงมือถ้ามี ใช้ผ้าสะอาด และอย่าใช้มือเปื้อนดินกดแผล">
             <h3>🧼 ก่อนช่วยเหลือ</h3>
             <p>ล้างมือหรือใส่ถุงมือถ้ามี · ใช้ผ้าสะอาด · อย่าใช้มือเปื้อนดินกดแผล</p>
-          </div>
+            <span class="say-hint">🔊 แตะเพื่อฟังคำอธิบาย</span>
+          </button>
         </div>
+        <div class="speech-status" id="speechStatusLearn" role="status" aria-live="polite"></div>
         <div class="tip">นักเรียนช่วยได้แค่ปฐมพยาบาลเบื้องต้น — ถ้าอาการรุนแรงต้องบอกผู้ใหญ่และพบแพทย์</div>
       </div>
       <div class="panel" id="practice">
-        <p class="q" id="pq"></p>
-        <div class="opts" id="popts"></div>
-        <p class="fb" id="pfb"></p>
-        <button type="button" class="btn btn-primary" id="btnNext">ข้อถัดไป</button>
+        <div class="practice-bar">
+          <span class="practice-note">แตะเลือกวิธีปฐมพยาบาลหรือกดปุ่ม 1–4 (ไม่จับเวลา · ไม่เก็บคะแนน)</span>
+          <button type="button" class="btn btn-ghost" id="btnSpeakCurrent">🔊 ฟังโจทย์</button>
+        </div>
+        <div class="speech-status" id="speechStatusPractice" role="status" aria-live="polite"></div>
+        <div id="classifyEngineRoot"></div>
       </div>
     </div>
     <footer class="footer">ตัวชี้วัด <strong>พ 5.1 ป.4/1</strong> · คู่ใบงาน <a href="/games/health/first-aid-worksheet.html">first-aid</a> · เกมแข่งคะแนน <a href="/games/health/first-aid-rush.html">first-aid-rush (game)</a></footer>
   </div>
   <script>
     const MEDIA_SLUG = 'first-aid-media';
-    if (window.KAMPAI) window.KAMPAI.setSlug(MEDIA_SLUG);
-    document.getElementById('btnBack').onclick = () => { if (window.KAMPAI?.goHome) KAMPAI.goHome(); else history.back(); };
+    if (window.KAMPAI) {
+      window.KAMPAI.setSlug(MEDIA_SLUG);
+      if (window.KAMPAI.sound && typeof window.KAMPAI.sound.mountToggles === 'function') {
+        try { window.KAMPAI.sound.mountToggles(); } catch (_) {}
+      }
+    }
 
-    const QS = [
-      { q: 'ตัวอักษร I ใน RICE หมายถึงอะไร?', opts: ['Ice — ประคบเย็น', 'Ignore — ไม่สนใจ', 'Inject — ฉีดยา', 'Inflate — เป่าลม'], a: 'Ice — ประคบเย็น' },
-      { q: 'เพื่อนข้อเท้าเคล็ด บวมเล็กน้อย ควรทำอย่างไร?', opts: ['พัก ประคบเย็น พัน และยกสูง (RICE)', 'วิ่งต่อทันที', 'นวดแรงด้วยน้ำมันร้อน', 'ดัดข้อให้ตรงทันที'], a: 'พัก ประคบเย็น พัน และยกสูง (RICE)' },
-      { q: 'มีบาดแผลเลือดซึม ควรทำอะไรก่อน?', opts: ['กดแน่นด้วยผ้าสะอาดตรงจุดเลือดออก', 'ล้างด้วยน้ำอัดลม', 'เปิดแผลให้แห้งโดยไม่กด', 'ใช้ดินสอดูดเลือด'], a: 'กดแน่นด้วยผ้าสะอาดตรงจุดเลือดออก' },
-      { q: 'ผิวไหม้เล็กน้อยจากน้ำร้อน ควร…', opts: ['ใช้น้ำเย็นไหลผ่านหลายนาที', 'ทาเนยทันที', 'เจาะตุ่มน้ำ', 'ทายาสีแดงหนา ๆ'], a: 'ใช้น้ำเย็นไหลผ่านหลายนาที' },
-      { q: 'ข้อใด “ห้าม” ทำเมื่อผิวไหม้?', opts: ['ทาเนย / น้ำมัน / ยาสีฟัน', 'ใช้น้ำเย็นล้าง', 'บอกผู้ใหญ่', 'ถอดเครื่องประดับใกล้แผลถ้าทำได้'], a: 'ทาเนย / น้ำมัน / ยาสีฟัน' },
-      { q: 'เมื่อไรควรเรียกผู้ใหญ่ทันที?', opts: ['เลือดออกมาก · หมดสติ · หายใจลำบาก', 'รอยขีดเล็ก ๆ ที่หายแล้ว', 'เพื่อนหิวข้าว', 'ดินสอหล่น'], a: 'เลือดออกมาก · หมดสติ · หายใจลำบาก' },
-      { q: 'Elevation ใน RICE หมายถึงอะไร?', opts: ['ยกส่วนที่เจ็บให้สูงกว่าหัวใจ', 'นอนราบเสมอ', 'ยืนขาเดียว', 'เดินขึ้นบันได'], a: 'ยกส่วนที่เจ็บให้สูงกว่าหัวใจ' },
-      { q: 'ก่อนช่วยเหลือบาดแผล ควร…', opts: ['ล้างมือหรือใส่ถุงมือ แล้วใช้ผ้าสะอาด', 'ใช้มือเปื้อนดินกดแผล', 'แชร์ผ้าพันแผลกับหลายคน', 'เป่าลมใส่แผลแรง ๆ'], a: 'ล้างมือหรือใส่ถุงมือ แล้วใช้ผ้าสะอาด' },
+    const BUCKETS = [
+      { id: 'rice', label: 'ข้อเคล็ด (RICE)', icon: '🩹' },
+      { id: 'bleed', label: 'ห้ามเลือดบาดแผล', icon: '🩸' },
+      { id: 'burn', label: 'แผลไหม้เล็กน้อย', icon: '🔥' },
+      { id: 'emergency', label: 'เรียกผู้ใหญ่ทันที', icon: '🚨' },
     ];
 
-    function nextPractice() {
-      const item = QS[(Math.random() * QS.length) | 0];
-      document.getElementById('pq').textContent = item.q;
-      document.getElementById('pfb').textContent = '';
-      const opts = item.opts.slice().sort(() => Math.random() - 0.5);
-      document.getElementById('popts').innerHTML = opts.map((o) =>
-        '<button type="button" class="opt" data-a="' + o + '">' + o + '</button>'
-      ).join('');
-      document.querySelectorAll('#popts .opt').forEach((btn) => {
-        btn.onclick = () => {
-          const ok = btn.dataset.a === item.a;
-          btn.classList.add(ok ? 'ok' : 'no');
-          document.querySelectorAll('#popts .opt').forEach((b) => {
-            b.disabled = true;
-            if (b.dataset.a === item.a) b.classList.add('ok');
-          });
-          document.getElementById('pfb').textContent = ok ? '✓ ถูกต้อง!' : '✗ คำตอบ: ' + item.a;
-          document.getElementById('pfb').style.color = ok ? 'var(--ok)' : 'var(--bad)';
-          if (window.KAMPAI?.sound) (ok ? KAMPAI.sound.correct : KAMPAI.sound.wrong)();
-        };
+    const ITEMS = [
+      { id: 'fa-1', icon: '🧊', label: 'Ice — ประคบเย็นเมื่อเพื่อนข้อเท้าเคล็ดและบวมเล็กน้อย', sub: 'หลัก RICE', bucketId: 'rice', reason: 'ตัว I (Ice) ใน RICE คือการประคบเย็นเพื่อลดบวม' },
+      { id: 'fa-2', icon: '🦵', label: 'Elevation — ยกส่วนที่เจ็บและบวมให้สูงกว่าระดับหัวใจ', sub: 'หลัก RICE', bucketId: 'rice', reason: 'ตัว E (Elevation) ช่วยลดอาการบวมจากการคั่งของเลือด' },
+      { id: 'fa-3', icon: '🛑', label: 'Rest & Compression — หยุดพักและพันผ้ายืดพอดีไม่แน่นเกิน', sub: 'หลัก RICE', bucketId: 'rice', reason: 'ข้อเคล็ดบวมเล็กน้อยใช้หลัก RICE: พัก ประคบเย็น พัน และยกสูง' },
+      { id: 'fa-4', icon: '🧼', label: 'ล้างมือให้สะอาดแล้วใช้ผ้าสะอาดกดแน่นตรงจุดเลือดออก', sub: 'บาดแผลมีเลือดซึม', bucketId: 'bleed', reason: 'ก่อนช่วยควรล้างมือและกดห้ามเลือดด้วยผ้าสะอาดตรงจุดเลือดออก' },
+      { id: 'fa-5', icon: '🩹', label: 'ผ้ากดแผลเปียกเลือดแล้ว ให้วางผ้าสะอาดผืนใหม่ทับแล้วกดต่อ', sub: 'บาดแผลมีเลือดออก', bucketId: 'bleed', reason: 'ไม่ควรรื้อผ้าเก่าออก เพราะอาจทำให้ลิ่มเลือดที่เริ่มก่อตัวหลุด' },
+      { id: 'fa-6', icon: '💧', label: 'ผิวไหม้เล็กน้อยจากน้ำร้อน ให้เปิดน้ำเย็นไหลผ่านหลายนาที', sub: 'แผลไฟไหม้/น้ำร้อนลวก', bucketId: 'burn', reason: 'น้ำเย็นช่วยลดความร้อนใต้ผิวและบรรเทาอาการปวดแสบปวดร้อน' },
+      { id: 'fa-7', icon: '🚫', label: 'ไม่ทาเนย น้ำมัน หรือยาสีฟัน และไม่เจาะตุ่มน้ำบนผิวไหม้', sub: 'ข้อควรระวังแผลไหม้', bucketId: 'burn', reason: 'ของเหล่านี้กักความร้อนและเสี่ยงติดเชื้อ ควรใช้น้ำเย็นสะอาดเท่านั้น' },
+      { id: 'fa-8', icon: '🚑', label: 'พบเพื่อนเลือดออกมาก หมดสติ หรือหายใจลำบาก', sub: 'อาการรุนแรง', bucketId: 'emergency', reason: 'อาการรุนแรงเกินปฐมพยาบาลเบื้องต้น ต้องเรียกครูหรือผู้ใหญ่ทันที' },
+      { id: 'fa-9', icon: '🏥', label: 'เพื่อนล้มหัวกระแทกพื้นแล้วมีอาการง่วงซึมหรืออาเจียน', sub: 'สัญญาณอันตราย', bucketId: 'emergency', reason: 'ศีรษะกระแทกแล้วซึมเป็นสัญญาณอันตราย ต้องแจ้งผู้ใหญ่และพบแพทย์ทันที' },
+    ];
+
+    let mode = 'learn';
+    let classifySession = null;
+
+    function speakText(text, statusId) {
+      const clean = String(text || '').trim();
+      if (!clean) return;
+      const statusEl = document.getElementById(statusId || (mode === 'practice' ? 'speechStatusPractice' : 'speechStatusLearn'));
+      if (window.KampaiMediaLab && typeof window.KampaiMediaLab.speakSafe === 'function') {
+        const res = window.KampaiMediaLab.speakSafe(clean, { lang: 'th-TH', rate: 0.92 });
+        if (statusEl) {
+          if (res && res.ok === false) {
+            statusEl.textContent = 'อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านข้อความต่อได้';
+            statusEl.classList.add('show');
+          } else {
+            statusEl.textContent = '';
+            statusEl.classList.remove('show');
+          }
+        }
+        return;
+      }
+      try {
+        if (window.KAMPAI?.sound?.speak) {
+          KAMPAI.sound.speak(clean, 'th-TH', true);
+          return;
+        }
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const u = new SpeechSynthesisUtterance(clean);
+          u.lang = 'th-TH';
+          u.rate = 0.92;
+          window.speechSynthesis.speak(u);
+          return;
+        }
+      } catch (_) {}
+      if (statusEl) {
+        statusEl.textContent = 'อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านข้อความต่อได้';
+        statusEl.classList.add('show');
+      }
+    }
+
+    function stopSpeech() {
+      if (window.KampaiMediaLab && typeof window.KampaiMediaLab.stopAllSpeech === 'function') {
+        window.KampaiMediaLab.stopAllSpeech();
+      } else {
+        try { window.KAMPAI?.sound?.stopSpeak?.(); } catch (_) {}
+        try { window.speechSynthesis?.cancel?.(); } catch (_) {}
+      }
+    }
+
+    function mountClassifyPractice() {
+      if (!window.KampaiEngines || !window.KampaiEngines.ClassifyBucket) return;
+      classifySession = window.KampaiEngines.ClassifyBucket.mount('#classifyEngineRoot', {
+        items: ITEMS,
+        buckets: BUCKETS,
+        mode: 'media',
+        roundSize: ITEMS.length,
+        onAnswer: function (res) {
+          if (window.KAMPAI && window.KAMPAI.sound) {
+            try {
+              if (res.isCorrect) KAMPAI.sound.correct();
+              else KAMPAI.sound.wrong();
+            } catch (_) {}
+          }
+        },
       });
+    }
+
+    function setMode(nextMode) {
+      stopSpeech();
+      mode = nextMode === 'practice' ? 'practice' : 'learn';
+      document.querySelectorAll('#modeSeg button').forEach((x) => x.classList.toggle('on', x.dataset.mode === mode));
+      document.getElementById('learn').classList.toggle('on', mode === 'learn');
+      document.getElementById('practice').classList.toggle('on', mode === 'practice');
+      document.getElementById('hintText').textContent = mode === 'learn'
+        ? 'RICE · กดห้ามเลือด · น้ำเย็นแผลไหม้ · เรียกผู้ใหญ่'
+        : 'แยกวิธีปฐมพยาบาลเบื้องต้น — ไม่จับเวลา ไม่เก็บคะแนน';
+      if (mode === 'practice') {
+        mountClassifyPractice();
+      } else if (window.KampaiEngines?.ClassifyBucket?.cleanup) {
+        window.KampaiEngines.ClassifyBucket.cleanup();
+      }
     }
 
     document.getElementById('modeSeg').onclick = (e) => {
       const b = e.target.closest('button[data-mode]');
-      if (!b) return;
-      const mode = b.dataset.mode;
-      document.querySelectorAll('#modeSeg button').forEach((x) => x.classList.toggle('on', x === b));
-      document.getElementById('learn').classList.toggle('on', mode === 'learn');
-      document.getElementById('practice').classList.toggle('on', mode === 'practice');
-      document.getElementById('hintText').textContent =
-        mode === 'learn' ? 'RICE · กดห้ามเลือด · น้ำเย็นแผลไหม้ · เรียกผู้ใหญ่' : 'เลือกคำตอบ 4 ตัวเลือก';
-      if (mode === 'practice') nextPractice();
+      if (b) setMode(b.dataset.mode);
     };
-    document.getElementById('btnNext').onclick = nextPractice;
+
+    document.getElementById('aidCards').addEventListener('click', (e) => {
+      const card = e.target.closest('[data-say]');
+      if (card) speakText(card.dataset.say, 'speechStatusLearn');
+    });
+
+    document.getElementById('btnSpeakRice').onclick = () => {
+      speakText('เมื่อข้อเคล็ดหรือบวมเล็กน้อย ใช้หลัก อาร์ ไอ ซี อี คือ อาร์ เรสต์ พักส่วนที่เจ็บ ไอ ไอซ์ ประคบเย็น ซี คอมเพรสชัน พันผ้ายืดพอดี และ อี เอลิเวชัน ยกสูงกว่าหัวใจ', 'speechStatusLearn');
+    };
+
+    document.getElementById('btnSpeakCurrent').onclick = () => {
+      const item = classifySession?.currentItem?.();
+      if (item) {
+        speakText((item.sub ? item.sub + ' ' : '') + item.label + ' ควรปฐมพยาบาลแบบใด', 'speechStatusPractice');
+      } else {
+        speakText('ฝึกจำแนกวิธีปฐมพยาบาลเบื้องต้นครบแล้ว กดฝึกใหม่อีกครั้งได้', 'speechStatusPractice');
+      }
+    };
+
+    document.getElementById('btnBack').onclick = () => {
+      stopSpeech();
+      if (window.KAMPAI?.goHome) KAMPAI.goHome();
+      else history.back();
+    };
+
+    document.getElementById('btnFs').onclick = () => {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.().catch(() => {});
+      else document.exitFullscreen?.();
+    };
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stopSpeech();
+    });
+    window.addEventListener('pagehide', stopSpeech);
+
+    window.getState = () => Object.freeze({
+      slug: MEDIA_SLUG,
+      mode: mode,
+      totalItems: ITEMS.length,
+      bucketsCount: BUCKETS.length,
+      classify: classifySession ? classifySession.getState() : null,
+      reducedMotion: typeof window.matchMedia === 'function'
+        ? Boolean(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+        : false,
+    });
   </script>
 </body>
 </html>

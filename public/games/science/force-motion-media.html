@@ -2,6 +2,8 @@
 <html lang="th">
 <head>
   <script src="/games/kampai-sdk.js?v=1.181.0"></script>
+  <script src="/games/media-lab-runtime.js?v=2.0.0"></script>
+  <script src="/games/engine/vocab-quiz-engine.js?v=2.0.0"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>สตูดิโอแรงและการเคลื่อนที่ ป.5 (Force & Motion Studio) — โรงเรียนบ้านคำไผ่</title>
@@ -691,6 +693,42 @@
     button, input, select {
       touch-action: manipulation;
     }
+    .btn-hdr:focus-visible, .tab-btn:focus-visible, .sub-btn:focus-visible, .btn-act:focus-visible, .surface-btn:focus-visible, .opt-btn:focus-visible {
+      outline: 3px solid #f59e0b;
+      outline-offset: 2px;
+    }
+    .speech-status {
+      margin: 10px 16px 0;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #78350f;
+      background: #fef3c7;
+      border: 1.5px solid #f59e0b;
+      border-radius: 10px;
+      padding: 8px 12px;
+      display: none;
+    }
+    .speech-status.show {
+      display: block;
+    }
+    @media (max-width: 600px) {
+      header { padding: 10px 12px; }
+      header h1 { font-size: 1rem; }
+      main.content { padding: 14px 10px 28px; }
+      .card { padding: 14px 12px; }
+      .sim-hud { padding: 6px 10px; font-size: 0.85rem; }
+      .hud-val { font-size: 0.85rem; }
+      .track-cart { width: 92px; height: 64px; font-size: 0.82rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+      }
+      .panel, .quiz-feedback.show { animation: none; }
+    }
   </style>
 </head>
 <body>
@@ -699,6 +737,7 @@
   <!-- TOP HEADER -->
   <header>
     <div class="header-left">
+      <button type="button" class="btn-hdr" id="btnBack">← กลับคลังสื่อ</button>
       <h1>🛒 สตูดิโอแรงและการเคลื่อนที่ ป.5</h1>
       <span class="badge-grade">ว 2.2 ป.5/1–5 · วิทยาศาสตร์</span>
     </div>
@@ -732,6 +771,7 @@
   </nav>
   <div style="display:none;" data-mode="learn" id="learn">📖 สอน/เรียนรู้</div>
   <div style="display:none;" data-mode="practice" id="practice">✏️ ฝึก/ฝึกสั้น</div>
+  <div class="speech-status" id="speechStatus" role="status" aria-live="polite"></div>
 
   <!-- MAIN CONTENT PANELS -->
   <main class="content">
@@ -1080,8 +1120,8 @@
         <!-- QUIZ TOP HUD -->
         <div class="quiz-hud">
           <span>ข้อที่ <span id="qIndex">1</span> / 15</span>
-          <span>คะแนน: <span id="qScore" style="color: var(--emerald-dark);">0</span></span>
-          <span>🔥 Streak: <span id="qStreak" style="color: var(--rose);">0</span></span>
+          <span>ทำสำเร็จแล้ว: <span id="qScore" style="color: var(--emerald-dark);">0</span> / 15</span>
+          <span style="color: var(--muted); font-size: 0.85rem;">โหมดฝึก · ไม่เก็บคะแนน</span>
         </div>
 
         <!-- QUESTION CARD -->
@@ -1107,12 +1147,12 @@
 
         <!-- RESULT SUMMARY MODAL / CARD -->
         <div class="card" id="quizSummaryCard" style="display: none; text-align: center; padding: 30px 20px;">
-          <h2 style="font-size: 1.6rem; font-weight: 900; color: var(--navy);" id="resTitle">🎉 สรุปผลการทดสอบ</h2>
-          <div style="font-size: 4rem; margin: 10px 0;" id="resMedal">🥇</div>
-          <p style="font-size: 1.3rem; font-weight: 800; color: var(--indigo);" id="resScoreText">คุณได้ 15 / 15 คะแนน</p>
-          <p style="font-size: 1rem; color: var(--muted); margin-bottom: 16px;" id="resComment">ยอดเยี่ยมมาก! คุณมีความเข้าใจเรื่องแรงและการเคลื่อนที่เป็นเลิศ</p>
+          <h2 style="font-size: 1.6rem; font-weight: 900; color: var(--navy);" id="resTitle">🎉 ทบทวนครบทั้ง 15 ข้อแล้ว!</h2>
+          <div style="font-size: 3.5rem; margin: 10px 0;" id="resMedal">📘</div>
+          <p style="font-size: 1.2rem; font-weight: 800; color: var(--indigo);" id="resScoreText">ทำสำเร็จครบทั้ง 15 ข้อ (ไม่เก็บคะแนน)</p>
+          <p style="font-size: 1rem; color: var(--muted); margin-bottom: 16px;" id="resComment">สามารถกลับไปทดลองแรงลัพธ์และแรงเสียดทาน หรือทบทวนคำถามใหม่อีกครั้งได้</p>
           <button class="btn-act primary" id="btnRestartQuiz" style="max-width: 250px; margin: 0 auto;">
-            <span>🔄</span> ทำแบบทดสอบใหม่อีกครั้ง
+            <span>🔄</span> ทบทวนใหม่อีกครั้ง
           </button>
         </div>
       </div>
@@ -1158,33 +1198,88 @@ const state = {
   mu: 0.05,
   boxMass: 5,
   pushForce: 30,
-  // Quiz
+  // Quiz (media mode: no competitive score/lives/timer)
   qIdx: 0,
-  score: 0,
-  streak: 0,
+  solvedCount: 0,
   quizAnswered: false
 };
 
-window.__getState = () => ({
+window.getState = () => Object.freeze({
+  slug: MEDIA_SLUG,
+  mode: state.currentTab === 'quiz' ? 'practice' : 'learn',
   tab: state.currentTab,
   sub: state.currentSub,
   fLeft: state.f1 + state.f2,
   fRight: state.f3 + state.f4,
   netForce: (state.f3 + state.f4) - (state.f1 + state.f2),
   surface: state.surface,
+  boxMass: state.boxMass,
+  pushForce: state.pushForce,
   quizIndex: state.qIdx,
-  quizScore: state.score
+  quizSolved: state.solvedCount,
+  quizTotal: QUIZ_QUESTIONS.length,
+  scoreEnabled: false,
+  reducedMotion: typeof window.matchMedia === 'function'
+    ? Boolean(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+    : false,
 });
+window.__getState = window.getState;
 
-// 2. TTS AUDIO ENGINE
+// 2. TTS AUDIO ENGINE (KampaiMediaLab.speakSafe + fallback)
+function clearSpeechStatus() {
+  const statusEl = document.getElementById('speechStatus');
+  if (statusEl) {
+    statusEl.textContent = '';
+    statusEl.classList.remove('show');
+  }
+}
+
+function stopSpeech() {
+  if (window.KampaiMediaLab && typeof window.KampaiMediaLab.stopAllSpeech === 'function') {
+    window.KampaiMediaLab.stopAllSpeech();
+  } else {
+    try { window.KAMPAI?.sound?.stopSpeak?.(); } catch (_) {}
+    try { window.speechSynthesis?.cancel?.(); } catch (_) {}
+  }
+  clearSpeechStatus();
+}
+
 function speakThai(text) {
   if (!state.ttsEnabled) return;
-  if (!('speechSynthesis' in window)) return;
-  window.speechSynthesis.cancel();
-  const utter = new SpeechSynthesisUtterance(text);
-  utter.lang = 'th-TH';
-  utter.rate = 0.95;
-  window.speechSynthesis.speak(utter);
+  const clean = String(text || '').trim();
+  if (!clean) return;
+  const statusEl = document.getElementById('speechStatus');
+  if (window.KampaiMediaLab && typeof window.KampaiMediaLab.speakSafe === 'function') {
+    const res = window.KampaiMediaLab.speakSafe(clean, { lang: 'th-TH', rate: 0.92 });
+    if (statusEl) {
+      if (res && res.ok === false) {
+        statusEl.textContent = 'อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านข้อความบนหน้าจอต่อได้';
+        statusEl.classList.add('show');
+      } else {
+        statusEl.textContent = '';
+        statusEl.classList.remove('show');
+      }
+    }
+    return;
+  }
+  try {
+    if (window.KAMPAI?.sound?.speak) {
+      window.KAMPAI.sound.speak(clean, 'th-TH', true);
+      return;
+    }
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(clean);
+      utter.lang = 'th-TH';
+      utter.rate = 0.92;
+      window.speechSynthesis.speak(utter);
+      return;
+    }
+  } catch (_) {}
+  if (statusEl) {
+    statusEl.textContent = 'อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านข้อความบนหน้าจอต่อได้';
+    statusEl.classList.add('show');
+  }
 }
 
 // 3. TAB NAVIGATION
@@ -1198,6 +1293,10 @@ const panels = {
 
 function switchTab(tabId) {
   if (!panels[tabId]) return;
+  stopSpeech();
+  if (window.KampaiEngines?.Quiz?.cleanup) {
+    window.KampaiEngines.Quiz.cleanup();
+  }
   state.currentTab = tabId;
   navBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tabId));
   Object.keys(panels).forEach(k => panels[k].classList.toggle('active', k === tabId));
@@ -1217,6 +1316,7 @@ const subviews = {
 
 function switchSub(subId) {
   if (!subviews[subId]) return;
+  stopSpeech();
   state.currentSub = subId;
   subBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.sub === subId));
   Object.keys(subviews).forEach(k => {
@@ -1565,7 +1665,6 @@ const QUIZ_QUESTIONS = [
 
 const qIndex = document.getElementById('qIndex');
 const qScore = document.getElementById('qScore');
-const qStreak = document.getElementById('qStreak');
 const qSkillBadge = document.getElementById('qSkillBadge');
 const qQuestion = document.getElementById('qQuestion');
 const qOptions = document.getElementById('qOptions');
@@ -1584,8 +1683,7 @@ const btnRestartQuiz = document.getElementById('btnRestartQuiz');
 function renderQuizQuestion() {
   const q = QUIZ_QUESTIONS[state.qIdx];
   qIndex.textContent = state.qIdx + 1;
-  qScore.textContent = state.score;
-  qStreak.textContent = state.streak;
+  qScore.textContent = state.solvedCount;
   qSkillBadge.textContent = q.skill;
   qQuestion.textContent = q.q;
 
@@ -1597,6 +1695,7 @@ function renderQuizQuestion() {
   q.opts.forEach((optText, idx) => {
     const btn = document.createElement('button');
     btn.className = 'opt-btn';
+    btn.type = 'button';
     btn.innerHTML = `<span style="font-weight:900; color:var(--indigo); min-width:24px;">${String.fromCharCode(65 + idx)}.</span> <span>${optText}</span>`;
     btn.addEventListener('click', () => handleSelectAnswer(idx, btn));
     qOptions.appendChild(btn);
@@ -1605,18 +1704,15 @@ function renderQuizQuestion() {
 
 function handleSelectAnswer(selectedIdx, btnElement) {
   if (state.quizAnswered) return;
-  state.quizAnswered = true;
-
   const q = QUIZ_QUESTIONS[state.qIdx];
   const allBtns = qOptions.querySelectorAll('.opt-btn');
 
   if (selectedIdx === q.ans) {
-    // Correct
+    state.quizAnswered = true;
+    allBtns.forEach(b => { b.disabled = true; });
     btnElement.classList.add('correct');
-    state.score++;
-    state.streak++;
-    qScore.textContent = state.score;
-    qStreak.textContent = state.streak;
+    state.solvedCount = Math.max(state.solvedCount, state.qIdx + 1);
+    qScore.textContent = state.solvedCount;
 
     qFeedback.className = 'quiz-feedback show correct';
     fbTitle.innerHTML = '✅ ถูกต้องยอดเยี่ยม!';
@@ -1625,28 +1721,25 @@ function handleSelectAnswer(selectedIdx, btnElement) {
     if (window.KAMPAI && window.KAMPAI.sound) {
       window.KAMPAI.sound.correct();
     }
-    speakThai('ถูกต้องครับ! ' + q.exp);
+    speakThai('ถูกต้อง! ' + q.exp);
+    btnNextQ.style.display = 'inline-flex';
   } else {
-    // Wrong
     btnElement.classList.add('wrong');
-    allBtns[q.ans].classList.add('correct');
-    state.streak = 0;
-    qStreak.textContent = 0;
+    btnElement.disabled = true;
 
     qFeedback.className = 'quiz-feedback show wrong';
-    fbTitle.innerHTML = `❌ ยังไม่ถูกต้อง (คำตอบที่ถูกคือข้อ ${String.fromCharCode(65 + q.ans)})`;
-    fbExplain.textContent = q.exp;
+    fbTitle.innerHTML = '💡 ยังไม่ตรง — ลองเลือกคำตอบอื่นอีกครั้ง';
+    fbExplain.textContent = 'สังเกตแนวคิดเรื่อง ' + q.skill.split('·').pop().trim();
 
     if (window.KAMPAI && window.KAMPAI.sound) {
       window.KAMPAI.sound.wrong();
     }
-    speakThai(`ยังไม่ถูกครับ คำตอบที่ถูกต้องคือ ${q.opts[q.ans]} เพราะ ${q.exp}`);
+    speakThai('ยังไม่ตรง ลองเลือกคำตอบอื่นอีกครั้ง');
   }
-
-  btnNextQ.style.display = 'inline-flex';
 }
 
 btnNextQ.addEventListener('click', () => {
+  stopSpeech();
   if (state.qIdx < QUIZ_QUESTIONS.length - 1) {
     state.qIdx++;
     renderQuizQuestion();
@@ -1663,42 +1756,46 @@ btnSpeakQ.addEventListener('click', () => {
 function showQuizSummary() {
   qCard.style.display = 'none';
   quizSummaryCard.style.display = 'block';
-  resScoreText.textContent = `คุณได้ ${state.score} จาก ${QUIZ_QUESTIONS.length} คะแนน`;
-
-  if (state.score >= 13) {
-    resMedal.textContent = '🥇';
-    resComment.textContent = 'ยอดเยี่ยมระดับเหรียญทอง! คุณมีความเข้าใจเรื่องแรงและการเคลื่อนที่เป็นเลิศ';
-  } else if (state.score >= 10) {
-    resMedal.textContent = '🥈';
-    resComment.textContent = 'เก่งมากระดับเหรียญเงิน! มีความรู้ความเข้าใจเรื่องแรงและการเคลื่อนที่เป็นอย่างดี';
-  } else if (state.score >= 7) {
-    resMedal.textContent = '🥉';
-    resComment.textContent = 'ผ่านเกณฑ์ระดับเหรียญทองแดง! ทบทวนเรื่องการคำนวณแรงลัพธ์อีกนิดจะเก่งขึ้นมาก';
-  } else {
-    resMedal.textContent = '📚';
-    resComment.textContent = 'พยายามได้ดี! ลองกลับไปศึกษาในโหมดสำรวจแรงและแล็บแรงเสียดทาน แล้วลองทำใหม่อีกครั้งนะ';
-  }
+  resScoreText.textContent = `ทำสำเร็จครบทั้ง ${QUIZ_QUESTIONS.length} ข้อ (ไม่เก็บคะแนน)`;
+  resMedal.textContent = '📘';
+  resComment.textContent = 'สามารถกลับไปทดลองแรงลัพธ์และแรงเสียดทาน หรือทบทวนคำถามใหม่อีกครั้งได้';
 }
 
 btnRestartQuiz.addEventListener('click', () => {
+  stopSpeech();
   state.qIdx = 0;
-  state.score = 0;
-  state.streak = 0;
+  state.solvedCount = 0;
   qCard.style.display = 'flex';
   quizSummaryCard.style.display = 'none';
   renderQuizQuestion();
 });
 
-// 8. HEADER CONTROLS (TTS TOGGLE, FULLSCREEN)
+// 8. HEADER CONTROLS (BACK, TTS TOGGLE, FULLSCREEN, LIFECYCLE)
+const btnBack = document.getElementById('btnBack');
+btnBack.addEventListener('click', () => {
+  stopSpeech();
+  if (window.KAMPAI && typeof window.KAMPAI.goHome === 'function') {
+    window.KAMPAI.goHome();
+  } else {
+    history.back();
+  }
+});
+
 const btnAudioToggle = document.getElementById('btnAudioToggle');
 const audioIcon = document.getElementById('audioIcon');
 const audioLabel = document.getElementById('audioLabel');
 
 btnAudioToggle.addEventListener('click', () => {
   state.ttsEnabled = !state.ttsEnabled;
+  if (!state.ttsEnabled) stopSpeech();
   audioIcon.textContent = state.ttsEnabled ? '🔊' : '🔇';
   audioLabel.textContent = state.ttsEnabled ? 'เสียงครู' : 'ปิดเสียง';
 });
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) stopSpeech();
+});
+window.addEventListener('pagehide', stopSpeech);
 
 const btnFullscreen = document.getElementById('btnFullscreen');
 btnFullscreen.addEventListener('click', () => {

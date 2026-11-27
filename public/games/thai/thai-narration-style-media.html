@@ -2,73 +2,106 @@
 <html lang="th">
 <head>
   <script src="/games/kampai-sdk.js?v=1.181.0"></script>
+  <script src="/games/media-lab-runtime.js?v=2.0.0"></script>
+  <script src="/games/engine/classify-bucket-engine.js?v=2.0.0"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>บรรยาย vs พรรณนา — บ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root { --deep: #9a3412; --line: #fdba74; --nar: #2563eb; --des: #c026d3; --muted: #64748b; --ok: #16a34a; --bad: #dc2626; }
-    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(145deg, #ffedd5, #fff7ed); min-height: 100%; padding: 12px; }
-    .shell { max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 1.5rem; box-shadow: 0 20px 50px rgba(15,23,42,.12); overflow: hidden; min-height: calc(100vh - 24px); display: flex; flex-direction: column; }
+    :root { --deep: #9a3412; --line: #fdba74; --nar: #1d4ed8; --des: #a21caf; --muted: #475569; --ok: #15803d; --bad: #b91c1c; --ink: #0f172a; }
+    html, body { max-width: 100%; overflow-x: hidden; }
+    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(145deg, #ffedd5, #fff7ed); min-height: 100vh; padding: 12px; color: var(--ink); }
+    .shell { max-width: 1100px; width: 100%; margin: 0 auto; background: #fff; border-radius: 1.5rem; box-shadow: 0 20px 50px rgba(15,23,42,.12); overflow: hidden; min-height: calc(100vh - 24px); display: flex; flex-direction: column; }
     header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(90deg, #7c2d12, #c2410c); color: #fff; }
-    header h1 { font-size: 1.1rem; font-weight: 800; flex: 1; }
-    .badge { font-size: .75rem; background: rgba(255,255,255,.2); padding: 4px 10px; border-radius: 999px; font-weight: 700; }
-    .btn { font-family: inherit; font-weight: 700; border: none; border-radius: 12px; padding: 10px 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
+    header h1 { font-size: 1.1rem; font-weight: 800; flex: 1; min-width: 140px; }
+    .badge { font-size: .75rem; background: rgba(255,255,255,.2); padding: 4px 10px; border-radius: 999px; font-weight: 700; white-space: nowrap; }
+    .btn { font-family: inherit; font-weight: 700; border: none; border-radius: 12px; padding: 10px 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; min-width: 44px; font-size: .95rem; }
+    .btn:active { transform: scale(.97); }
+    .btn:focus-visible, .seg button:focus-visible, .ke-bucket-btn:focus-visible, .ke-btn:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
     .btn-back { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.35); padding: 8px 12px; font-size: .85rem; }
     .btn-primary { background: var(--deep); color: #fff; }
     .btn-ghost { background: #fff; color: var(--deep); border: 2px solid var(--line); }
     .toolbar { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 16px; background: #fff7ed; border-bottom: 1px solid var(--line); align-items: center; }
-    .seg { display: inline-flex; border-radius: 12px; overflow: hidden; border: 2px solid #fb923c; }
-    .seg button { font-family: inherit; font-weight: 800; border: none; background: #fff; color: var(--deep); padding: 8px 14px; cursor: pointer; }
+    .seg { display: inline-flex; flex-wrap: wrap; border-radius: 12px; overflow: hidden; border: 2px solid #fb923c; background: #fff; max-width: 100%; }
+    .seg button { font-family: inherit; font-weight: 800; border: none; background: #fff; color: var(--deep); padding: 8px 14px; cursor: pointer; min-height: 44px; min-width: 44px; font-size: .92rem; }
     .seg button.on { background: var(--deep); color: #fff; }
-    .hint { font-size: .85rem; color: #9a3412; font-weight: 600; flex: 1; }
+    .hint { font-size: .85rem; color: #9a3412; font-weight: 600; flex: 1; min-width: 140px; }
+    .speech-status { font-size: .88rem; font-weight: 700; color: #78350f; background: #fef3c7; border: 1px solid #f59e0b; border-radius: 10px; padding: 8px 12px; display: none; margin: 0 auto 12px; max-width: 720px; width: 100%; }
+    .speech-status.show { display: block; }
     .stage { flex: 1; padding: 16px; overflow: auto; }
     .learn-grid { display: grid; gap: 12px; max-width: 720px; margin: 0 auto 16px; }
     @media (min-width: 700px) { .learn-grid { grid-template-columns: 1fr 1fr; } }
-    .def { border-radius: 16px; padding: 16px; border: 3px solid; }
+    .def { border-radius: 16px; padding: 16px; border: 3px solid; display: flex; flex-direction: column; gap: 10px; }
     .def.nar { border-color: var(--nar); background: #eff6ff; }
     .def.des { border-color: var(--des); background: #fdf4ff; }
-    .def h3 { font-size: 1.2rem; margin-bottom: 8px; }
+    .def h3 { font-size: 1.2rem; }
     .def.nar h3 { color: var(--nar); }
     .def.des h3 { color: var(--des); }
     .def p { font-weight: 600; line-height: 1.55; }
-    .examples { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
-    .ex { font-weight: 700; padding: 10px 12px; border-radius: 10px; font-size: .9rem; line-height: 1.45; }
-    .ex.n { background: #dbeafe; color: #1d4ed8; }
-    .ex.d { background: #fae8ff; color: #a21caf; }
-    .practice { display: none; flex-direction: column; gap: 14px; max-width: 560px; margin: 0 auto; align-items: center; }
+    .examples { display: flex; flex-direction: column; gap: 8px; }
+    .ex { font-weight: 700; padding: 10px 12px; border-radius: 10px; font-size: .92rem; line-height: 1.45; }
+    .ex.n { background: #dbeafe; color: #1e40af; }
+    .ex.d { background: #fae8ff; color: #86198f; }
+    .def-speak { margin-top: auto; width: 100%; font-size: .88rem; }
+    .practice { display: none; flex-direction: column; gap: 12px; max-width: 640px; margin: 0 auto; width: 100%; }
     .practice.on { display: flex; }
     .learn-panel.hide { display: none; }
-    .stmt { font-size: 1.2rem; font-weight: 800; color: var(--deep); text-align: center; line-height: 1.5; padding: 16px; background: #fff7ed; border: 2px dashed var(--line); border-radius: 14px; width: 100%; }
-    .pick { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
-    .pick button { font-family: inherit; font-weight: 800; font-size: 1rem; padding: 16px; border-radius: 14px; border: 3px solid; cursor: pointer; }
-    .pick .n { border-color: var(--nar); background: #fff; color: var(--nar); }
-    .pick .d { border-color: var(--des); background: #fff; color: var(--des); }
-    .pick button.ok { background: #dcfce7; border-color: #86efac; color: #166534; }
-    .pick button.no { background: #fee2e2; border-color: #fca5a5; color: #991b1b; }
-    .fb { font-weight: 800; min-height: 28px; text-align: center; }
-    .streak { font-size: .9rem; color: #9a3412; font-weight: 700; }
-    .footer { padding: 10px; font-size: .8rem; color: var(--muted); text-align: center; border-top: 1px solid var(--line); }
+    .practice-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+    .practice-note { font-size: .88rem; font-weight: 700; color: var(--deep); }
+    .ke-classify-card, .ke-classify-summary { background: #fff7ed; border: 2px solid var(--line); border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+    .ke-classify-head { display: flex; justify-content: space-between; align-items: center; font-weight: 800; color: var(--deep); }
+    .ke-classify-item { text-align: center; padding: 18px 14px; background: #fff; border: 2px dashed var(--line); border-radius: 14px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .ke-item-icon { font-size: clamp(42px, 10vw, 60px); line-height: 1.1; }
+    .ke-item-label { font-size: clamp(1.12rem, 2.8vw, 1.4rem); font-weight: 800; color: var(--deep); line-height: 1.5; overflow-wrap: anywhere; }
+    .ke-buckets { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    @media (max-width: 480px) { .ke-buckets { grid-template-columns: 1fr; } }
+    .ke-bucket-btn { font-family: inherit; font-weight: 800; font-size: .98rem; min-height: 52px; padding: 12px; border-radius: 12px; border: 3px solid var(--line); background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; text-align: center; }
+    .ke-bucket-btn[data-bucket-id="narration"] { border-color: var(--nar); color: var(--nar); }
+    .ke-bucket-btn[data-bucket-id="description"] { border-color: var(--des); color: var(--des); }
+    .ke-bucket-btn.is-correct { background: #dcfce7; border-color: var(--ok); color: #14532d; }
+    .ke-bucket-btn.is-wrong { background: #fee2e2; border-color: var(--bad); color: #7f1d1d; }
+    .ke-classify-feedback { padding: 12px; border-radius: 12px; font-weight: 700; line-height: 1.45; background: #fff; border: 1.5px solid #cbd5e1; color: var(--ink); }
+    .ke-classify-feedback.is-good { background: #dcfce7; border-color: var(--ok); color: #14532d; }
+    .ke-classify-feedback.is-learn { background: #fef3c7; border-color: #d97706; color: #78350f; }
+    .ke-btn { font-family: inherit; font-weight: 800; font-size: .95rem; min-height: 44px; padding: 10px 16px; border-radius: 12px; border: none; background: var(--deep); color: #fff; cursor: pointer; align-items: center; justify-content: center; gap: 6px; align-self: center; }
+    .ke-classify-summary { text-align: center; align-items: center; }
+    .footer { padding: 10px 16px; font-size: .8rem; color: var(--muted); text-align: center; border-top: 1px solid var(--line); }
     .footer a { color: var(--deep); font-weight: 700; text-decoration: none; }
+    @media (max-width: 600px) {
+      body { padding: 0; }
+      .shell { border-radius: 0; min-height: 100vh; }
+      .stage { padding: 12px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+      }
+      .btn:active { transform: none; }
+    }
   </style>
 </head>
 <body>
   <div class="shell">
     <header>
-      <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back();">← กลับคลังสื่อ</button>
+      <button type="button" class="btn btn-back" onclick="stopSpeech();if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back();">← กลับคลังสื่อ</button>
       <h1>📖 การบรรยาย vs การพรรณนา</h1>
       <span class="badge">ป.5 · ภาษาไทย</span>
     </header>
     <div class="toolbar">
       <span class="seg" id="modeSeg">
-        <button type="button" data-mode="learn" class="on">📖 เรียนรู้</button>
-        <button type="button" data-mode="practice">✏️ ฝึกจำแนก</button>
+        <button type="button" data-mode="learn" class="on" aria-pressed="true">📖 เรียนรู้</button>
+        <button type="button" data-mode="practice" aria-pressed="false">✏️ ฝึกจำแนก</button>
       </span>
-      <p class="hint">บรรยาย = เล่าเหตุการณ์ · พรรณนา = บรรยายลักษณะ/ภาพ</p>
-      <button type="button" class="btn btn-ghost" id="btnFs">⛶</button>
+      <p class="hint" id="hintText">บรรยาย = เล่าเหตุการณ์ · พรรณนา = บรรยายลักษณะ/ภาพ</p>
+      <button type="button" class="btn btn-ghost" id="btnFs" aria-label="ขยายเต็มจอ">⛶</button>
     </div>
     <div class="stage">
+      <div class="speech-status" id="speechStatus" role="status" aria-live="polite"></div>
       <div class="learn-panel" id="learn">
         <div class="learn-grid">
           <div class="def nar">
@@ -79,6 +112,7 @@
               <span class="ex n">แม่ทำอาหารเช้า จากนั้นทุกคนนั่งกินด้วยกัน</span>
               <span class="ex n">ฝนตกหนัก เราจึงหยุดเล่นกลางแจ้ง</span>
             </div>
+            <button type="button" class="btn btn-ghost def-speak" data-say="การบรรยาย คือการเล่าเหตุการณ์ ลำดับเวลา และการกระทำ ว่าเกิดอะไรขึ้นก่อนหลัง เช่น เช้านี้ฉันตื่นนอนแล้วแต่งตัวไปโรงเรียน">🔊 ฟังตัวอย่างการบรรยาย</button>
           </div>
           <div class="def des">
             <h3>🎨 การพรรณนา</h3>
@@ -88,84 +122,177 @@
               <span class="ex d">ดอกไม้สีชมพูบานสะพรั่งหอมหวาน</span>
               <span class="ex d">ห้องเรียนสะอาดเงียบสงบ</span>
             </div>
+            <button type="button" class="btn btn-ghost def-speak" data-say="การพรรณนา คือการบรรยายลักษณะ สี รูปร่าง ความรู้สึก และบรรยากาศให้เห็นภาพชัดเจน เช่น ท้องฟ้าสีครามสดใส มีเมฆขาวฟูฟ่อง">🔊 ฟังตัวอย่างการพรรณนา</button>
           </div>
         </div>
         <p style="text-align:center;font-weight:700;color:#9a3412;margin-top:8px">คำถามช่วย: “เล่าเรื่องหรือบรรยายลักษณะ?” เหตุการณ์ = บรรยาย · ภาพ/ลักษณะ = พรรณนา</p>
       </div>
       <div class="practice" id="practice">
-        <p class="streak" id="streak">🔥 0 ติดต่อกัน</p>
-        <p class="stmt" id="stmt"></p>
-        <div class="pick">
-          <button type="button" class="n" data-a="narration">📖 การบรรยาย</button>
-          <button type="button" class="d" data-a="description">🎨 การพรรณนา</button>
+        <div class="practice-bar">
+          <span class="practice-note">แตะเลือกประเภทหรือกดปุ่ม 1–2 (ไม่จับเวลา · ไม่เก็บคะแนน)</span>
+          <button type="button" class="btn btn-ghost" id="btnSpeakCurrent">🔊 ฟังข้อความ</button>
         </div>
-        <p class="fb" id="fb"></p>
-        <button type="button" class="btn btn-primary" id="btnNext">ข้อถัดไป</button>
+        <div id="classifyEngineRoot"></div>
       </div>
     </div>
-    <footer>ตัวชี้วัด <strong>ท 1.1 ป.5/4</strong> · คู่ <a href="/games/thai/thai-reading-hub/index.html">คลังอ่านจับใจความ</a></footer>
+    <footer class="footer">ตัวชี้วัด <strong>ท 1.1 ป.5/4</strong> · คู่ <a href="/games/thai/thai-reading-hub/index.html">คลังอ่านจับใจความ</a></footer>
   </div>
   <script>
-    if (window.KAMPAI) window.KAMPAI.setSlug('thai-narration-style-media');
+    const MEDIA_SLUG = 'thai-narration-style-media';
+    if (window.KAMPAI) {
+      KAMPAI.setSlug(MEDIA_SLUG);
+      if (KAMPAI.sound && typeof KAMPAI.sound.mountToggles === 'function') {
+        try { KAMPAI.sound.mountToggles(); } catch (_) {}
+      }
+    }
 
-    const ITEMS = [
-      { t: 'เด็กๆ วิ่งเล่นในสนาม จากนั้นกลับเข้าห้องเรียน', a: 'narration', why: 'เล่าลำดับเหตุการณ์' },
-      { t: 'ต้นมะม่วงใหญ่ ใบเขียวหนา เงาเย็นสบาย', a: 'description', why: 'บรรยายลักษณะต้นไม้' },
-      { t: 'ครูอธิบายบทเรียน แล้วให้ทำแบบฝึกหัด', a: 'narration', why: 'เล่าสิ่งที่เกิดขึ้นตามลำดับ' },
-      { t: 'ทะเลสีฟ้าใส คลื่นซัดชายหาดทรายขาว', a: 'description', why: 'บรรยายภาพทะเล' },
-      { t: 'ฉันลืมการบ้าน จึงขอโทษครูและสัญญาจะทำให้ทัน', a: 'narration', why: 'เล่าเหตุการณ์และผลที่ตามมา' },
-      { t: 'ยามเย็นท้องฟ้าเปลี่ยนเป็นสีส้มทอง', a: 'description', why: 'บรรยายสีของฟ้า' },
-      { t: 'แม่ไปตลาด ซื้อผักและผลไม้ แล้วกลับมาทำอาหาร', a: 'narration', why: 'เล่ากิจกรรมตามลำดับ' },
-      { t: 'ลมพัดเบาๆ ใบไม้ไหวโซ่แซว', a: 'description', why: 'บรรยายบรรยากาศและการเคลื่อนไหว' },
-      { t: 'นักเรียนตั้งแถวสวดมนต์ แล้วเดินเข้าห้องเรียน', a: 'narration', why: 'เล่าขั้นตอนในโรงเรียน' },
-      { t: 'ห้องสมุดเงียบสงบ มีชั้นหนังสือเรียงเป็นแถว', a: 'description', why: 'บรรยายลักษณะห้องสมุด' },
-      { t: 'วันหยุดเราไปเที่ยววัด ปล่อยปลาและไหว้พระ', a: 'narration', why: 'เล่าเหตุการณ์ท่องเที่ยว' },
-      { t: 'ผีเสื้อมีปีกสีสันสดใสบินไปมาในสวน', a: 'description', why: 'บรรยายลักษณะผีเสื้อ' },
+    const BUCKETS = [
+      { id: 'narration', label: 'การบรรยาย', icon: '📖' },
+      { id: 'description', label: 'การพรรณนา', icon: '🎨' },
     ];
 
-    let current = null;
-    let streak = 0;
+    const ITEMS = [
+      { id: 'ns-1', icon: '🏃', label: 'เด็กๆ วิ่งเล่นในสนาม จากนั้นกลับเข้าห้องเรียน', bucketId: 'narration', reason: 'เล่าลำดับเหตุการณ์และการกระทำตามเวลา' },
+      { id: 'ns-2', icon: '🌳', label: 'ต้นมะม่วงใหญ่ ใบเขียวหนา เงาเย็นสบาย', bucketId: 'description', reason: 'บรรยายลักษณะ รูปร่าง สี และความรู้สึกเย็นสบาย' },
+      { id: 'ns-3', icon: '👩‍🏫', label: 'ครูอธิบายบทเรียน แล้วให้ทำแบบฝึกหัด', bucketId: 'narration', reason: 'เล่าสิ่งที่เกิดขึ้นตามลำดับขั้นตอน' },
+      { id: 'ns-4', icon: '🏖️', label: 'ทะเลสีฟ้าใส คลื่นซัดชายหาดทรายขาว', bucketId: 'description', reason: 'พรรณนาภาพและสีสันของทะเลให้เห็นภาพชัดเจน' },
+      { id: 'ns-5', icon: '📓', label: 'ฉันลืมการบ้าน จึงขอโทษครูและสัญญาจะทำให้ทัน', bucketId: 'narration', reason: 'เล่าเหตุการณ์และผลที่เกิดขึ้นต่อเนื่องกัน' },
+      { id: 'ns-6', icon: '🌅', label: 'ยามเย็นท้องฟ้าเปลี่ยนเป็นสีส้มทอง', bucketId: 'description', reason: 'พรรณนาสีสันและบรรยากาศของท้องฟ้ายามเย็น' },
+      { id: 'ns-7', icon: '🛒', label: 'แม่ไปตลาด ซื้อผักและผลไม้ แล้วกลับมาทำอาหาร', bucketId: 'narration', reason: 'เล่ากิจกรรมและลำดับเหตุการณ์ที่แม่ทำ' },
+      { id: 'ns-8', icon: '🍃', label: 'ลมพัดเบาๆ ใบไม้ไหวซู่ซ่าชวนผ่อนคลาย', bucketId: 'description', reason: 'บรรยายบรรยากาศ เสียง และความรู้สึก' },
+      { id: 'ns-9', icon: '🏫', label: 'นักเรียนตั้งแถวสวดมนต์ แล้วเดินเข้าห้องเรียน', bucketId: 'narration', reason: 'เล่าลำดับขั้นตอนของกิจกรรมในโรงเรียน' },
+      { id: 'ns-10', icon: '📚', label: 'ห้องสมุดเงียบสงบ มีชั้นหนังสือเรียงเป็นแถว', bucketId: 'description', reason: 'บรรยายลักษณะและบรรยากาศภายในห้องสมุด' },
+      { id: 'ns-11', icon: '🛕', label: 'วันหยุดเราไปเที่ยววัด ปล่อยปลาและไหว้พระ', bucketId: 'narration', reason: 'เล่าเหตุการณ์และกิจกรรมท่องเที่ยว' },
+      { id: 'ns-12', icon: '🦋', label: 'ผีเสื้อมีปีกสีสันสดใสบินไปมาในสวนดอกไม้', bucketId: 'description', reason: 'บรรยายลักษณะสีสันและภาพที่มองเห็น' },
+    ];
 
-    function nextQ() {
-      current = ITEMS[Math.floor(Math.random() * ITEMS.length)];
-      document.getElementById('stmt').textContent = `"${current.t}"`;
-      document.getElementById('fb').textContent = '';
-      document.querySelectorAll('.pick button').forEach(b => {
-        b.disabled = false;
-        b.classList.remove('ok', 'no');
+    let mode = 'learn';
+    let classifySession = null;
+
+    function setSpeechBanner(msg) {
+      const el = document.getElementById('speechStatus');
+      if (!el) return;
+      if (msg) {
+        el.textContent = msg;
+        el.classList.add('show');
+      } else {
+        el.textContent = '';
+        el.classList.remove('show');
+      }
+    }
+
+    function stopSpeech() {
+      if (window.KampaiMediaLab && typeof window.KampaiMediaLab.stopAllSpeech === 'function') {
+        window.KampaiMediaLab.stopAllSpeech();
+      } else {
+        try { window.KAMPAI?.sound?.stopSpeak?.(); } catch (_) {}
+        try { window.speechSynthesis?.cancel?.(); } catch (_) {}
+      }
+      setSpeechBanner('');
+    }
+
+    function speakText(text) {
+      const clean = String(text || '').trim();
+      if (!clean) return;
+      if (window.KampaiMediaLab && typeof window.KampaiMediaLab.speakSafe === 'function') {
+        const res = window.KampaiMediaLab.speakSafe(clean, { lang: 'th-TH', rate: 0.92 });
+        if (res && res.ok === false) {
+          setSpeechBanner('อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านข้อความบนหน้าจอต่อได้');
+        } else {
+          setSpeechBanner('');
+        }
+        return;
+      }
+      try {
+        if (window.KAMPAI?.sound?.speak) {
+          KAMPAI.sound.speak(clean, 'th-TH', true);
+          setSpeechBanner('');
+          return;
+        }
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const u = new SpeechSynthesisUtterance(clean);
+          u.lang = 'th-TH';
+          u.rate = 0.92;
+          window.speechSynthesis.speak(u);
+          setSpeechBanner('');
+          return;
+        }
+      } catch (_) {}
+      setSpeechBanner('อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านข้อความบนหน้าจอต่อได้');
+    }
+
+    function mountClassify() {
+      if (!window.KampaiEngines?.ClassifyBucket) return;
+      classifySession = window.KampaiEngines.ClassifyBucket.mount('#classifyEngineRoot', {
+        items: ITEMS,
+        buckets: BUCKETS,
+        mode: 'media',
+        roundSize: 8,
+        onAnswer: function (res) {
+          if (window.KAMPAI?.sound) {
+            try {
+              if (res.isCorrect) KAMPAI.sound.correct();
+              else KAMPAI.sound.wrong();
+            } catch (_) {}
+          }
+        },
       });
     }
 
-    document.querySelectorAll('.pick button').forEach(btn => {
-      btn.onclick = () => {
-        const ok = btn.dataset.a === current.a;
-        streak = ok ? streak + 1 : 0;
-        document.getElementById('streak').textContent = `🔥 ${streak} ติดต่อกัน`;
-        btn.classList.add(ok ? 'ok' : 'no');
-        document.querySelectorAll('.pick button').forEach(b => {
-          b.disabled = true;
-          if (b.dataset.a === current.a) b.classList.add('ok');
-        });
-        document.getElementById('fb').textContent = ok ? '✓ ถูกต้อง!' : `✗ ${current.why}`;
-        document.getElementById('fb').style.color = ok ? '#16a34a' : '#dc2626';
-      };
-    });
-    document.getElementById('btnNext').onclick = nextQ;
-
     document.getElementById('modeSeg').querySelectorAll('button').forEach(btn => {
       btn.onclick = () => {
-        const pr = btn.dataset.mode === 'practice';
-        document.getElementById('modeSeg').querySelectorAll('button').forEach(b => b.classList.toggle('on', b === btn));
+        stopSpeech();
+        mode = btn.dataset.mode === 'practice' ? 'practice' : 'learn';
+        const pr = mode === 'practice';
+        document.getElementById('modeSeg').querySelectorAll('button').forEach(b => {
+          const on = b === btn;
+          b.classList.toggle('on', on);
+          b.setAttribute('aria-pressed', String(on));
+        });
         document.getElementById('learn').classList.toggle('hide', pr);
         document.getElementById('practice').classList.toggle('on', pr);
-        if (pr) nextQ();
+        document.getElementById('hintText').textContent = pr
+          ? 'ฝึกจำแนกการบรรยายและการพรรณนา — ไม่จับเวลา ไม่เก็บคะแนน'
+          : 'บรรยาย = เล่าเหตุการณ์ · พรรณนา = บรรยายลักษณะ/ภาพ';
+        if (pr) mountClassify();
+        else window.KampaiEngines?.ClassifyBucket?.cleanup?.();
       };
     });
 
+    document.querySelectorAll('.def-speak').forEach(btn => {
+      btn.addEventListener('click', () => speakText(btn.dataset.say));
+    });
+
+    document.getElementById('btnSpeakCurrent').onclick = () => {
+      const item = classifySession?.currentItem?.();
+      if (item) speakText(item.label);
+      else speakText('จำแนกครบทุกข้อแล้ว กดฝึกใหม่อีกครั้งได้');
+    };
+
     document.getElementById('btnFs').onclick = () => {
-      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.().catch(() => {});
       else document.exitFullscreen?.();
     };
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stopSpeech();
+    });
+    window.addEventListener('pagehide', () => {
+      stopSpeech();
+      window.KampaiEngines?.ClassifyBucket?.cleanup?.();
+    });
+
+    window.getState = () => Object.freeze({
+      slug: MEDIA_SLUG,
+      mode: mode,
+      totalItems: ITEMS.length,
+      bucketsCount: BUCKETS.length,
+      classify: classifySession ? classifySession.getState() : null,
+      reducedMotion: typeof window.matchMedia === 'function'
+        ? Boolean(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+        : false,
+    });
   </script>
 </body>
 </html>

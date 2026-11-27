@@ -2,54 +2,65 @@
 <html lang="th">
 <head>
   <script src="/games/kampai-sdk.js?v=1.181.0"></script>
+  <script src="/games/media-lab-runtime.js?v=2.0.0"></script>
+  <script src="/games/engine/classify-bucket-engine.js?v=2.0.0"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>โครงสร้างประโยค — ประธาน กริยา กรรม — บ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root { --deep: #7c2d12; --line: #fdba74; --s:#2563eb; --v:#16a34a; --o:#c026d3; --muted:#64748b; --ok:#16a34a; --bad:#dc2626; }
-    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(145deg, #ffedd5, #fff7ed 40%, #fed7aa); min-height: 100%; padding: 12px; color: #0f172a; }
-    .shell { max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 1.5rem; box-shadow: 0 20px 50px rgba(15,23,42,.12); overflow: hidden; min-height: calc(100vh - 24px); display: flex; flex-direction: column; }
+    :root { --deep: #7c2d12; --line: #fdba74; --s:#2563eb; --v:#15803d; --o:#a21caf; --muted:#475569; --ok:#15803d; --bad:#b91c1c; --ink:#0f172a; }
+    html, body { max-width: 100%; overflow-x: hidden; }
+    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(145deg, #ffedd5, #fff7ed 40%, #fed7aa); min-height: 100vh; padding: 12px; color: var(--ink); }
+    .shell { max-width: 1100px; width: 100%; margin: 0 auto; background: #fff; border-radius: 1.5rem; box-shadow: 0 20px 50px rgba(15,23,42,.12); overflow: hidden; min-height: calc(100vh - 24px); display: flex; flex-direction: column; }
     header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(90deg, #7c2d12, #c2410c 50%, #ea580c); color: #fff; }
     header h1 { font-size: 1.1rem; font-weight: 800; flex: 1; min-width: 140px; }
-    .badge { font-size: .75rem; background: rgba(255,255,255,.2); padding: 4px 10px; border-radius: 999px; font-weight: 700; }
-    .btn { font-family: inherit; font-weight: 700; border: none; border-radius: 12px; padding: 10px 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+    .badge { font-size: .75rem; background: rgba(255,255,255,.2); padding: 4px 10px; border-radius: 999px; font-weight: 700; white-space: nowrap; }
+    .btn { font-family: inherit; font-weight: 700; border: none; border-radius: 12px; padding: 10px 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; min-width: 44px; font-size: .95rem; }
     .btn:active { transform: scale(.97); }
+    .btn:focus-visible, .seg button:focus-visible, .chip:focus-visible, .ke-bucket-btn:focus-visible, .ke-btn:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
     .btn-back { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.35); padding: 8px 12px; font-size: .85rem; }
     .btn-primary { background: var(--deep); color: #fff; }
     .btn-accent { background: #fbbf24; color: #78350f; }
     .btn-ghost { background: #fff; color: var(--deep); border: 2px solid var(--line); }
     .toolbar { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 16px; background: #fff7ed; border-bottom: 1px solid var(--line); align-items: center; }
-    .seg { display: inline-flex; border-radius: 12px; overflow: hidden; border: 2px solid #fb923c; }
-    .seg button { font-family: inherit; font-weight: 800; border: none; background: #fff; color: var(--deep); padding: 8px 14px; cursor: pointer; font-size: .9rem; }
+    .seg { display: inline-flex; flex-wrap: wrap; border-radius: 12px; overflow: hidden; border: 2px solid #fb923c; background: #fff; max-width: 100%; }
+    .seg button { font-family: inherit; font-weight: 800; border: none; background: #fff; color: var(--deep); padding: 8px 14px; cursor: pointer; font-size: .9rem; min-height: 44px; min-width: 44px; }
     .seg button.on { background: var(--deep); color: #fff; }
     .hint { font-size: .85rem; color: #9a3412; font-weight: 600; flex: 1; min-width: 140px; }
+    .speech-status { font-size: .88rem; font-weight: 700; color: #78350f; background: #fef3c7; border: 1px solid #f59e0b; border-radius: 10px; padding: 8px 12px; display: none; margin: 0 auto 12px; max-width: 820px; width: 100%; }
+    .speech-status.show { display: block; }
     .stage { flex: 1; padding: 16px; overflow: auto; }
     .learn { display: grid; gap: 12px; max-width: 820px; margin: 0 auto; }
     @media (min-width: 700px) { .learn { grid-template-columns: repeat(3, 1fr); } }
-    .part { border-radius: 16px; padding: 14px; border: 3px solid; background: #fff; }
+    .part { border-radius: 16px; padding: 14px; border: 3px solid; background: #fff; display: flex; flex-direction: column; gap: 8px; }
     .part.s { border-color: var(--s); }
     .part.v { border-color: var(--v); }
     .part.o { border-color: var(--o); }
-    .part h3 { font-size: 1.05rem; font-weight: 800; margin-bottom: 6px; }
+    .part h3 { font-size: 1.05rem; font-weight: 800; }
     .part.s h3 { color: var(--s); }
     .part.v h3 { color: var(--v); }
     .part.o h3 { color: var(--o); }
-    .part p { font-weight: 600; line-height: 1.45; font-size: .95rem; color: #334155; margin-bottom: 8px; }
+    .part p { font-weight: 600; line-height: 1.45; font-size: .95rem; color: #334155; }
     .ex { font-size: .9rem; font-weight: 700; background: #fff7ed; border-radius: 10px; padding: 8px 10px; }
-    .formula { grid-column: 1 / -1; text-align: center; font-size: 1.25rem; font-weight: 800; color: var(--deep); background: #ffedd5; border: 2px dashed #fdba74; border-radius: 14px; padding: 14px; }
-    .build { display: none; flex-direction: column; gap: 14px; max-width: 640px; margin: 0 auto; }
+    .part-speak { margin-top: auto; width: 100%; font-size: .85rem; }
+    .formula { grid-column: 1 / -1; text-align: center; font-size: 1.2rem; font-weight: 800; color: var(--deep); background: #ffedd5; border: 2px dashed #fdba74; border-radius: 14px; padding: 14px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; }
+    .build { display: none; flex-direction: column; gap: 14px; max-width: 720px; margin: 0 auto; width: 100%; }
     .build.on { display: flex; }
     .learn.hide { display: none; }
+    .submode-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
+    .submode-group { display: inline-flex; flex-wrap: wrap; gap: 8px; }
+    .practice-subpanel { display: flex; flex-direction: column; gap: 14px; width: 100%; }
+    .practice-subpanel.hide { display: none; }
     .slots { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: stretch; }
-    .slot { min-width: 100px; min-height: 64px; border-radius: 14px; border: 3px dashed #fdba74; background: #fff7ed; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px; }
+    .slot { min-width: 96px; min-height: 64px; border-radius: 14px; border: 3px dashed #fdba74; background: #fff7ed; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px; }
     .slot.filled { border-style: solid; background: #fff; }
-    .slot .lab { font-size: .7rem; font-weight: 800; color: var(--muted); margin-bottom: 2px; }
+    .slot .lab { font-size: .75rem; font-weight: 800; color: var(--muted); margin-bottom: 2px; }
     .slot .word { font-size: 1.1rem; font-weight: 800; color: var(--deep); text-align: center; }
-    .arrow { font-size: 1.4rem; color: #ea580c; align-self: center; font-weight: 800; }
+    .arrow { font-size: 1.3rem; color: #ea580c; align-self: center; font-weight: 800; }
     .pool { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; min-height: 56px; padding: 12px; background: #f8fafc; border-radius: 14px; border: 2px dashed #cbd5e1; }
-    .chip { font-family: inherit; font-weight: 800; font-size: 1.05rem; border-radius: 999px; padding: 10px 16px; border: 2px solid #fdba74; background: #fff; cursor: pointer; }
+    .chip { font-family: inherit; font-weight: 800; font-size: 1.05rem; border-radius: 999px; padding: 10px 16px; min-height: 44px; min-width: 44px; border: 2px solid #fdba74; background: #fff; cursor: pointer; }
     .chip:hover { background: #ffedd5; }
     .chip.used { opacity: .35; pointer-events: none; }
     .chip.s { border-color: #93c5fd; color: var(--s); }
@@ -60,56 +71,108 @@
     .fb.ok { color: var(--ok); }
     .fb.no { color: var(--bad); }
     .actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
-    .actions .btn { min-width: 120px; }
-    .sent { text-align: center; font-size: 1.2rem; font-weight: 800; color: var(--deep); background: #fff; border: 2px solid var(--line); border-radius: 12px; padding: 10px; min-height: 48px; }
+    .actions .btn { min-width: 112px; }
+    .sent { text-align: center; font-size: 1.15rem; font-weight: 800; color: var(--deep); background: #fff; border: 2px solid var(--line); border-radius: 12px; padding: 10px; min-height: 48px; overflow-wrap: anywhere; }
+    .ke-classify-card { background: #fff7ed; border: 2px solid var(--line); border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+    .ke-classify-head { display: flex; justify-content: space-between; align-items: center; font-weight: 800; color: var(--deep); font-size: .95rem; }
+    .ke-classify-item { text-align: center; padding: 16px 12px; background: #fff; border: 2px dashed #fb923c; border-radius: 14px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .ke-item-icon { font-size: clamp(44px, 10vw, 64px); line-height: 1.1; }
+    .ke-item-label { font-size: clamp(1.35rem, 3vw, 1.8rem); font-weight: 800; color: var(--deep); }
+    .ke-item-sub { font-size: .98rem; font-weight: 700; color: var(--muted); }
+    .ke-buckets { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    @media (max-width: 560px) { .ke-buckets { grid-template-columns: 1fr; } }
+    .ke-bucket-btn { font-family: inherit; font-weight: 800; font-size: .95rem; min-height: 48px; padding: 10px 12px; border-radius: 12px; border: 2px solid #cbd5e1; background: #fff; color: var(--ink); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; text-align: center; }
+    .ke-bucket-btn[data-bucket-id="s"] { border-color: #93c5fd; color: var(--s); }
+    .ke-bucket-btn[data-bucket-id="v"] { border-color: #86efac; color: var(--v); }
+    .ke-bucket-btn[data-bucket-id="o"] { border-color: #e879f9; color: var(--o); }
+    .ke-bucket-btn.is-correct { background: #dcfce7; border-color: var(--ok); color: #14532d; }
+    .ke-bucket-btn.is-wrong { opacity: .65; text-decoration: line-through; }
+    .ke-classify-feedback { padding: 12px; border-radius: 12px; font-weight: 700; line-height: 1.45; background: #fff; border: 1.5px solid #cbd5e1; }
+    .ke-classify-feedback.is-good { background: #dcfce7; border-color: var(--ok); color: #14532d; }
+    .ke-classify-feedback.is-learn { background: #fef3c7; border-color: #d97706; color: #78350f; }
+    .ke-btn { font-family: inherit; font-weight: 800; font-size: .95rem; min-height: 44px; padding: 10px 16px; border-radius: 12px; border: none; background: var(--deep); color: #fff; cursor: pointer; align-items: center; justify-content: center; gap: 6px; align-self: center; }
+    .ke-classify-summary { text-align: center; padding: 22px 16px; background: #fff7ed; border: 2px solid var(--line); border-radius: 18px; display: flex; flex-direction: column; gap: 12px; align-items: center; }
     .footer { padding: 10px 16px; font-size: .8rem; color: var(--muted); text-align: center; border-top: 1px solid var(--line); }
     .footer a { color: var(--deep); font-weight: 700; text-decoration: none; }
+    @media (max-width: 600px) {
+      body { padding: 0; }
+      .shell { border-radius: 0; min-height: 100vh; }
+      .stage { padding: 12px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+      }
+      .btn:active { transform: none; }
+    }
   </style>
 </head>
 <body>
   <div class="shell">
     <header>
-      <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back();">← กลับคลังสื่อ</button>
+      <button type="button" class="btn btn-back" id="btnBack" onclick="stopSpeech();if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back();">← กลับคลังสื่อ</button>
       <h1>📝 โครงสร้างประโยค</h1>
       <span class="badge">ป.3–5 · ภาษาไทย</span>
     </header>
     <div class="toolbar">
       <span class="seg" id="modeSeg">
-        <button type="button" data-mode="learn" class="on">📖 เรียนรู้</button>
-        <button type="button" data-mode="practice">✏️ ฝึกสั้น</button>
+        <button type="button" data-mode="learn" class="on" aria-pressed="true">📖 เรียนรู้</button>
+        <button type="button" data-mode="practice" aria-pressed="false">✏️ ฝึกสั้น</button>
       </span>
       <p class="hint" id="hintText">ประธาน + กริยา (+ กรรม) = ประโยค</p>
-      <button type="button" class="btn btn-ghost" id="btnFs">⛶</button>
+      <button type="button" class="btn btn-ghost" id="btnFs" aria-label="ขยายเต็มจอ">⛶</button>
     </div>
     <div class="stage">
+      <div class="speech-status" id="speechStatus" role="status" aria-live="polite"></div>
       <div class="learn" id="learn">
-        <div class="formula">โครงสร้างพื้นฐาน: <span style="color:var(--s)">ประธาน</span> + <span style="color:var(--v)">กริยา</span> + <span style="color:var(--o)">กรรม</span></div>
+        <div class="formula">
+          <span>โครงสร้างพื้นฐาน: <span style="color:var(--s)">ประธาน</span> + <span style="color:var(--v)">กริยา</span> + <span style="color:var(--o)">กรรม</span></span>
+          <button type="button" class="btn btn-accent" id="btnSpeakLearn">🔊 ฟังสรุป</button>
+        </div>
         <div class="part s">
           <h3>👤 ประธาน</h3>
           <p>ใคร / อะไร ที่ทำ กริยาในประโยค</p>
           <div class="ex">เช่น ฉัน · แม่ · ครู · ดอกไม้</div>
+          <button type="button" class="btn btn-ghost part-speak" data-say="ประธาน คือ ใคร หรือ อะไร ที่เป็นผู้กระทำกริยาในประโยค เช่น ฉัน แม่ ครู ดอกไม้">🔊 ฟังคำอธิบาย</button>
         </div>
         <div class="part v">
           <h3>⚡ กริยา</h3>
           <p>การกระทำ หรือ สถานะ</p>
           <div class="ex">เช่น ไป · อ่าน · กิน · สวย</div>
+          <button type="button" class="btn btn-ghost part-speak" data-say="กริยา คือ คำที่บอกการกระทำ หรือสถานะ เช่น ไป อ่าน กิน สวย">🔊 ฟังคำอธิบาย</button>
         </div>
         <div class="part o">
           <h3>🎯 กรรม / ส่วนขยาย</h3>
           <p>สิ่งที่ถูกกระทำ หรือ รายละเอียดเพิ่ม</p>
           <div class="ex">เช่น หนังสือ · อาหาร · ที่โรงเรียน</div>
+          <button type="button" class="btn btn-ghost part-speak" data-say="กรรม หรือ ส่วนขยาย คือ สิ่งที่ถูกกระทำ หรือรายละเอียดเพิ่มเติม เช่น หนังสือ อาหาร ที่โรงเรียน">🔊 ฟังคำอธิบาย</button>
         </div>
       </div>
       <div class="build" id="practice">
-        <p class="sent" id="promptHint">แตะคำตามลำดับให้เป็นประโยค</p>
-        <div class="slots" id="slots"></div>
-        <div class="pool" id="pool"></div>
-        <p class="fb" id="fb"></p>
-        <div class="sent" id="built"></div>
-        <div class="actions">
-          <button type="button" class="btn btn-ghost" id="btnUndo">↩ ถอน</button>
-          <button type="button" class="btn btn-accent" id="btnCheck">ดูเฉลย</button>
-          <button type="button" class="btn btn-primary" id="btnNext">สุ่มใหม่</button>
+        <div class="submode-bar">
+          <div class="submode-group">
+            <button type="button" class="btn btn-primary" id="btnSubBuild">🧩 เรียงคำสร้างประโยค</button>
+            <button type="button" class="btn btn-ghost" id="btnSubClassify">🗂️ จำแนกหน้าที่คำ</button>
+          </div>
+          <button type="button" class="btn btn-ghost" id="btnSpeakPractice">🔊 ฟังประโยค</button>
+        </div>
+        <div class="practice-subpanel" id="buildSubPanel">
+          <p class="sent" id="promptHint">แตะคำตามลำดับให้เป็นประโยค</p>
+          <div class="slots" id="slots"></div>
+          <div class="pool" id="pool"></div>
+          <p class="fb" id="fb" aria-live="polite"></p>
+          <div class="sent" id="built"></div>
+          <div class="actions">
+            <button type="button" class="btn btn-ghost" id="btnUndo">↩ ถอน</button>
+            <button type="button" class="btn btn-accent" id="btnCheck">ดูเฉลย</button>
+            <button type="button" class="btn btn-primary" id="btnNext">สุ่มใหม่</button>
+          </div>
+        </div>
+        <div class="practice-subpanel hide" id="classifySubPanel">
+          <div id="classifyEngineRoot"></div>
         </div>
       </div>
     </div>
@@ -117,7 +180,12 @@
   </div>
   <script>
     const MEDIA_SLUG = 'sentence-structure-media';
-    if (window.KAMPAI) KAMPAI.setSlug('sentence-structure-media');
+    if (window.KAMPAI) {
+      KAMPAI.setSlug('sentence-structure-media');
+      if (KAMPAI.sound && typeof KAMPAI.sound.mountToggles === 'function') {
+        try { KAMPAI.sound.mountToggles(); } catch (_) {}
+      }
+    }
 
     const ITEMS = [
       { labels: ['ประธาน', 'กริยา', 'กรรม'], words: [
@@ -146,7 +214,81 @@
       ], correct: 'กรุณาปิดไฟ', tip: 'คำขอร้อง + กริยา + กรรม' },
     ];
 
-    let mode = 'learn', cur = null, picked = [], poolOrder = [];
+    const CLASSIFY_BUCKETS = [
+      { id: 's', label: 'ประธาน', icon: '👤' },
+      { id: 'v', label: 'กริยา', icon: '⚡' },
+      { id: 'o', label: 'กรรม / ส่วนขยาย', icon: '🎯' },
+    ];
+
+    const CLASSIFY_ITEMS = [
+      { id: 'c1', icon: '👧', label: 'ฉัน', sub: 'ในประโยค "ฉันอ่านหนังสือ"', bucketId: 's', reason: '"ฉัน" เป็นผู้กระทำกริยา "อ่าน" จึงเป็นประธาน' },
+      { id: 'c2', icon: '👩', label: 'แม่', sub: 'ในประโยค "แม่ทำอาหาร"', bucketId: 's', reason: '"แม่" เป็นผู้ทำกริยา "ทำ" จึงเป็นประธาน' },
+      { id: 'c3', icon: '👩‍🏫', label: 'ครู', sub: 'ในประโยค "ครูสอนคณิตสนุกมาก"', bucketId: 's', reason: '"ครู" เป็นผู้สอน จึงเป็นประธานของประโยค' },
+      { id: 'c4', icon: '🐱', label: 'แมว', sub: 'ในประโยค "แมวกินปลา"', bucketId: 's', reason: '"แมว" เป็นผู้กระทำกริยา "กิน" จึงเป็นประธาน' },
+      { id: 'c5', icon: '📖', label: 'อ่าน', sub: 'ในประโยค "ฉันอ่านหนังสือ"', bucketId: 'v', reason: '"อ่าน" แสดงการกระทำของประธาน จึงเป็นกริยา' },
+      { id: 'c6', icon: '🍳', label: 'ทำ', sub: 'ในประโยค "แม่ทำอาหาร"', bucketId: 'v', reason: '"ทำ" แสดงการกระทำ จึงเป็นกริยา' },
+      { id: 'c7', icon: '🌧️', label: 'ตก', sub: 'ในประโยค "ฝนตกตอนเย็น"', bucketId: 'v', reason: '"ตก" บอกอาการของฝน จึงเป็นกริยา' },
+      { id: 'c8', icon: '🚶', label: 'ไป', sub: 'ในประโยค "เราไปโรงเรียน"', bucketId: 'v', reason: '"ไป" แสดงการเคลื่อนที่/การกระทำ จึงเป็นกริยา' },
+      { id: 'c9', icon: '📚', label: 'หนังสือ', sub: 'ในประโยค "ฉันอ่านหนังสือ"', bucketId: 'o', reason: '"หนังสือ" เป็นสิ่งที่ถูกอ่าน จึงเป็นกรรม' },
+      { id: 'c10', icon: '🍲', label: 'อาหาร', sub: 'ในประโยค "แม่ทำอาหาร"', bucketId: 'o', reason: '"อาหาร" เป็นสิ่งที่ถูกทำ จึงเป็นกรรม' },
+      { id: 'c11', icon: '🐟', label: 'ปลา', sub: 'ในประโยค "แมวกินปลา"', bucketId: 'o', reason: '"ปลา" เป็นสิ่งที่ถูกกิน จึงเป็นกรรม' },
+      { id: 'c12', icon: '🌇', label: 'ตอนเย็น', sub: 'ในประโยค "ฝนตกตอนเย็น"', bucketId: 'o', reason: '"ตอนเย็น" ขยายความบอกเวลา จึงเป็นส่วนขยาย' },
+    ];
+
+    let mode = 'learn', practiceSubMode = 'build', cur = null, picked = [], poolOrder = [], classifySession = null;
+
+    function setSpeechBanner(msg) {
+      const el = document.getElementById('speechStatus');
+      if (!el) return;
+      if (msg) {
+        el.textContent = msg;
+        el.classList.add('show');
+      } else {
+        el.textContent = '';
+        el.classList.remove('show');
+      }
+    }
+
+    function stopSpeech() {
+      if (window.KampaiMediaLab && typeof window.KampaiMediaLab.stopAllSpeech === 'function') {
+        window.KampaiMediaLab.stopAllSpeech();
+      } else {
+        try { window.KAMPAI?.sound?.stopSpeak?.(); } catch (_) {}
+        try { window.speechSynthesis?.cancel?.(); } catch (_) {}
+      }
+      setSpeechBanner('');
+    }
+
+    function speakText(text) {
+      const clean = String(text || '').trim();
+      if (!clean) return;
+      if (window.KampaiMediaLab && typeof window.KampaiMediaLab.speakSafe === 'function') {
+        const res = window.KampaiMediaLab.speakSafe(clean, { lang: 'th-TH', rate: 0.92 });
+        if (res && res.ok === false) {
+          setSpeechBanner('อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านข้อความบนหน้าจอต่อได้');
+        } else {
+          setSpeechBanner('');
+        }
+        return;
+      }
+      try {
+        if (window.KAMPAI?.sound?.speak) {
+          KAMPAI.sound.speak(clean, 'th-TH', true);
+          setSpeechBanner('');
+          return;
+        }
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const u = new SpeechSynthesisUtterance(clean);
+          u.lang = 'th-TH';
+          u.rate = 0.92;
+          window.speechSynthesis.speak(u);
+          setSpeechBanner('');
+          return;
+        }
+      } catch (_) {}
+      setSpeechBanner('อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านข้อความบนหน้าจอต่อได้');
+    }
 
     function shuffle(a) {
       a = a.slice();
@@ -157,21 +299,86 @@
       return a;
     }
 
+    function setPracticeSubMode(sub) {
+      stopSpeech();
+      practiceSubMode = sub === 'classify' ? 'classify' : 'build';
+      const isBuild = practiceSubMode === 'build';
+      document.getElementById('buildSubPanel').classList.toggle('hide', !isBuild);
+      document.getElementById('classifySubPanel').classList.toggle('hide', isBuild);
+      document.getElementById('btnSubBuild').className = 'btn ' + (isBuild ? 'btn-primary' : 'btn-ghost');
+      document.getElementById('btnSubClassify').className = 'btn ' + (!isBuild ? 'btn-primary' : 'btn-ghost');
+      if (isBuild) {
+        window.KampaiEngines?.ClassifyBucket?.cleanup?.();
+        if (!cur) newRound();
+      } else {
+        mountClassify();
+      }
+    }
+
+    function mountClassify() {
+      if (!window.KampaiEngines?.ClassifyBucket) return;
+      classifySession = window.KampaiEngines.ClassifyBucket.mount('#classifyEngineRoot', {
+        items: CLASSIFY_ITEMS,
+        buckets: CLASSIFY_BUCKETS,
+        mode: 'media',
+        roundSize: 9,
+        onAnswer: function (res) {
+          if (window.KAMPAI?.sound) {
+            try {
+              if (res.isCorrect) KAMPAI.sound.correct();
+              else KAMPAI.sound.wrong();
+            } catch (_) {}
+          }
+        },
+      });
+    }
+
     document.getElementById('modeSeg').onclick = (e) => {
       const b = e.target.closest('button[data-mode]');
       if (!b) return;
-      mode = b.dataset.mode;
-      document.querySelectorAll('#modeSeg button').forEach((x) => x.classList.toggle('on', x === b));
+      stopSpeech();
+      mode = b.dataset.mode === 'practice' ? 'practice' : 'learn';
+      document.querySelectorAll('#modeSeg button').forEach((x) => {
+        const on = x === b;
+        x.classList.toggle('on', on);
+        x.setAttribute('aria-pressed', String(on));
+      });
       document.getElementById('learn').classList.toggle('hide', mode === 'practice');
       document.getElementById('practice').classList.toggle('on', mode === 'practice');
       document.getElementById('hintText').textContent = mode === 'learn'
         ? 'ประธาน + กริยา (+ กรรม) = ประโยค'
-        : 'ฝึกสั้น: แตะคำเรียงให้ถูกโครงสร้าง — ไม่มีคะแนน';
-      if (mode === 'practice') newRound();
+        : 'ฝึกสั้น: แตะคำเรียงให้ถูกโครงสร้าง หรือจำแนกหน้าที่คำ — ไม่มีคะแนน';
+      if (mode === 'practice') {
+        if (practiceSubMode === 'classify') mountClassify();
+        else newRound();
+      } else {
+        window.KampaiEngines?.ClassifyBucket?.cleanup?.();
+      }
+    };
+
+    document.getElementById('btnSubBuild').onclick = () => setPracticeSubMode('build');
+    document.getElementById('btnSubClassify').onclick = () => setPracticeSubMode('classify');
+
+    document.getElementById('btnSpeakLearn').onclick = () => {
+      speakText('โครงสร้างประโยคพื้นฐาน ประกอบด้วย ประธาน คือผู้กระทำ ตามด้วย กริยา คือการกระทำ และ กรรม หรือส่วนขยาย เช่น ฉันอ่านหนังสือ');
+    };
+
+    document.querySelectorAll('.part-speak').forEach((btn) => {
+      btn.addEventListener('click', () => speakText(btn.dataset.say));
+    });
+
+    document.getElementById('btnSpeakPractice').onclick = () => {
+      if (practiceSubMode === 'classify') {
+        const item = classifySession?.currentItem?.();
+        if (item) speakText(`${item.label} ${item.sub || ''} ทำหน้าที่อะไรในประโยค`);
+        else speakText('จำแนกหน้าที่คำครบทุกข้อแล้ว กดฝึกใหม่อีกครั้งได้');
+        return;
+      }
+      if (cur) speakText(`โครงสร้าง ${cur.tip} ตัวอย่าง ${cur.correct}`);
     };
 
     document.getElementById('btnFs').onclick = () => {
-      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.().catch(() => {});
       else document.exitFullscreen?.();
     };
 
@@ -256,13 +463,38 @@
     };
 
     document.getElementById('btnCheck').onclick = () => {
+      if (!cur) return;
       const fb = document.getElementById('fb');
       fb.className = 'fb ok';
       fb.textContent = 'เฉลย: ' + cur.correct + ' · ' + cur.tip;
-      if (window.KAMPAI?.sound?.speak) KAMPAI.sound.speak(cur.correct, 'th-TH');
+      speakText(cur.correct);
     };
 
-    document.getElementById('btnNext').onclick = () => newRound();
+    document.getElementById('btnNext').onclick = () => {
+      stopSpeech();
+      newRound();
+    };
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stopSpeech();
+    });
+    window.addEventListener('pagehide', () => {
+      stopSpeech();
+      window.KampaiEngines?.ClassifyBucket?.cleanup?.();
+    });
+
+    window.getState = () => Object.freeze({
+      slug: MEDIA_SLUG,
+      mode: mode,
+      practiceSubMode: practiceSubMode,
+      currentSentence: cur ? cur.correct : null,
+      picked: picked.map((p) => p.t),
+      totalItems: ITEMS.length,
+      classify: classifySession ? classifySession.getState() : null,
+      reducedMotion: typeof window.matchMedia === 'function'
+        ? Boolean(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+        : false,
+    });
   </script>
 </body>
 </html>

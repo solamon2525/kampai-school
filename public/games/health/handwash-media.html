@@ -2,36 +2,41 @@
 <html lang="th">
 <head>
   <script src="/games/kampai-sdk.js?v=1.181.0"></script>
+  <script src="/games/media-lab-runtime.js?v=2.0.0"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ล้างมือ 7 ขั้น — บ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root { --deep: #0e7490; --line: #a5f3fc; --muted: #64748b; --ok: #16a34a; --bad: #dc2626; }
-    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(160deg, #ecfeff, #cffafe); min-height: 100%; padding: 12px; color: #0f172a; }
+    :root { --deep: #0e7490; --line: #a5f3fc; --muted: #475569; --ok: #15803d; --bad: #b91c1c; --ink: #0f172a; }
+    html, body { max-width: 100%; overflow-x: hidden; }
+    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(160deg, #ecfeff, #cffafe); min-height: 100%; padding: 12px; color: var(--ink); }
     .shell { max-width: 1000px; margin: 0 auto; background: #fff; border-radius: 1.5rem; box-shadow: 0 20px 50px rgba(15,23,42,.12); overflow: hidden; min-height: calc(100vh - 24px); display: flex; flex-direction: column; }
     header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(90deg, #0e7490, #0891b2); color: #fff; }
     header h1 { font-size: 1.15rem; font-weight: 800; flex: 1; min-width: 160px; }
     .badge { font-size: .75rem; background: rgba(255,255,255,.2); padding: 4px 10px; border-radius: 999px; font-weight: 700; }
-    .btn { font-family: inherit; font-weight: 700; border: none; border-radius: 12px; padding: 10px 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+    .btn { font-family: inherit; font-weight: 700; border: none; border-radius: 12px; padding: 10px 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; min-width: 44px; }
     .btn:active { transform: scale(.97); }
+    .btn:focus-visible, .seg button:focus-visible, .step-dot:focus-visible, .order-btn:focus-visible, .opt:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
     .btn-back { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.35); padding: 8px 12px; font-size: .85rem; }
     .btn-primary { background: var(--deep); color: #fff; }
     .btn-accent { background: #fbbf24; color: #78350f; }
     .btn-ghost { background: #fff; color: var(--deep); border: 2px solid var(--line); }
     .toolbar { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 16px; background: #ecfeff; border-bottom: 1px solid var(--line); align-items: center; }
-    .seg { display: inline-flex; border-radius: 12px; overflow: hidden; border: 2px solid #67e8f9; }
-    .seg button { font-family: inherit; font-weight: 800; border: none; background: #fff; color: var(--deep); padding: 8px 14px; cursor: pointer; font-size: .9rem; }
+    .seg { display: inline-flex; flex-wrap: wrap; border-radius: 12px; overflow: hidden; border: 2px solid #67e8f9; max-width: 100%; }
+    .seg button { font-family: inherit; font-weight: 800; border: none; background: #fff; color: var(--deep); padding: 8px 14px; cursor: pointer; font-size: .9rem; min-height: 44px; flex: 1 1 auto; }
     .seg button.on { background: var(--deep); color: #fff; }
     .hint { font-size: .85rem; color: #0e7490; font-weight: 600; flex: 1; min-width: 160px; }
+    .speech-status { font-size: .85rem; font-weight: 700; color: #92400e; background: #fef3c7; border-bottom: 1px solid #fcd34d; padding: 8px 16px; display: none; }
+    .speech-status.show { display: block; }
     .stage { flex: 1; display: grid; grid-template-columns: 1fr; min-height: 0; }
     @media (min-width: 860px) { .stage { grid-template-columns: 1fr 1fr; } }
     .demo { padding: 20px 16px; background: linear-gradient(180deg, #e0f2fe, #cffafe); display: flex; flex-direction: column; align-items: center; gap: 16px; }
     .hand-visual { width: 160px; height: 160px; border-radius: 50%; background: #fff; border: 4px solid #67e8f9; display: flex; align-items: center; justify-content: center; font-size: 5rem; box-shadow: 0 12px 30px rgba(8,145,178,.15); transition: transform .2s; }
     .hand-visual.pop { transform: scale(1.06); }
     .step-nav { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; max-width: 360px; }
-    .step-dot { font-family: inherit; width: 36px; height: 36px; border-radius: 50%; border: 2px solid #67e8f9; background: #fff; color: var(--deep); font-weight: 800; cursor: pointer; font-size: .9rem; }
+    .step-dot { font-family: inherit; width: 44px; height: 44px; border-radius: 50%; border: 2px solid #67e8f9; background: #fff; color: var(--deep); font-weight: 800; cursor: pointer; font-size: .9rem; }
     .step-dot.on { background: var(--deep); color: #fff; border-color: var(--deep); }
     .step-dot.done { background: #dcfce7; border-color: #86efac; color: #166534; }
     .detail { padding: 16px; background: #f0fdfa; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 12px; }
@@ -41,26 +46,26 @@
     .step-body { font-size: 1.05rem; font-weight: 600; line-height: 1.55; color: #134e4a; }
     .step-tip { background: #fff; border: 2px dashed #67e8f9; border-radius: 12px; padding: 10px 12px; font-size: .9rem; font-weight: 600; color: var(--muted); }
     .actions { display: flex; flex-wrap: wrap; gap: 8px; }
-    .actions .btn { flex: 1; min-width: 120px; }
+    .actions .btn { flex: 1; min-width: 110px; }
     .learn-panel { display: contents; }
     .shell.mode-order .learn-panel,
     .shell.mode-practice .learn-panel { display: none; }
-    .order-wrap { display: none; padding: 20px 16px; max-width: 520px; margin: 0 auto; width: 100%; flex-direction: column; gap: 14px; }
+    .order-wrap { display: none; padding: 20px 16px; max-width: 560px; margin: 0 auto; width: 100%; flex-direction: column; gap: 14px; flex: 1; }
     .shell.mode-order .order-wrap { display: flex; }
     .shell.mode-order .stage,
     .shell.mode-practice .stage { display: none; }
-    .practice-wrap { display: none; padding: 20px 16px; max-width: 520px; margin: 0 auto; width: 100%; flex-direction: column; gap: 12px; }
+    .practice-wrap { display: none; padding: 20px 16px; max-width: 560px; margin: 0 auto; width: 100%; flex-direction: column; gap: 12px; flex: 1; }
     .shell.mode-practice .practice-wrap { display: flex; }
     .shell.mode-practice .order-wrap { display: none; }
     .pq { font-weight: 800; color: var(--deep); text-align: center; line-height: 1.45; font-size: 1.15rem; }
     .opts { display: flex; flex-direction: column; gap: 8px; }
-    .opt { font-family: inherit; font-weight: 700; padding: 12px; border: 2px solid var(--line); border-radius: 12px; background: #fff; cursor: pointer; text-align: left; color: #134e4a; }
-    .opt.ok { background: #dcfce7; border-color: #86efac; }
-    .opt.no { background: #fee2e2; border-color: #fca5a5; }
+    .opt { font-family: inherit; font-weight: 700; padding: 12px; border: 2px solid var(--line); border-radius: 12px; background: #fff; cursor: pointer; text-align: left; color: #134e4a; min-height: 44px; }
+    .opt.ok { background: #dcfce7; border-color: #16a34a; }
+    .opt.no { background: #fee2e2; border-color: #fca5a5; opacity: .75; }
     .pfb { font-weight: 800; text-align: center; min-height: 24px; }
     .order-prompt { font-weight: 800; color: var(--deep); text-align: center; background: #fff; border: 2px dashed #67e8f9; border-radius: 14px; padding: 12px; line-height: 1.45; }
     .order-track { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
-    .order-slot { width: 40px; height: 40px; border-radius: 12px; border: 2px dashed #67e8f9; background: #ecfeff; display: flex; align-items: center; justify-content: center; font-size: .75rem; font-weight: 800; color: #67e8f9; }
+    .order-slot { width: 44px; height: 44px; border-radius: 12px; border: 2px dashed #67e8f9; background: #ecfeff; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 800; color: #0e7490; }
     .order-slot.filled { border-style: solid; border-color: #86efac; background: #dcfce7; color: #166534; font-size: 1.1rem; }
     .order-pool { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     @media (min-width: 480px) { .order-pool { grid-template-columns: repeat(4, 1fr); } }
@@ -74,12 +79,21 @@
     @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
     .footer { padding: 10px 16px; font-size: .8rem; color: var(--muted); text-align: center; border-top: 1px solid var(--line); }
     .footer a { color: var(--deep); font-weight: 700; text-decoration: none; }
+    @media (max-width: 600px) {
+      body { padding: 0; }
+      .shell { border-radius: 0; min-height: 100vh; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition: none !important; scroll-behavior: auto !important; }
+      .btn:active { transform: none; }
+      .hand-visual.pop { transform: none; }
+    }
   </style>
 </head>
 <body>
   <div class="shell" id="shell">
     <header>
-      <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back();">← กลับคลังสื่อ</button>
+      <button type="button" class="btn btn-back" id="btnBack">← กลับคลังสื่อ</button>
       <h1>🧼 ล้างมือ 7 ขั้น</h1>
       <span class="badge">ป.3–4 · สุขศึกษา</span>
     </header>
@@ -91,8 +105,9 @@
       </span>
       <p class="hint" id="hintText">เรียน 7 ขั้นตอนล้างมือให้สะอาด — ใช้สบู่และน้ำ</p>
       <button type="button" class="btn btn-accent learn-panel" id="btnPlay">▶ เล่นวน</button>
-      <button type="button" class="btn btn-ghost" id="btnFs">⛶ เต็มจอ</button>
+      <button type="button" class="btn btn-ghost" id="btnFs" aria-label="ขยายเต็มจอ">⛶ เต็มจอ</button>
     </div>
+    <div class="speech-status" id="speechStatus" role="status" aria-live="polite"></div>
     <div class="stage learn-panel">
       <div class="demo">
         <div class="hand-visual" id="handVisual">🤲</div>
@@ -106,6 +121,7 @@
         <div class="actions">
           <button type="button" class="btn btn-ghost" id="btnPrev">← ก่อนหน้า</button>
           <button type="button" class="btn btn-primary" id="btnNext">ถัดไป →</button>
+          <button type="button" class="btn btn-ghost" id="btnSpeakStep">🔊 ฟังขั้นนี้</button>
         </div>
       </div>
     </div>
@@ -114,18 +130,30 @@
       <div class="order-track" id="orderTrack"></div>
       <p class="order-fb" id="orderFb"></p>
       <div class="order-pool" id="orderPool"></div>
-      <button type="button" class="btn btn-primary" id="btnOrderReset" style="align-self:center">🔄 เริ่มใหม่</button>
+      <div class="actions" style="justify-content:center">
+        <button type="button" class="btn btn-ghost" id="btnSpeakOrder">🔊 ฟังคำใบ้</button>
+        <button type="button" class="btn btn-primary" id="btnOrderReset">🔄 เริ่มใหม่</button>
+      </div>
     </div>
     <div class="practice-wrap" id="practiceWrap">
       <p class="pq" id="pq"></p>
       <div class="opts" id="popts"></div>
       <p class="pfb" id="pfb"></p>
-      <button type="button" class="btn btn-primary" id="btnPracticeNext" style="align-self:center">ข้อถัดไป</button>
+      <div class="actions" style="justify-content:center">
+        <button type="button" class="btn btn-ghost" id="btnSpeakPractice">🔊 ฟังคำถาม</button>
+        <button type="button" class="btn btn-primary" id="btnPracticeNext">ข้อถัดไป</button>
+      </div>
     </div>
-    <footer>ตัวชี้วัด <strong>พ 4.1 ป.3/1</strong> · <strong>ว 1.2 ป.3/2</strong> · คู่เกม <a href="/games/health/handwash-order.html">ล้างมือ 7 ขั้น (เกม)</a></footer>
+    <footer class="footer">ตัวชี้วัด <strong>พ 4.1 ป.3/1</strong> · <strong>ว 1.2 ป.3/2</strong> · คู่เกม <a href="/games/health/handwash-order.html">ล้างมือ 7 ขั้น (เกม)</a></footer>
   </div>
   <script>
-    if (window.KAMPAI) window.KAMPAI.setSlug('handwash-media');
+    const MEDIA_SLUG = 'handwash-media';
+    if (window.KAMPAI) {
+      window.KAMPAI.setSlug(MEDIA_SLUG);
+      if (window.KAMPAI.sound && typeof window.KAMPAI.sound.mountToggles === 'function') {
+        try { window.KAMPAI.sound.mountToggles(); } catch (_) {}
+      }
+    }
 
     const STEPS = [
       { n: 1, emoji: '🤲', label: 'ฝ่ามือถูฝ่ามือ', body: 'ทาสบู่ที่ฝ่ามือทั้งสองข้าง แล้วถูฝ่ามือเข้าหากันให้ทั่ว', tip: 'ใช้สบู่เหลวหรือแท่ง — ชโลมให้ทั่วก่อนถู' },
@@ -137,16 +165,73 @@
       { n: 7, emoji: '🔄', label: 'ข้อมือ', body: 'ถูรอบข้อมือทั้งสองข้างด้วยสบู่ แล้วล้างน้ำออกให้หมด', tip: 'ล้างน้ำอย่างน้อย 20 วินาที · เช็ดมือให้แห้ง' },
     ];
 
+    const motionQuery = typeof window.matchMedia === 'function'
+      ? window.matchMedia('(prefers-reduced-motion: reduce)')
+      : null;
+
+    let mode = 'learn';
     let cur = 0;
     let playTimer = null;
     let orderExpected = 1;
+    let practiceIdx = 0;
+
+    function speakText(text) {
+      const clean = String(text || '').trim();
+      if (!clean) return;
+      const statusEl = document.getElementById('speechStatus');
+      if (window.KampaiMediaLab && typeof window.KampaiMediaLab.speakSafe === 'function') {
+        const res = window.KampaiMediaLab.speakSafe(clean, { lang: 'th-TH', rate: 0.92 });
+        if (statusEl) {
+          if (res && res.ok === false) {
+            statusEl.textContent = 'อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านข้อความต่อได้';
+            statusEl.classList.add('show');
+          } else {
+            statusEl.textContent = '';
+            statusEl.classList.remove('show');
+          }
+        }
+        return;
+      }
+      try {
+        if (window.KAMPAI?.sound?.speak) {
+          KAMPAI.sound.speak(clean, 'th-TH', true);
+          return;
+        }
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const u = new SpeechSynthesisUtterance(clean);
+          u.lang = 'th-TH';
+          u.rate = 0.92;
+          window.speechSynthesis.speak(u);
+          return;
+        }
+      } catch (_) {}
+      if (statusEl) {
+        statusEl.textContent = 'อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านข้อความต่อได้';
+        statusEl.classList.add('show');
+      }
+    }
+
+    function stopSpeech() {
+      if (window.KampaiMediaLab && typeof window.KampaiMediaLab.stopAllSpeech === 'function') {
+        window.KampaiMediaLab.stopAllSpeech();
+      } else {
+        try { window.KAMPAI?.sound?.stopSpeak?.(); } catch (_) {}
+        try { window.speechSynthesis?.cancel?.(); } catch (_) {}
+      }
+      const statusEl = document.getElementById('speechStatus');
+      if (statusEl) {
+        statusEl.textContent = '';
+        statusEl.classList.remove('show');
+      }
+    }
 
     function renderNav() {
       document.getElementById('stepNav').innerHTML = STEPS.map(function (s, i) {
-        return '<button type="button" class="step-dot' + (i === cur ? ' on' : '') + (i < cur ? ' done' : '') + '" data-i="' + i + '">' + s.n + '</button>';
+        return '<button type="button" class="step-dot' + (i === cur ? ' on' : '') + (i < cur ? ' done' : '') + '" data-i="' + i + '" aria-label="ขั้นที่ ' + s.n + '">' + s.n + '</button>';
       }).join('');
       document.querySelectorAll('.step-dot').forEach(function (btn) {
-        btn.onclick = function () { showStep(+btn.dataset.i); stopPlay(); };
+        btn.onclick = function () { stopSpeech(); showStep(+btn.dataset.i); stopPlay(); };
       });
     }
 
@@ -156,8 +241,10 @@
       var s = STEPS[i];
       var vis = document.getElementById('handVisual');
       vis.textContent = s.emoji;
-      vis.classList.add('pop');
-      setTimeout(function () { vis.classList.remove('pop'); }, 200);
+      if (!(motionQuery && motionQuery.matches)) {
+        vis.classList.add('pop');
+        setTimeout(function () { vis.classList.remove('pop'); }, 200);
+      }
       document.getElementById('dNum').textContent = 'ขั้นที่ ' + s.n;
       document.getElementById('dTitle').textContent = s.label;
       document.getElementById('dBody').textContent = s.body;
@@ -165,8 +252,12 @@
       renderNav();
     }
 
-    document.getElementById('btnPrev').onclick = function () { if (cur > 0) showStep(cur - 1); };
-    document.getElementById('btnNext').onclick = function () { showStep(cur >= STEPS.length - 1 ? 0 : cur + 1); };
+    document.getElementById('btnPrev').onclick = function () { stopSpeech(); if (cur > 0) showStep(cur - 1); else showStep(STEPS.length - 1); };
+    document.getElementById('btnNext').onclick = function () { stopSpeech(); showStep(cur >= STEPS.length - 1 ? 0 : cur + 1); };
+    document.getElementById('btnSpeakStep').onclick = function () {
+      var s = STEPS[cur];
+      speakText('ขั้นที่ ' + s.n + ' ' + s.label + ' ' + s.body + ' ' + s.tip);
+    };
 
     function stopPlay() {
       if (playTimer) { clearInterval(playTimer); playTimer = null; }
@@ -175,6 +266,10 @@
 
     document.getElementById('btnPlay').onclick = function () {
       if (playTimer) { stopPlay(); return; }
+      if (motionQuery && motionQuery.matches) {
+        document.getElementById('hintText').textContent = 'เปิดโหมดลดการเคลื่อนไหวอยู่ — กด “ถัดไป” เพื่อดูทีละขั้น';
+        return;
+      }
       document.getElementById('btnPlay').textContent = '⏸ หยุด';
       playTimer = setInterval(function () {
         showStep(cur >= STEPS.length - 1 ? 0 : cur + 1);
@@ -191,6 +286,7 @@
     }
 
     function initOrder() {
+      stopSpeech();
       orderExpected = 1;
       document.getElementById('orderFb').textContent = '';
       document.getElementById('orderFb').className = 'order-fb';
@@ -224,59 +320,79 @@
         } else {
           if (nextEl) nextEl.textContent = '—';
           document.getElementById('orderPrompt').innerHTML = '🎉 เรียงครบ 7 ขั้นแล้ว!<br>มือสะอาด พร้อมกินอาหาร';
-          document.getElementById('orderFb').textContent = '✓ เก่งมาก! ลองเล่นเกมแข่งเร็วได้';
+          document.getElementById('orderFb').textContent = '✓ เก่งมาก! มือสะอาดครบ 7 ขั้น';
         }
-        if (window.KAMPAI && KAMPAI.sound) KAMPAI.sound.correct();
+        if (window.KAMPAI && KAMPAI.sound) { try { KAMPAI.sound.correct(); } catch (_) {} }
       } else {
         btn.classList.add('bad');
         setTimeout(function () { btn.classList.remove('bad'); }, 400);
         document.getElementById('orderFb').className = 'order-fb no';
-        document.getElementById('orderFb').textContent = '✗ ยังไม่ใช่ลำดับนี้ — ต้องเป็น ' + STEPS[orderExpected - 1].label;
-        if (window.KAMPAI && KAMPAI.sound) KAMPAI.sound.wrong();
+        document.getElementById('orderFb').textContent = '✗ ยังไม่ใช่ลำดับนี้ — ลองนึกถึงขั้นที่ ' + orderExpected;
+        if (window.KAMPAI && KAMPAI.sound) { try { KAMPAI.sound.wrong(); } catch (_) {} }
       }
     }
 
     document.getElementById('btnOrderReset').onclick = initOrder;
+    document.getElementById('btnSpeakOrder').onclick = function () {
+      if (orderExpected <= STEPS.length) {
+        speakText('กำลังหาขั้นที่ ' + orderExpected + ' คือ ' + STEPS[orderExpected - 1].label);
+      } else {
+        speakText('เรียงครบทั้ง 7 ขั้นแล้ว เก่งมากครับ');
+      }
+    };
 
     const PRACTICE_Q = [
-      { q: 'หลังฝ่ามือถูฝ่ามือ ขั้นถัดไปคืออะไร?', opts: ['ฝ่ามือถูหลังมือ', 'ประสานนิ้ว', 'ข้อมือ', 'ปลายนิ้ว'], a: 'ฝ่ามือถูหลังมือ' },
-      { q: 'หลังฝ่ามือถูหลังมือ ขั้นถัดไปคืออะไร?', opts: ['นิ้วหัวแม่มือ', 'ประสานนิ้ว', 'ข้อมือ', 'ฝ่ามือถูฝ่ามือ'], a: 'ประสานนิ้ว' },
-      { q: 'ขั้นที่ 5 ของการล้างมือ 7 ขั้นคืออะไร?', opts: ['ฝ่ามือถูฝ่ามือ', 'หลังนิ้ว', 'นิ้วหัวแม่มือ', 'ข้อมือ'], a: 'นิ้วหัวแม่มือ' },
-      { q: 'ขั้นสุดท้าย (ขั้นที่ 7) คืออะไร?', opts: ['ประสานนิ้ว', 'ปลายนิ้ว', 'ข้อมือ', 'ฝ่ามือถูหลังมือ'], a: 'ข้อมือ' },
-      { q: 'ทำไมต้องใช้สบู่เวลาล้างมือ?', opts: ['ให้มือมีกลิ่นหอมเท่านั้น', 'ช่วยชะล้างไขมันและเชื้อโรคออกได้ดีกว่าน้ำเปล่า', 'ทำให้มือแห้งเร็วขึ้น', 'ไม่จำเป็น น้ำเปล่าก็พอ'], a: 'ช่วยชะล้างไขมันและเชื้อโรคออกได้ดีกว่าน้ำเปล่า' },
-      { q: 'ควรล้างมือด้วยสบู่และน้ำอย่างน้อยกี่วินาที?', opts: ['5 วินาที', '10 วินาที', '20 วินาที', '2 วินาที'], a: '20 วินาที' },
-      { q: 'ลำดับที่ถูกต้องของ 3 ขั้นแรกคือข้อใด?', opts: ['ฝ่ามือ→หลังมือ→ประสานนิ้ว', 'ข้อมือ→ปลายนิ้ว→หลังนิ้ว', 'หัวแม่มือ→ปลายนิ้ว→ข้อมือ', 'ประสานนิ้ว→ฝ่ามือ→หลังมือ'], a: 'ฝ่ามือ→หลังมือ→ประสานนิ้ว' },
-      { q: 'ทำไมต้องถูซอกนิ้วและหัวแม่มือด้วย?', opts: ['เพื่อให้มือสวย', 'เป็นจุดที่สกปรก/มีเชื้อโรคบ่อย', 'ไม่ต้องถูก็ได้', 'เพื่อให้สบู่หมดเร็ว'], a: 'เป็นจุดที่สกปรก/มีเชื้อโรคบ่อย' },
+      { q: 'หลังฝ่ามือถูฝ่ามือ ขั้นถัดไปคืออะไร?', opts: ['ฝ่ามือถูหลังมือ', 'ประสานนิ้ว', 'ข้อมือ', 'ปลายนิ้ว'], a: 'ฝ่ามือถูหลังมือ', explain: 'ขั้นที่ 2 คือเอาฝ่ามือถูหลังมือและซอกนิ้วทั้งสองข้าง' },
+      { q: 'หลังฝ่ามือถูหลังมือ ขั้นถัดไปคืออะไร?', opts: ['นิ้วหัวแม่มือ', 'ประสานนิ้ว', 'ข้อมือ', 'ฝ่ามือถูฝ่ามือ'], a: 'ประสานนิ้ว', explain: 'ขั้นที่ 3 คือประสานนิ้วถูซอกนิ้วด้านใน' },
+      { q: 'ขั้นที่ 5 ของการล้างมือ 7 ขั้นคืออะไร?', opts: ['ฝ่ามือถูฝ่ามือ', 'หลังนิ้ว', 'นิ้วหัวแม่มือ', 'ข้อมือ'], a: 'นิ้วหัวแม่มือ', explain: 'ขั้นที่ 5 คือหมุนถูนิ้วหัวแม่มือทั้งสองข้าง' },
+      { q: 'ขั้นสุดท้าย (ขั้นที่ 7) คืออะไร?', opts: ['ประสานนิ้ว', 'ปลายนิ้ว', 'ข้อมือ', 'ฝ่ามือถูหลังมือ'], a: 'ข้อมือ', explain: 'ขั้นที่ 7 คือถูรอบข้อมือทั้งสองข้างแล้วล้างน้ำสะอาด' },
+      { q: 'ทำไมต้องใช้สบู่เวลาล้างมือ?', opts: ['ให้มือมีกลิ่นหอมเท่านั้น', 'ช่วยชะล้างไขมันและเชื้อโรคออกได้ดีกว่าน้ำเปล่า', 'ทำให้มือแห้งเร็วขึ้น', 'ไม่จำเป็น น้ำเปล่าก็พอ'], a: 'ช่วยชะล้างไขมันและเชื้อโรคออกได้ดีกว่าน้ำเปล่า', explain: 'สบู่ช่วยสลายคราบไขมันและลดเชื้อโรคที่เกาะตามผิวหนัง' },
+      { q: 'ควรล้างมือด้วยสบู่และน้ำอย่างน้อยกี่วินาที?', opts: ['5 วินาที', '10 วินาที', '20 วินาที', '2 วินาที'], a: '20 วินาที', explain: 'ควรฟอกสบู่ให้ทั่วทั้ง 7 ขั้นอย่างน้อย 20 วินาที' },
+      { q: 'ลำดับที่ถูกต้องของ 3 ขั้นแรกคือข้อใด?', opts: ['ฝ่ามือ→หลังมือ→ประสานนิ้ว', 'ข้อมือ→ปลายนิ้ว→หลังนิ้ว', 'หัวแม่มือ→ปลายนิ้ว→ข้อมือ', 'ประสานนิ้ว→ฝ่ามือ→หลังมือ'], a: 'ฝ่ามือ→หลังมือ→ประสานนิ้ว', explain: 'เริ่มจากฝ่ามือถูฝ่ามือ → ฝ่ามือถูหลังมือ → ประสานนิ้ว' },
+      { q: 'ทำไมต้องถูซอกนิ้วและหัวแม่มือด้วย?', opts: ['เพื่อให้มือสวย', 'เป็นจุดที่สกปรก/มีเชื้อโรคบ่อย', 'ไม่ต้องถูก็ได้', 'เพื่อให้สบู่หมดเร็ว'], a: 'เป็นจุดที่สกปรก/มีเชื้อโรคบ่อย', explain: 'หัวแม่มือและซอกนิ้วสัมผัสสิ่งของบ่อยและมักถูกละเลย' },
     ];
 
     function nextPractice() {
-      var item = PRACTICE_Q[Math.floor(Math.random() * PRACTICE_Q.length)];
+      stopSpeech();
+      practiceIdx = Math.floor(Math.random() * PRACTICE_Q.length);
+      var item = PRACTICE_Q[practiceIdx];
       document.getElementById('pq').textContent = item.q;
       document.getElementById('pfb').textContent = '';
       document.getElementById('pfb').style.color = '';
-      document.getElementById('popts').innerHTML = item.opts.map(function (o) {
+      var opts = shuffled(item.opts);
+      document.getElementById('popts').innerHTML = opts.map(function (o) {
         return '<button type="button" class="opt" data-a="' + o.replace(/"/g, '&quot;') + '">' + o + '</button>';
       }).join('');
       document.querySelectorAll('#popts .opt').forEach(function (btn) {
         btn.onclick = function () {
           var ok = btn.dataset.a === item.a;
-          btn.classList.add(ok ? 'ok' : 'no');
-          document.querySelectorAll('#popts .opt').forEach(function (b) {
-            b.disabled = true;
-            if (b.dataset.a === item.a) b.classList.add('ok');
-          });
-          document.getElementById('pfb').textContent = ok ? '✓ ถูกต้อง!' : '✗ คำตอบ: ' + item.a;
-          document.getElementById('pfb').style.color = ok ? '#16a34a' : '#dc2626';
-          if (window.KAMPAI && KAMPAI.sound) (ok ? KAMPAI.sound.correct : KAMPAI.sound.wrong)();
+          if (ok) {
+            btn.classList.add('ok');
+            document.querySelectorAll('#popts .opt').forEach(function (b) { b.disabled = true; });
+            document.getElementById('pfb').textContent = '✓ ถูกต้อง! ' + item.explain;
+            document.getElementById('pfb').style.color = 'var(--ok)';
+            if (window.KAMPAI && KAMPAI.sound) { try { KAMPAI.sound.correct(); } catch (_) {} }
+          } else {
+            btn.classList.add('no');
+            btn.disabled = true;
+            document.getElementById('pfb').textContent = 'ยังไม่ตรง — ลองนึกถึงลำดับ 7 ขั้นแล้วเลือกใหม่';
+            document.getElementById('pfb').style.color = 'var(--bad)';
+            if (window.KAMPAI && KAMPAI.sound) { try { KAMPAI.sound.wrong(); } catch (_) {} }
+          }
         };
       });
     }
     document.getElementById('btnPracticeNext').onclick = nextPractice;
+    document.getElementById('btnSpeakPractice').onclick = function () {
+      var item = PRACTICE_Q[practiceIdx];
+      if (item) speakText(item.q);
+    };
 
     document.getElementById('modeSeg').querySelectorAll('button').forEach(function (btn) {
       btn.onclick = function () {
+        stopSpeech();
         stopPlay();
-        var mode = btn.dataset.mode;
+        mode = btn.dataset.mode;
         var shell = document.getElementById('shell');
         shell.classList.toggle('mode-order', mode === 'order');
         shell.classList.toggle('mode-practice', mode === 'practice');
@@ -292,12 +408,41 @@
       };
     });
 
+    document.getElementById('btnBack').onclick = function () {
+      stopSpeech();
+      stopPlay();
+      if (window.KAMPAI && KAMPAI.goHome) KAMPAI.goHome();
+      else history.back();
+    };
+
     document.getElementById('btnFs').onclick = function () {
-      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.().catch(() => {});
       else document.exitFullscreen?.();
     };
 
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) {
+        stopSpeech();
+        stopPlay();
+      }
+    });
+    window.addEventListener('pagehide', function () {
+      stopSpeech();
+      stopPlay();
+    });
+
     showStep(0);
+
+    window.getState = () => Object.freeze({
+      slug: MEDIA_SLUG,
+      mode: mode,
+      stepIndex: cur,
+      totalSteps: STEPS.length,
+      isAutoPlaying: Boolean(playTimer),
+      orderExpected: orderExpected,
+      practiceIndex: practiceIdx,
+      reducedMotion: Boolean(motionQuery && motionQuery.matches),
+    });
   </script>
 </body>
 </html>

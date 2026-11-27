@@ -2,6 +2,8 @@
 <html lang="th">
 <head>
   <script src="/games/kampai-sdk.js?v=1.181.0"></script>
+  <script src="/games/media-lab-runtime.js?v=2.0.0"></script>
+  <script src="/games/engine/classify-bucket-engine.js?v=2.0.0"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Past Tense Mini — สอนและฝึกสั้น (ป.4–ป.6) — โรงเรียนบ้านคำไผ่</title>
@@ -382,6 +384,107 @@
     }
     footer a { color: var(--blue); text-decoration: none; font-weight: 700; }
     footer a:hover { text-decoration: underline; }
+
+    .speech-status {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #78350f;
+      background: #fef3c7;
+      border: 1px solid #f59e0b;
+      border-radius: 10px;
+      padding: 8px 12px;
+      display: none;
+    }
+    .speech-status.show { display: block; }
+    .ke-classify-card {
+      background: #f8fafc;
+      border: 2px solid var(--line);
+      border-radius: 14px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .ke-classify-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 800;
+      color: var(--blue-dark);
+      font-size: 0.95rem;
+    }
+    .ke-classify-item {
+      background: #ffffff;
+      border: 2px dashed var(--line);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: center;
+    }
+    .ke-item-icon { font-size: 2rem; line-height: 1.1; }
+    .ke-item-label { font-size: 1.35rem; font-weight: 900; color: var(--navy); }
+    .ke-item-sub { font-size: 0.92rem; font-weight: 600; color: var(--muted); }
+    .ke-buckets {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    @media (max-width: 520px) {
+      .ke-buckets { grid-template-columns: 1fr; }
+    }
+    .ke-bucket-btn, .ke-btn {
+      min-height: 46px;
+      min-width: 44px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 2px solid var(--border);
+      background: #ffffff;
+      color: var(--navy);
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 800;
+      cursor: pointer;
+      text-align: center;
+    }
+    .ke-bucket-btn:hover:not(:disabled) { border-color: var(--blue); background: var(--blue-light); }
+    .ke-bucket-btn.is-correct { background: #dcfce7; border-color: var(--ok); color: #065f46; }
+    .ke-bucket-btn.is-wrong { background: #ffe4e6; border-color: var(--bad); color: var(--bad); opacity: 0.7; }
+    .ke-btn { background: var(--blue); color: #ffffff; border-color: var(--blue); align-self: flex-end; }
+    .ke-classify-feedback {
+      padding: 12px;
+      border-radius: 10px;
+      font-weight: 700;
+      background: #ffffff;
+      border: 1.5px solid var(--border);
+      color: var(--navy);
+    }
+    .ke-classify-feedback.is-good { background: #dcfce7; border-color: var(--ok); color: #065f46; }
+    .ke-classify-feedback.is-learn { background: #fef3c7; border-color: var(--amber); color: #78350f; }
+    .ke-classify-summary {
+      text-align: center;
+      padding: 24px 16px;
+      background: var(--blue-light);
+      border: 2px solid var(--line);
+      border-radius: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: center;
+    }
+    .ke-classify-summary .ke-btn { align-self: center; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+      }
+      .panel { animation: none; }
+    }
   </style>
 </head>
 <body>
@@ -390,6 +493,7 @@
   <!-- HEADER -->
   <header>
     <div class="header-left">
+      <button type="button" class="btn-hdr" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back();">← กลับคลังสื่อ</button>
       <h1>📘 Past Tense Mini — สตูดิโออดีตกาล ป.4–ป.6</h1>
       <span class="badge-grade">ต 1.1 ป.5–6, ต 1.2 ป.6/1</span>
     </div>
@@ -412,11 +516,13 @@
     <button class="tab-btn" data-tab="matrix" data-mode="learn"><span>📊</span> 2. คลังกริยา (Verb Matrix)</button>
     <button class="tab-btn mode-practice" data-tab="detective" data-mode="practice"><span>🕵️</span> 3. นักสืบเวลา (Detective)</button>
     <button class="tab-btn mode-practice" data-tab="quiz" data-mode="practice"><span>✏️</span> 4. แบบทดสอบท้าทาย (Quiz)</button>
+    <button class="tab-btn mode-practice" data-tab="classify" data-mode="practice"><span>🗂️</span> 5. แยกกลุ่มกริยา (Sort)</button>
   </nav>
   <div style="display:none;" data-mode="learn" id="learn">📖 สอน/เรียนรู้</div>
   <div style="display:none;" data-mode="practice" id="practice">✏️ ฝึก/ฝึกสั้น</div>
 
   <main class="content">
+    <div class="speech-status" id="speechStatus" role="status" aria-live="polite"></div>
 
     <!-- MODE 1: TIMELINE -->
     <section class="panel active" id="panel-timeline">
@@ -512,6 +618,21 @@
       </div>
     </section>
 
+    <!-- MODE 5: CLASSIFY VERBS (KampaiEngines.ClassifyBucket, media mode) -->
+    <section class="panel" id="panel-classify">
+      <div class="card">
+        <div class="card-title">
+          <span>🗂️ แยกกลุ่มกริยาช่อง 2: กริยาปกติ (-ed) กับ กริยาเปลี่ยนรูป (Irregular)</span>
+          <span class="tag">ไม่จับเวลา · ไม่เก็บคะแนน</span>
+        </div>
+        <div class="btn-row" style="justify-content:space-between;align-items:center;">
+          <button type="button" class="btn-act secondary" id="btnSpeakClassify">🔊 ฟังคำกริยา</button>
+          <button type="button" class="btn-act primary" id="btnClassifyNew">🔄 ชุดใหม่</button>
+        </div>
+        <div id="classifyEngineRoot"></div>
+      </div>
+    </section>
+
   </main>
 
   <footer>
@@ -589,21 +710,94 @@ const state = {
   voiceAccent: 'en-US'
 };
 
-window.__getState = () => ({
+let classifySession = null;
+
+function stopSpeech() {
+  if (window.KampaiMediaLab && typeof window.KampaiMediaLab.stopAllSpeech === 'function') {
+    window.KampaiMediaLab.stopAllSpeech();
+  } else {
+    try { window.KAMPAI?.sound?.stopSpeak?.(); } catch (_) {}
+    try { window.speechSynthesis?.cancel?.(); } catch (_) {}
+  }
+}
+
+window.getState = () => Object.freeze({
+  slug: MEDIA_SLUG,
   tab: state.tab,
   mode: state.tab,
   verbCount: VERBS.length,
   quizIndex: state.qIdx,
-  quizScore: state.score
+  quizScore: state.score,
+  classify: classifySession ? classifySession.getState() : null,
+  reducedMotion: typeof window.matchMedia === 'function'
+    ? Boolean(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+    : false
 });
+window.__getState = window.getState;
 
 function speakText(text, lang = state.voiceAccent) {
-  if (!state.ttsEnabled || !('speechSynthesis' in window)) return;
-  window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = lang;
-  u.rate = 0.9;
-  window.speechSynthesis.speak(u);
+  if (!state.ttsEnabled) return;
+  const clean = String(text || '').trim();
+  if (!clean) return;
+  const statusEl = document.getElementById('speechStatus');
+  if (window.KampaiMediaLab && typeof window.KampaiMediaLab.speakSafe === 'function') {
+    const res = window.KampaiMediaLab.speakSafe(clean, { lang: lang, rate: 0.9 });
+    if (statusEl) {
+      if (res && res.ok === false) {
+        statusEl.textContent = 'อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านคำกริยาและฝึกต่อได้';
+        statusEl.classList.add('show');
+      } else {
+        statusEl.textContent = '';
+        statusEl.classList.remove('show');
+      }
+    }
+    return;
+  }
+  try {
+    if (window.KAMPAI?.sound?.speak) { window.KAMPAI.sound.speak(clean, lang, true); return; }
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(clean);
+      u.lang = lang;
+      u.rate = 0.9;
+      window.speechSynthesis.speak(u);
+      return;
+    }
+  } catch (_) {}
+  if (statusEl) {
+    statusEl.textContent = 'อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านคำกริยาและฝึกต่อได้';
+    statusEl.classList.add('show');
+  }
+}
+
+const VERB_BUCKETS = [
+  { id: 'reg', label: 'กริยาปกติ (เติม -ed)', icon: '📝' },
+  { id: 'irreg', label: 'กริยาอปกติ (เปลี่ยนรูป)', icon: '🔀' }
+];
+
+function mountVerbClassify() {
+  if (!window.KampaiEngines || !window.KampaiEngines.ClassifyBucket) return;
+  const items = VERBS.map((v, i) => ({
+    id: 'verb-' + i,
+    icon: v.type === 'reg' ? '✏️' : '⚡',
+    label: v.v1 + ' ➔ ' + v.v2,
+    sub: v.th + ' · "' + v.s + '"',
+    bucketId: v.type,
+    reason: v.type === 'reg'
+      ? v.v1 + ' เติม -ed เป็น ' + v.v2 + ' (กริยาปกติ)'
+      : v.v1 + ' เปลี่ยนรูปเป็น ' + v.v2 + ' (กริยาอปกติ)'
+  }));
+  classifySession = window.KampaiEngines.ClassifyBucket.mount('#classifyEngineRoot', {
+    items: items,
+    buckets: VERB_BUCKETS,
+    mode: 'media',
+    roundSize: 8,
+    onAnswer: (res) => {
+      if (window.KAMPAI && window.KAMPAI.sound) {
+        try { res.isCorrect ? window.KAMPAI.sound.correct() : window.KAMPAI.sound.wrong(); } catch (_) {}
+      }
+    }
+  });
 }
 
 // TABS
@@ -612,12 +806,20 @@ const panels = {
   timeline: document.getElementById('panel-timeline'),
   matrix: document.getElementById('panel-matrix'),
   detective: document.getElementById('panel-detective'),
-  quiz: document.getElementById('panel-quiz')
+  quiz: document.getElementById('panel-quiz'),
+  classify: document.getElementById('panel-classify')
 };
 function switchTab(t) {
+  if (!panels[t]) return;
+  stopSpeech();
   state.tab = t;
   tabBtns.forEach(b => b.classList.toggle('active', b.dataset.tab === t));
   Object.keys(panels).forEach(k => panels[k].classList.toggle('active', k === t));
+  if (t === 'classify') {
+    mountVerbClassify();
+  } else if (window.KampaiEngines?.ClassifyBucket?.cleanup) {
+    window.KampaiEngines.ClassifyBucket.cleanup();
+  }
 }
 tabBtns.forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
 
@@ -785,6 +987,7 @@ renderQuiz();
 document.getElementById('selVoiceAccent').addEventListener('change', (e) => state.voiceAccent = e.target.value);
 document.getElementById('btnAudioToggle').addEventListener('click', () => {
   state.ttsEnabled = !state.ttsEnabled;
+  if (!state.ttsEnabled) stopSpeech();
   document.getElementById('audioIcon').textContent = state.ttsEnabled ? '🔊' : '🔇';
   document.getElementById('audioLabel').textContent = state.ttsEnabled ? 'เปิดเสียง' : 'ปิดเสียง';
 });
@@ -792,13 +995,23 @@ document.getElementById('btnFullscreen').addEventListener('click', () => {
   if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
   else document.exitFullscreen().catch(() => {});
 });
+document.getElementById('btnClassifyNew').addEventListener('click', () => { stopSpeech(); mountVerbClassify(); });
+document.getElementById('btnSpeakClassify').addEventListener('click', () => {
+  const item = classifySession?.currentItem?.();
+  if (item) speakText(item.label.replace('➔', ', '), state.voiceAccent);
+});
+document.addEventListener('visibilitychange', () => { if (document.hidden) stopSpeech(); });
+window.addEventListener('pagehide', stopSpeech);
+mountVerbClassify();
 
 // SHORTCUTS
 window.addEventListener('keydown', (e) => {
+  if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA')) return;
   if (e.key === '1') switchTab('timeline');
   if (e.key === '2') switchTab('matrix');
   if (e.key === '3') switchTab('detective');
   if (e.key === '4') switchTab('quiz');
+  if (e.key === '5') switchTab('classify');
   if (e.key === ' ' || e.code === 'Space') {
     e.preventDefault();
     if (state.tab === 'detective') btnSpeakDet.click();

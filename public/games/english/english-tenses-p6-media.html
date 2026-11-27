@@ -2,6 +2,8 @@
 <html lang="th">
 <head>
   <script src="/games/kampai-sdk.js?v=1.181.0"></script>
+  <script src="/games/media-lab-runtime.js?v=2.0.0"></script>
+  <script src="/games/engine/classify-bucket-engine.js?v=2.0.0"></script>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>English Tenses Learning Studio (ป.4–ป.6) — โรงเรียนบ้านคำไผ่</title>
@@ -893,6 +895,124 @@
       color: #0f172a;
       font-size: 0.8rem;
     }
+
+    .speech-status {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #78350f;
+      background: #fef3c7;
+      border: 1px solid #f59e0b;
+      border-radius: 10px;
+      padding: 8px 12px;
+      margin-bottom: 14px;
+      display: none;
+    }
+    .speech-status.show { display: block; }
+    .tense-classify-wrap {
+      max-width: 680px;
+      margin: 18px auto 0;
+      background: #ffffff;
+      border: 2px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .ke-classify-card {
+      background: #f8fafc;
+      border: 2px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .ke-classify-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 800;
+      color: var(--deep);
+      font-size: 0.95rem;
+    }
+    .ke-classify-item {
+      background: #ffffff;
+      border: 2px dashed var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: center;
+    }
+    .ke-item-icon { font-size: 2rem; line-height: 1.1; }
+    .ke-item-label { font-size: 1.15rem; font-weight: 800; color: var(--navy); }
+    .ke-item-sub { font-size: 0.9rem; font-weight: 600; color: var(--muted); }
+    .ke-buckets {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    @media (max-width: 520px) {
+      .ke-buckets { grid-template-columns: 1fr; }
+      .seg-btn { white-space: normal; text-align: center; }
+      .builder-prompt { flex-direction: column; text-align: center; }
+      .variation-item { flex-wrap: wrap; }
+    }
+    .ke-bucket-btn, .ke-btn {
+      min-height: 46px;
+      min-width: 44px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      background: #ffffff;
+      color: var(--navy);
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 800;
+      cursor: pointer;
+      text-align: center;
+    }
+    .ke-bucket-btn:hover:not(:disabled) { border-color: var(--deep); background: var(--sky-light); }
+    .ke-bucket-btn.is-correct { background: #dcfce7; border-color: var(--emerald); color: #065f46; }
+    .ke-bucket-btn.is-wrong { background: #ffe4e6; border-color: var(--rose); color: var(--rose); opacity: 0.7; }
+    .ke-btn { background: var(--deep); color: #ffffff; border-color: var(--deep); align-self: flex-end; }
+    .ke-classify-feedback {
+      padding: 12px;
+      border-radius: 12px;
+      font-weight: 700;
+      background: #ffffff;
+      border: 1.5px solid var(--border);
+      color: var(--navy);
+    }
+    .ke-classify-feedback.is-good { background: #dcfce7; border-color: var(--emerald); color: #065f46; }
+    .ke-classify-feedback.is-learn { background: #fef3c7; border-color: var(--gold); color: #78350f; }
+    .ke-classify-summary {
+      text-align: center;
+      padding: 20px 14px;
+      background: var(--sky-light);
+      border: 2px solid var(--line);
+      border-radius: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: center;
+    }
+    .ke-classify-summary .ke-btn { align-self: center; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+      }
+      .echo-countdown { animation: none !important; }
+      .studio-img:hover, .matrix-card:hover { transform: none !important; }
+    }
   </style>
 </head>
 <body>
@@ -988,6 +1108,7 @@
 
   <!-- MAIN STAGE -->
   <main class="stage" id="mainStage">
+    <div class="speech-status" id="speechStatus" role="status" aria-live="polite"></div>
 
     <!-- MODE 1: TENSE STUDIO & TIMELINE -->
     <section class="mode-section active" id="secStudio">
@@ -1018,10 +1139,21 @@
         </div>
         <div class="quiz-choices" id="quizChoices"></div>
         <div class="quiz-feedback" id="quizFeedback"></div>
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
           <button type="button" class="btn btn-ghost" id="btnQuizSpeak">🔊 ฟังคำถาม (Space)</button>
           <button type="button" class="btn btn-primary" id="btnQuizNext">ข้อถัดไป →</button>
         </div>
+      </div>
+
+      <div class="tense-classify-wrap">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:2px solid #f1f5f9;padding-bottom:10px">
+          <div>
+            <h3 style="font-size:1.1rem;font-weight:800;color:var(--deep)">🗂️ ฝึกจำแนกคำบอกเวลาและประโยค 4 กาล</h3>
+            <p style="font-size:0.88rem;color:var(--muted);font-weight:600">ไม่จับเวลา · ไม่เก็บคะแนน · แตะเลือกหรือกดปุ่มตัวเลข 1–4</p>
+          </div>
+          <button type="button" class="btn btn-ghost" id="btnClassifyNew">🔄 ชุดใหม่</button>
+        </div>
+        <div id="tensesClassifyRoot"></div>
       </div>
     </section>
 
@@ -1770,15 +1902,18 @@ function cancelAllSpeech() {
     clearInterval(echoTimer);
     echoTimer = null;
   }
-  if ('speechSynthesis' in window) {
-    window.speechSynthesis.cancel();
+  if (window.KampaiMediaLab && typeof window.KampaiMediaLab.stopAllSpeech === 'function') {
+    window.KampaiMediaLab.stopAllSpeech();
+  } else {
+    try { window.KAMPAI?.sound?.stopSpeak?.(); } catch (_) {}
+    try { window.speechSynthesis?.cancel?.(); } catch (_) {}
   }
   const echoBox = document.getElementById('echoBox');
   if (echoBox) echoBox.innerHTML = '';
 }
 
 function getBestVoice(option) {
-  if (!('speechSynthesis' in window)) return null;
+  if (!('speechSynthesis' in window) || typeof window.speechSynthesis.getVoices !== 'function') return null;
   const voices = window.speechSynthesis.getVoices();
   if (!voices || !voices.length) return null;
   const opt = (option || 'us-female').toLowerCase();
@@ -1800,8 +1935,21 @@ function getBestVoice(option) {
   return null;
 }
 
+function setSpeechStatusBanner(isError) {
+  const statusEl = document.getElementById('speechStatus');
+  if (!statusEl) return;
+  if (isError) {
+    statusEl.textContent = 'อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านเนื้อหาและฝึกต่อได้';
+    statusEl.classList.add('show');
+  } else {
+    statusEl.textContent = '';
+    statusEl.classList.remove('show');
+  }
+}
+
 function speakSentence(text, customRate, onEndCallback) {
-  if (!text || !('speechSynthesis' in window)) {
+  const clean = String(text || '').trim();
+  if (!clean) {
     if (onEndCallback) onEndCallback();
     return;
   }
@@ -1810,9 +1958,10 @@ function speakSentence(text, customRate, onEndCallback) {
   }
 
   const voiceOpt = document.getElementById('selVoice')?.value || 'us-female';
+  const lang = voiceOpt === 'uk' ? 'en-GB' : 'en-US';
   const rate = customRate || speechRate || 1.0;
   const now = Date.now();
-  const itemKey = text + '_' + voiceOpt + '_' + rate;
+  const itemKey = clean + '_' + voiceOpt + '_' + rate;
 
   if (itemKey === lastSpeakKey && (now - lastSpeakTimestamp) < 320) {
     return;
@@ -1823,28 +1972,48 @@ function speakSentence(text, customRate, onEndCallback) {
   currentSpeakGen++;
   const gen = currentSpeakGen;
 
-  window.speechSynthesis.cancel();
+  if (window.KampaiMediaLab && typeof window.KampaiMediaLab.stopAllSpeech === 'function') {
+    window.KampaiMediaLab.stopAllSpeech();
+  } else if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+  }
   clearTimeout(speakCancelTimer);
+
+  if (!onEndCallback && window.KampaiMediaLab && typeof window.KampaiMediaLab.speakSafe === 'function') {
+    const res = window.KampaiMediaLab.speakSafe(clean, { lang, rate });
+    setSpeechStatusBanner(Boolean(res && res.ok === false));
+    return;
+  }
 
   speakCancelTimer = setTimeout(() => {
     if (gen !== currentSpeakGen) return;
-    try {
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = voiceOpt === 'uk' ? 'en-GB' : 'en-US';
-      u.rate = rate;
-      const matchedVoice = getBestVoice(voiceOpt);
-      if (matchedVoice) u.voice = matchedVoice;
-      u.onend = () => {
-        if (gen === currentSpeakGen && onEndCallback) onEndCallback();
-      };
-      u.onerror = () => {
-        if (gen === currentSpeakGen && onEndCallback) onEndCallback();
-      };
-      window.speechSynthesis.speak(u);
-    } catch (err) {
-      console.warn('TTS error:', err);
-      if (onEndCallback) onEndCallback();
+    if ('speechSynthesis' in window && typeof window.SpeechSynthesisUtterance === 'function') {
+      try {
+        const u = new SpeechSynthesisUtterance(clean);
+        u.lang = lang;
+        u.rate = rate;
+        const matchedVoice = getBestVoice(voiceOpt);
+        if (matchedVoice) u.voice = matchedVoice;
+        u.onend = () => {
+          if (gen === currentSpeakGen && onEndCallback) onEndCallback();
+        };
+        u.onerror = () => {
+          if (gen === currentSpeakGen && onEndCallback) onEndCallback();
+        };
+        window.speechSynthesis.speak(u);
+        setSpeechStatusBanner(false);
+        return;
+      } catch (err) {
+        console.warn('TTS error:', err);
+      }
     }
+    if (window.KampaiMediaLab && typeof window.KampaiMediaLab.speakSafe === 'function') {
+      const res = window.KampaiMediaLab.speakSafe(clean, { lang, rate });
+      setSpeechStatusBanner(Boolean(res && res.ok === false));
+    } else {
+      setSpeechStatusBanner(true);
+    }
+    if (onEndCallback) onEndCallback();
   }, 50);
 }
 
@@ -2289,6 +2458,41 @@ document.getElementById('btnBuilderNext').onclick = () => {
 // ==========================================
 // 9. MODE & LEVEL SWITCHING
 // ==========================================
+let classifySession = null;
+
+const TENSE_BUCKETS = [
+  { id: 'presSim', label: 'Present Simple (กิจวัตร)', icon: '🔄' },
+  { id: 'presCont', label: 'Present Continuous (กำลังทำ)', icon: '▶️' },
+  { id: 'pastSim', label: 'Past Simple (อดีตจบแล้ว)', icon: '⏮️' },
+  { id: 'futSim', label: 'Future Simple (อนาคต)', icon: '⏭️' }
+];
+
+function mountTensesClassify() {
+  if (!window.KampaiEngines || !window.KampaiEngines.ClassifyBucket) return;
+  const items = MATRIX_VERBS.slice(0, 4).flatMap(v => ([
+    { id: v.id + '-ps', icon: '🔄', label: v.presSim.en, sub: v.presSim.th, bucketId: 'presSim', reason: v.presSim.rule },
+    { id: v.id + '-pc', icon: '▶️', label: v.presCont.en, sub: v.presCont.th, bucketId: 'presCont', reason: v.presCont.rule },
+    { id: v.id + '-pa', icon: '⏮️', label: v.pastSim.en, sub: v.pastSim.th, bucketId: 'pastSim', reason: v.pastSim.rule },
+    { id: v.id + '-fu', icon: '⏭️', label: v.futSim.en, sub: v.futSim.th, bucketId: 'futSim', reason: v.futSim.rule }
+  ]));
+  classifySession = window.KampaiEngines.ClassifyBucket.mount('#tensesClassifyRoot', {
+    items: items,
+    buckets: TENSE_BUCKETS,
+    mode: 'media',
+    roundSize: 8,
+    onAnswer: (res) => {
+      if (window.KAMPAI && KAMPAI.sound) {
+        try { res.isCorrect ? KAMPAI.sound.correct() : KAMPAI.sound.wrong(); } catch (_) {}
+      }
+    }
+  });
+}
+
+document.getElementById('btnClassifyNew').addEventListener('click', () => {
+  cancelAllSpeech();
+  mountTensesClassify();
+});
+
 function switchMode(newMode) {
   cancelAllSpeech();
   currentMode = newMode;
@@ -2299,6 +2503,10 @@ function switchMode(newMode) {
     sec.classList.remove('active');
   });
 
+  if (newMode !== 'quiz' && window.KampaiEngines?.ClassifyBucket?.cleanup) {
+    window.KampaiEngines.ClassifyBucket.cleanup();
+  }
+
   if (newMode === 'studio') {
     document.getElementById('secStudio').classList.add('active');
     renderStudio();
@@ -2308,6 +2516,7 @@ function switchMode(newMode) {
   } else if (newMode === 'quiz') {
     document.getElementById('secQuiz').classList.add('active');
     renderQuiz();
+    mountTensesClassify();
   } else if (newMode === 'builder') {
     document.getElementById('secBuilder').classList.add('active');
     initBuilderChallenge();
@@ -2412,8 +2621,13 @@ window.addEventListener('keydown', e => {
 // ==========================================
 // 11. QA & AUTOMATION INSPECTION HOOK
 // ==========================================
-window.__getState = function() {
-  return {
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) cancelAllSpeech();
+});
+window.addEventListener('pagehide', cancelAllSpeech);
+
+window.getState = function() {
+  return Object.freeze({
     slug: MEDIA_SLUG,
     mode: currentMode,
     level: currentLevel,
@@ -2424,12 +2638,18 @@ window.__getState = function() {
     quizStreak: quizStreak,
     quizScore: quizScore,
     builderIndex: builderIndex,
-    speechRate: speechRate
-  };
+    speechRate: speechRate,
+    classify: classifySession ? classifySession.getState() : null,
+    reducedMotion: typeof window.matchMedia === 'function'
+      ? Boolean(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+      : false
+  });
 };
+window.__getState = window.getState;
 
 // Initial Render
 renderStudio();
+mountTensesClassify();
 </script>
 </body>
 </html>

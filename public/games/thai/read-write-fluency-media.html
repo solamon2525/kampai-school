@@ -1,42 +1,325 @@
 <!DOCTYPE html>
-<html lang="th"><head>
+<html lang="th">
+<head>
   <script src="/games/kampai-sdk.js?v=1.181.0"></script>
-  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <script src="/games/media-lab-runtime.js?v=2.0.0"></script>
+  <script src="/games/engine/vocab-quiz-engine.js?v=2.0.0"></script>
+  <script src="/games/engine/classify-bucket-engine.js?v=2.0.0"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>อ่านคล่องเขียนคล่อง — บ้านคำไผ่</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
   <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{--deep:#c2410c;--line:#fed7aa;--muted:#64748b}
-    body{font-family:'Sarabun',sans-serif;background:linear-gradient(145deg,#fed7aa,#c2410c22);min-height:100%;padding:12px;color:#0f172a}
-    .shell{max-width:1100px;margin:0 auto;background:#fff;border-radius:1.5rem;box-shadow:0 20px 50px rgba(15,23,42,.12);overflow:hidden;min-height:calc(100vh - 24px);display:flex;flex-direction:column}
-    header{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 16px;background:linear-gradient(90deg,var(--deep),#c2410c);color:#fff}
-    header h1{font-size:1.15rem;font-weight:800;flex:1;min-width:160px}
-    .badge{font-size:.75rem;background:rgba(255,255,255,.2);padding:4px 10px;border-radius:999px;font-weight:700}
-    .btn{font-family:inherit;font-weight:700;border:none;border-radius:12px;padding:10px 14px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
-    .btn:active{transform:scale(.97)}
-    .btn-back{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);padding:8px 12px;font-size:.85rem}
-    .btn-primary{background:var(--deep);color:#fff}
-    .btn-ghost{background:#fff;color:var(--deep);border:2px solid var(--line)}
-    .toolbar{display:flex;flex-wrap:wrap;gap:8px;padding:12px 16px;background:#f8fafc;border-bottom:1px solid var(--line);align-items:center}
-    .seg{display:inline-flex;border-radius:12px;overflow:hidden;border:2px solid var(--line)}
-    .seg button{font-family:inherit;font-weight:800;border:none;background:#fff;color:var(--deep);padding:8px 14px;cursor:pointer}
-    .seg button.on{background:var(--deep);color:#fff}
-    .hint{font-size:.9rem;color:var(--deep);font-weight:700;flex:1;min-width:140px}
-    .stage{flex:1;padding:16px;overflow:auto}
-    .footer{padding:10px;font-size:.8rem;color:var(--muted);text-align:center;border-top:1px solid var(--line)}
-    .practice{display:none;flex-direction:column;gap:12px;max-width:520px;margin:0 auto}
-    .shell.mode-practice .learn{display:none}.shell.mode-practice .practice{display:flex}
-    .choice{font-family:inherit;font-weight:800;font-size:1.05rem;padding:14px;border:2px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;text-align:left}
-    .choice.ok{background:#dcfce7}.choice.no{background:#fee2e2}
-    .pick{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
-     .pick button{font-family:inherit;font-weight:800;font-size:1rem;padding:12px 14px;border:2px solid var(--line);border-radius:14px;background:#fff;cursor:pointer;color:var(--deep)}
-     .pick button.on{background:var(--deep);color:#fff}
-     .box{background:#f8fafc;border:2px solid var(--line);border-radius:16px;padding:18px;font-weight:700;line-height:1.7;font-size:1.1rem}
-     .box h2{color:var(--deep);margin-bottom:8px;font-size:1.5rem}
-     .emo{font-size:3.2rem;margin-bottom:8px}
-     .trace{margin-top:12px;padding:12px;border:2px dashed var(--line);border-radius:12px;font-size:2rem;letter-spacing:.12em;color:#94a3b8;font-weight:800}
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --deep: #c2410c;
+      --deep-dark: #9a3412;
+      --line: #fed7aa;
+      --soft: #fff7ed;
+      --muted: #475569;
+      --ink: #0f172a;
+      --border: #cbd5e1;
+      --ok: #15803d;
+      --bad: #b91c1c;
+    }
+    html, body { max-width: 100%; overflow-x: hidden; }
+    body {
+      font-family: 'Sarabun', sans-serif;
+      background: linear-gradient(145deg, #fed7aa, #fff7ed);
+      min-height: 100vh;
+      padding: 12px;
+      color: var(--ink);
+    }
+    .shell {
+      max-width: 1100px;
+      width: 100%;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 1.5rem;
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.12);
+      overflow: hidden;
+      min-height: calc(100vh - 24px);
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      background: linear-gradient(90deg, var(--deep-dark), var(--deep));
+      color: #ffffff;
+    }
+    header h1 { font-size: 1.15rem; font-weight: 800; flex: 1; min-width: 160px; }
+    .badge {
+      font-size: 0.78rem;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .btn {
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 0.92rem;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 14px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 44px;
+      min-width: 44px;
+      transition: transform 0.15s, background 0.15s;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn:focus-visible, .seg button:focus-visible, .pick button:focus-visible,
+    .ke-option:focus-visible, .ke-bucket-btn:focus-visible, .ke-btn:focus-visible {
+      outline: 3px solid #f59e0b;
+      outline-offset: 2px;
+    }
+    .btn-back {
+      background: rgba(255, 255, 255, 0.16);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      padding: 8px 12px;
+      font-size: 0.85rem;
+    }
+    .btn-primary { background: var(--deep); color: #ffffff; }
+    .btn-primary:hover { background: var(--deep-dark); }
+    .btn-ghost { background: #ffffff; color: var(--deep-dark); border: 2px solid var(--line); }
+    .btn-ghost:hover { background: var(--soft); }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 12px 16px;
+      background: #f8fafc;
+      border-bottom: 1px solid var(--line);
+      align-items: center;
+    }
+    .seg {
+      display: inline-flex;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px solid var(--deep);
+      background: #ffffff;
+    }
+    .seg button {
+      font-family: inherit;
+      font-weight: 800;
+      border: none;
+      background: #ffffff;
+      color: var(--deep-dark);
+      padding: 8px 14px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      min-height: 44px;
+      min-width: 44px;
+    }
+    .seg button.on { background: var(--deep); color: #ffffff; }
+    .hint { font-size: 0.9rem; color: var(--deep-dark); font-weight: 700; flex: 1; min-width: 140px; }
+    .stage { flex: 1; padding: 16px; overflow: auto; }
+    .learn { max-width: 840px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+    .shell.mode-practice .learn { display: none; }
+    .practice { display: none; flex-direction: column; gap: 12px; max-width: 720px; margin: 0 auto; width: 100%; }
+    .shell.mode-practice .practice { display: flex; }
+    .pick { display: flex; flex-wrap: wrap; gap: 8px; }
+    .pick button {
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 1rem;
+      padding: 10px 14px;
+      border: 2px solid var(--line);
+      border-radius: 14px;
+      background: #ffffff;
+      cursor: pointer;
+      color: var(--deep-dark);
+      min-height: 44px;
+      min-width: 44px;
+    }
+    .pick button.on { background: var(--deep); color: #ffffff; border-color: var(--deep); }
+    .box {
+      background: #fffaf5;
+      border: 2px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      font-weight: 700;
+      line-height: 1.7;
+      font-size: 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .box h2 { color: var(--deep-dark); font-size: 1.5rem; }
+    .emo { font-size: 3.2rem; line-height: 1.1; }
+    .trace {
+      margin-top: 4px;
+      padding: 12px;
+      border: 2px dashed var(--line);
+      border-radius: 12px;
+      font-size: clamp(1.5rem, 4vw, 2rem);
+      letter-spacing: 0.12em;
+      color: var(--deep-dark);
+      font-weight: 800;
+      background: #ffffff;
+      text-align: center;
+    }
+    .engine-card {
+      background: var(--soft);
+      border: 2px solid var(--line);
+      border-radius: 20px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      width: 100%;
+    }
+    .engine-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .engine-mode-group { display: inline-flex; flex-wrap: wrap; gap: 8px; }
+    .ke-quiz-card, .ke-quiz-summary, .ke-classify-card, .ke-classify-summary {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .ke-quiz-head, .ke-classify-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-weight: 800;
+      color: var(--deep-dark);
+    }
+    .ke-badge {
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #ffedd5;
+      color: var(--deep-dark);
+      font-size: 0.85rem;
+    }
+    .ke-progress { color: var(--muted); font-size: 0.92rem; }
+    .ke-prompt { font-size: 1.15rem; font-weight: 800; color: var(--ink); line-height: 1.5; overflow-wrap: anywhere; }
+    .ke-audio-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .ke-options { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    @media (min-width: 640px) { .ke-options { grid-template-columns: 1fr 1fr; } }
+    .ke-option, .ke-btn {
+      min-height: 46px;
+      min-width: 44px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      background: #ffffff;
+      color: var(--ink);
+      font-family: inherit;
+      font-size: 0.98rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: left;
+      overflow-wrap: anywhere;
+    }
+    .ke-btn {
+      background: var(--deep);
+      color: #ffffff;
+      border-color: var(--deep);
+      text-align: center;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      align-self: flex-start;
+    }
+    .ke-option.is-correct { background: #dcfce7; border-color: var(--ok); color: #14532d; }
+    .ke-option.is-wrong { background: #fee2e2; border-color: var(--bad); color: #7f1d1d; }
+    .ke-option:disabled, .ke-bucket-btn:disabled { cursor: default; }
+    .ke-classify-item {
+      text-align: center;
+      padding: 18px 14px;
+      background: #ffffff;
+      border: 2px dashed var(--deep);
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .ke-item-icon { font-size: clamp(36px, 9vw, 52px); line-height: 1.05; }
+    .ke-item-label { font-size: clamp(1.15rem, 2.5vw, 1.4rem); font-weight: 800; color: var(--deep-dark); overflow-wrap: anywhere; }
+    .ke-item-sub { font-size: 0.92rem; font-weight: 700; color: var(--muted); }
+    .ke-buckets { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    @media (min-width: 580px) { .ke-buckets { grid-template-columns: 1fr 1fr; } }
+    .ke-bucket-btn {
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 0.95rem;
+      min-height: 50px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 2px solid var(--line);
+      background: #ffffff;
+      color: var(--deep-dark);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-align: center;
+      overflow-wrap: anywhere;
+    }
+    .ke-bucket-btn.is-correct { outline: 3px solid var(--ok); background: #dcfce7; color: #14532d; }
+    .ke-bucket-btn.is-wrong { opacity: 0.65; text-decoration: line-through; }
+    .ke-feedback, .ke-classify-feedback {
+      min-height: 24px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-weight: 700;
+      background: #e2e8f0;
+      color: var(--ink);
+      line-height: 1.45;
+    }
+    .ke-feedback.is-good, .ke-classify-feedback.is-good { background: #dcfce7; color: #14532d; border: 1.5px solid var(--ok); }
+    .ke-feedback.is-learn, .ke-classify-feedback.is-learn { background: #fef3c7; color: #78350f; border: 1.5px solid #d97706; }
+    .ke-quiz-summary, .ke-classify-summary { text-align: center; padding: 16px 8px; align-items: center; }
+    .ke-quiz-summary .ke-btn, .ke-classify-summary .ke-btn { align-self: center; }
+    .speech-status {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #78350f;
+      background: #fef3c7;
+      border: 1px solid #f59e0b;
+      border-radius: 10px;
+      padding: 8px 12px;
+      display: none;
+    }
+    .speech-status.show { display: block; }
+    .footer { padding: 10px 16px; font-size: 0.8rem; color: var(--muted); text-align: center; border-top: 1px solid var(--line); }
+    @media (max-width: 600px) {
+      body { padding: 0; }
+      .shell { border-radius: 0; min-height: 100vh; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+      }
+      .btn:active { transform: none; }
+    }
   </style>
-</head><body>
+</head>
+<body>
 <div class="shell" id="shell">
   <header>
     <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back()">← กลับคลังสื่อ</button>
@@ -45,38 +328,291 @@
   </header>
   <div class="toolbar">
     <span class="seg" id="modeSeg">
-      <button type="button" data-mode="learn" class="on">📖 เรียนรู้</button>
-      <button type="button" data-mode="practice">✏️ ฝึก</button>
+      <button type="button" data-mode="learn" class="on" aria-pressed="true">📖 เรียนรู้</button>
+      <button type="button" data-mode="practice" aria-pressed="false">✏️ ฝึก</button>
     </span>
-    <p class="hint" id="hintText">สื่อ ป.ต้น — ไม่เก็บคะแนน</p>
+    <p class="hint" id="hintText">สื่อ ป.ต้น — เลือกหัวข้อ ตัวใหญ่ชัด ไม่เก็บคะแนน</p>
     <button type="button" class="btn btn-ghost" id="btnFs">⛶ เต็มจอ</button>
     <a class="btn btn-ghost" href="/games/thai/read-write-fluency-worksheet.html" target="_blank" rel="noopener">📝 เปิดใบงาน</a>
   </div>
-  <div class="stage" id="stage"><div class="learn"><div class="pick" id="pick"></div><div class="box" id="box"></div></div>
-     <div class="practice"><p style="font-weight:800;font-size:1.15rem;color:var(--deep)" id="prQ"></p><div id="prChoices" style="display:grid;gap:8px"></div><p id="prFb" style="font-weight:800;min-height:24px"></p><button type="button" class="btn btn-primary" id="btnNext">ข้อถัดไป</button></div></div>
+  <div class="stage" id="stage">
+    <div class="learn" id="learn">
+      <div class="pick" id="pick"></div>
+      <div class="box" id="box"></div>
+      <div class="speech-status" id="speechStatusLearn" role="status" aria-live="polite"></div>
+    </div>
+    <div class="practice" id="practice">
+      <div class="engine-card">
+        <div class="engine-toolbar">
+          <div class="engine-mode-group">
+            <button type="button" class="btn btn-primary" id="btnPracQuiz">📝 ทบทวนหลักการ</button>
+            <button type="button" class="btn btn-ghost" id="btnPracClassify">🗂️ แยกทักษะอ่าน-เขียน</button>
+          </div>
+          <button type="button" class="btn btn-ghost" id="btnPracSpeak">🔊 ฟังโจทย์</button>
+        </div>
+        <div class="speech-status" id="speechStatusPractice" role="status" aria-live="polite"></div>
+        <div id="quizEngineRoot"></div>
+        <div id="classifyEngineRoot" style="display:none;"></div>
+      </div>
+    </div>
+  </div>
   <div class="footer">โรงเรียนบ้านคำไผ่ · สื่อ ป.ต้น · Phase 12 · ไม่เก็บคะแนน</div>
 </div>
 <script>
-const MEDIA_SLUG='read-write-fluency-media';
-if(window.KAMPAI){KAMPAI.setSlug(MEDIA_SLUG);if(KAMPAI.sound&&KAMPAI.sound.mountToggles)KAMPAI.sound.mountToggles();}
-const ITEMS=[{"emoji":"👀","name":"อ่านทีละคำ","body":"ชี้คำ อ่านออกเสียงชัด ไม่รีบ","tip":"นิ้วชี้ตามคำ","q":"อ่านคล่องเริ่มจากอะไร?","a":"อ่านทีละคำชัด ๆ"},{"emoji":"🔁","name":"อ่านซ้ำ","body":"อ่านประโยคเดิม 2–3 รอบ ให้ลื่นขึ้น","tip":"รอบหลังเร็วขึ้นได้","q":"ทำไมต้องอ่านซ้ำ?","a":"ให้ลื่นขึ้น / จำได้"},{"emoji":"✍️","name":"คัดลายมือ","body":"เขียนตามบรรทัด ตัวสูงเท่ากัน","tip":"เริ่มจากคำสั้น","trace":"มา — ไป — กิน","q":"เขียนคล่องควรทำอย่างไร?","a":"คัดตามบรรทัด / สม่ำเสมอ"},{"emoji":"🧩","name":"ประกอบประโยค","body":"คำ + คำ = ประโยคสั้น เช่น “กากิน”","tip":"มีประธานกับกริยา","q":"ประโยคสั้นต้องมีอะไร?","a":"ประธานและกริยา"},{"emoji":"⏱️","name":"จับเวลาเบา ๆ","body":"อ่าน 1 นาที นับคำ (ไม่ต้องแข่งแรง)","tip":"เน้นถูกก่อนเร็ว","q":"จับเวลาเพื่ออะไร?","a":"ดูพัฒนาการ / ฝึก"},{"emoji":"🎉","name":"ชมตัวเอง","body":"ทำได้ดีขึ้นทุกวัน ชมตัวเองได้","tip":"ติดสติกเกอร์ความพยายาม","q":"เมื่ออ่านได้ดีขึ้นควรทำอะไร?","a":"ชมตัวเอง / บันทึกความก้าวหน้า"}];
-let cur=ITEMS[0];
-function setMode(m){document.getElementById('shell').classList.toggle('mode-practice',m==='practice');document.getElementById('hintText').textContent=m==='learn'?'เลือกหัวข้อ · ตัวใหญ่ชัด':'ตอบคำถาม';if(m==='practice')nextPr();}
-function render(){
-  document.getElementById('pick').innerHTML=ITEMS.map((x,i)=>'<button type="button" data-i="'+i+'" class="'+(x===cur?'on':'')+'">'+(x.emoji?x.emoji+' ':'')+x.name+'</button>').join('');
-  document.getElementById('box').innerHTML=(cur.emoji?'<div class="emo">'+cur.emoji+'</div>':'')+'<h2>'+cur.name+'</h2><p>'+cur.body+'</p>'+(cur.tip?'<p style="margin-top:10px;color:var(--muted);font-size:1rem">💡 '+cur.tip+'</p>':'')+(cur.trace?'<div class="trace">'+cur.trace+'</div>':'');
+const MEDIA_SLUG = 'read-write-fluency-media';
+if (window.KAMPAI) {
+  KAMPAI.setSlug('read-write-fluency-media');
+  if (KAMPAI.sound && typeof KAMPAI.sound.mountToggles === 'function') {
+    try { KAMPAI.sound.mountToggles(); } catch (_) {}
+  }
 }
-document.getElementById('pick').onclick=e=>{const b=e.target.closest('[data-i]');if(!b)return;cur=ITEMS[+b.dataset.i];render();};
-function nextPr(){const a=ITEMS[Math.floor(Math.random()*ITEMS.length)];document.getElementById('prQ').textContent=a.q;document.getElementById('prFb').textContent='';
-  const opts=new Set([a.a]);while(opts.size<4)opts.add(ITEMS[Math.floor(Math.random()*ITEMS.length)].a);
-  const box=document.getElementById('prChoices');box.innerHTML=[...opts].sort(()=>Math.random()-0.5).map(o=>'<button type="button" class="choice">'+o+'</button>').join('');
-  box.onclick=e=>{const b=e.target.closest('.choice');if(!b)return;const ok=b.textContent===a.a;b.classList.add(ok?'ok':'no');document.getElementById('prFb').textContent=ok?'✅ เก่งมาก!':'เฉลย: '+a.a;if(KAMPAI&&KAMPAI.sound)(ok?KAMPAI.sound.correct:KAMPAI.sound.wrong)();};}
-document.getElementById('btnNext').onclick=nextPr;render();setMode('learn');
-document.getElementById('modeSeg').onclick=e=>{
-  const b=e.target.closest('button[data-mode]');if(!b)return;
-  [...document.querySelectorAll('#modeSeg button')].forEach(x=>x.classList.toggle('on',x===b));
-  setMode(b.dataset.mode);
-};
-document.getElementById('btnFs').onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.();};
+
+const ITEMS = [
+  { emoji: '👀', name: 'อ่านทีละคำ', body: 'ชี้คำ อ่านออกเสียงชัด ไม่รีบ', tip: 'นิ้วชี้ตามคำ', q: 'อ่านคล่องเริ่มจากอะไร?', a: 'อ่านทีละคำชัด ๆ' },
+  { emoji: '🔁', name: 'อ่านซ้ำ', body: 'อ่านประโยคเดิม 2–3 รอบ ให้ลื่นขึ้น', tip: 'รอบหลังเร็วขึ้นได้', q: 'ทำไมต้องอ่านซ้ำ?', a: 'ให้ลื่นขึ้น / จำได้' },
+  { emoji: '✍️', name: 'คัดลายมือ', body: 'เขียนตามบรรทัด ตัวสูงเท่ากัน', tip: 'เริ่มจากคำสั้น', trace: 'มา — ไป — กิน', q: 'เขียนคล่องควรทำอย่างไร?', a: 'คัดตามบรรทัด / สม่ำเสมอ' },
+  { emoji: '🧩', name: 'ประกอบประโยค', body: 'คำ + คำ = ประโยคสั้น เช่น “กากิน”', tip: 'มีประธานกับกริยา', q: 'ประโยคสั้นต้องมีอะไร?', a: 'ประธานและกริยา' },
+  { emoji: '⏱️', name: 'จับเวลาเบา ๆ', body: 'อ่าน 1 นาที นับคำ (ไม่ต้องแข่งแรง)', tip: 'เน้นถูกก่อนเร็ว', q: 'จับเวลาเพื่ออะไร?', a: 'ดูพัฒนาการ / ฝึก' },
+  { emoji: '🎉', name: 'ชมตัวเอง', body: 'ทำได้ดีขึ้นทุกวัน ชมตัวเองได้', tip: 'ติดสติกเกอร์ความพยายาม', q: 'เมื่ออ่านได้ดีขึ้นควรทำอะไร?', a: 'ชมตัวเอง / บันทึกความก้าวหน้า' },
+];
+
+const QUIZ_POOL = ITEMS.map((item) => ({
+  term: item.q,
+  reading: item.name,
+  meaning: item.a,
+  explain: item.body + (item.tip ? ' (' + item.tip + ')' : ''),
+}));
+
+const SKILL_BUCKETS = [
+  { id: 'read', label: 'ทักษะการอ่านคล่อง', icon: '📖' },
+  { id: 'write', label: 'ทักษะการเขียนและฝึกฝน', icon: '✍️' },
+];
+
+const CLASSIFY_ITEMS = [
+  { id: 'f1', icon: '👀', label: 'ใช้นิ้วชี้ตามคำแล้วอ่านออกเสียงทีละคำชัด ๆ', bucketId: 'read', reason: 'เป็นการฝึกอ่านทีละคำให้แม่นยำ' },
+  { id: 'f2', icon: '🔁', label: 'อ่านประโยคเดิมซ้ำ 2–3 รอบจนคล่องปาก', bucketId: 'read', reason: 'การอ่านซ้ำช่วยให้สายตาและเสียงเชื่อมกันลื่นขึ้น' },
+  { id: 'f3', icon: '⏱️', label: 'จับเวลาอ่าน 1 นาทีเพื่อนับคำและดูพัฒนาการ', bucketId: 'read', reason: 'เป็นการฝึกติดตามความคล่องในการอ่าน' },
+  { id: 'f4', icon: '✍️', label: 'คัดลายมือตามบรรทัดให้ตัวอักษรสูงเท่ากัน', bucketId: 'write', reason: 'เป็นการฝึกกล้ามเนื้อมือและรูปอักษรให้เขียนคล่อง' },
+  { id: 'f5', icon: '🧩', label: 'นำคำมารวมกับคำเป็นประโยคสั้น เช่น กากิน', bucketId: 'write', reason: 'เป็นการฝึกประกอบคำเป็นประโยคเพื่อการเขียนสื่อสาร' },
+  { id: 'f6', icon: '📝', label: 'เริ่มฝึกเขียนคำสั้น ๆ เช่น มา — ไป — กิน อย่างสม่ำเสมอ', bucketId: 'write', reason: 'การเขียนคำสั้นสม่ำเสมอช่วยให้เขียนคล่องขึ้น' },
+];
+
+let curIdx = 0;
+let mode = 'learn';
+let practiceSubMode = 'quiz';
+let speaking = false;
+let quizSession = null;
+let classifySession = null;
+
+function stopSpeech() {
+  speaking = false;
+  if (window.KampaiMediaLab && typeof window.KampaiMediaLab.stopAllSpeech === 'function') {
+    window.KampaiMediaLab.stopAllSpeech();
+  } else {
+    try { window.KAMPAI?.sound?.stopSpeak?.(); } catch (_) {}
+    try { window.speechSynthesis?.cancel?.(); } catch (_) {}
+  }
+  document.querySelectorAll('.speech-status').forEach((el) => {
+    el.textContent = '';
+    el.classList.remove('show');
+  });
+}
+
+function speakText(text, statusId) {
+  const clean = String(text || '').trim();
+  if (!clean) return;
+  const statusEl = document.getElementById(statusId || (mode === 'practice' ? 'speechStatusPractice' : 'speechStatusLearn'));
+  if (window.KampaiMediaLab && typeof window.KampaiMediaLab.speakSafe === 'function') {
+    const res = window.KampaiMediaLab.speakSafe(clean, { lang: 'th-TH', rate: 0.9 });
+    speaking = Boolean(res && res.ok);
+    if (statusEl) {
+      if (res && res.ok === false) {
+        statusEl.textContent = 'อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านข้อความบนหน้าจอต่อได้';
+        statusEl.classList.add('show');
+      } else {
+        statusEl.textContent = '';
+        statusEl.classList.remove('show');
+      }
+    }
+    return;
+  }
+  try {
+    if (window.KAMPAI?.sound?.speak) {
+      window.KAMPAI.sound.speak(clean, 'th-TH', true);
+      speaking = true;
+      return;
+    }
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(clean);
+      u.lang = 'th-TH';
+      u.rate = 0.9;
+      window.speechSynthesis.speak(u);
+      speaking = true;
+      return;
+    }
+  } catch (_) {}
+  speaking = false;
+  if (statusEl) {
+    statusEl.textContent = 'อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านข้อความบนหน้าจอต่อได้';
+    statusEl.classList.add('show');
+  }
+}
+
+function cleanupEngines() {
+  if (window.KampaiEngines?.Quiz?.cleanup) window.KampaiEngines.Quiz.cleanup();
+  if (window.KampaiEngines?.ClassifyBucket?.cleanup) window.KampaiEngines.ClassifyBucket.cleanup();
+}
+
+function mountQuiz() {
+  if (!window.KampaiEngines?.Quiz) return;
+  cleanupEngines();
+  quizSession = window.KampaiEngines.Quiz.mountChoice('#quizEngineRoot', {
+    items: QUIZ_POOL,
+    mode: 'media',
+    roundSize: QUIZ_POOL.length,
+    locale: 'th-TH',
+    speak: (text) => speakText(text, 'speechStatusPractice'),
+    onAnswer: (res) => {
+      if (window.KAMPAI?.sound) {
+        try {
+          if (res.isCorrect) window.KAMPAI.sound.correct();
+          else window.KAMPAI.sound.wrong();
+        } catch (_) {}
+      }
+    },
+  });
+}
+
+function mountClassify() {
+  if (!window.KampaiEngines?.ClassifyBucket) return;
+  cleanupEngines();
+  classifySession = window.KampaiEngines.ClassifyBucket.mount('#classifyEngineRoot', {
+    items: CLASSIFY_ITEMS,
+    buckets: SKILL_BUCKETS,
+    mode: 'media',
+    roundSize: CLASSIFY_ITEMS.length,
+    onAnswer: (res) => {
+      if (window.KAMPAI?.sound) {
+        try {
+          if (res.isCorrect) window.KAMPAI.sound.correct();
+          else window.KAMPAI.sound.wrong();
+        } catch (_) {}
+      }
+    },
+  });
+}
+
+function updatePracticeSubUI() {
+  const isQuiz = practiceSubMode === 'quiz';
+  document.getElementById('quizEngineRoot').style.display = isQuiz ? '' : 'none';
+  document.getElementById('classifyEngineRoot').style.display = isQuiz ? 'none' : '';
+  document.getElementById('btnPracQuiz').className = 'btn ' + (isQuiz ? 'btn-primary' : 'btn-ghost');
+  document.getElementById('btnPracClassify').className = 'btn ' + (isQuiz ? 'btn-ghost' : 'btn-primary');
+}
+
+function setMode(nextMode) {
+  stopSpeech();
+  mode = nextMode === 'practice' ? 'practice' : 'learn';
+  document.getElementById('shell').classList.toggle('mode-practice', mode === 'practice');
+  document.querySelectorAll('#modeSeg button').forEach((x) => {
+    const active = x.dataset.mode === mode;
+    x.classList.toggle('on', active);
+    x.setAttribute('aria-pressed', String(active));
+  });
+  document.getElementById('hintText').textContent = mode === 'learn'
+    ? 'สื่อ ป.ต้น — เลือกหัวข้อ ตัวใหญ่ชัด ไม่เก็บคะแนน'
+    : 'ฝึกทบทวนหลักการอ่าน-เขียนคล่อง (ไม่เก็บคะแนน)';
+  if (mode === 'practice') {
+    updatePracticeSubUI();
+    if (practiceSubMode === 'classify') mountClassify();
+    else mountQuiz();
+  } else {
+    cleanupEngines();
+  }
+}
+
+function render() {
+  const cur = ITEMS[curIdx] || ITEMS[0];
+  document.getElementById('pick').innerHTML = ITEMS.map((x, i) =>
+    '<button type="button" data-i="' + i + '" class="' + (i === curIdx ? 'on' : '') + '">' + (x.emoji ? x.emoji + ' ' : '') + x.name + '</button>'
+  ).join('');
+  document.getElementById('box').innerHTML =
+    (cur.emoji ? '<div class="emo">' + cur.emoji + '</div>' : '') +
+    '<h2>' + cur.name + '</h2>' +
+    '<p>' + cur.body + '</p>' +
+    (cur.tip ? '<p style="margin-top:4px;color:var(--muted);font-size:1rem">💡 ' + cur.tip + '</p>' : '') +
+    (cur.trace ? '<div class="trace">' + cur.trace + '</div>' : '') +
+    '<div><button type="button" class="btn btn-primary" id="btnSpeakCard">🔊 ฟังคำอธิบาย</button></div>';
+  document.getElementById('btnSpeakCard').onclick = () => {
+    speakText(cur.name + ' ' + cur.body + (cur.tip ? ' เคล็ดลับ ' + cur.tip : ''), 'speechStatusLearn');
+  };
+}
+
+document.getElementById('pick').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-i]');
+  if (!b) return;
+  stopSpeech();
+  curIdx = Number(b.dataset.i) || 0;
+  render();
+});
+
+document.getElementById('modeSeg').addEventListener('click', (e) => {
+  const b = e.target.closest('button[data-mode]');
+  if (b) setMode(b.dataset.mode);
+});
+
+document.getElementById('btnPracQuiz').addEventListener('click', () => {
+  stopSpeech();
+  practiceSubMode = 'quiz';
+  updatePracticeSubUI();
+  mountQuiz();
+});
+
+document.getElementById('btnPracClassify').addEventListener('click', () => {
+  stopSpeech();
+  practiceSubMode = 'classify';
+  updatePracticeSubUI();
+  mountClassify();
+});
+
+document.getElementById('btnPracSpeak').addEventListener('click', () => {
+  if (practiceSubMode === 'classify') {
+    const item = classifySession?.currentItem?.();
+    speakText(item ? item.label + ' เป็นทักษะใด' : 'จำแนกครบทุกข้อแล้ว', 'speechStatusPractice');
+  } else {
+    const q = quizSession?.currentQuestion?.();
+    speakText(q ? q.prompt : 'ฝึกครบทุกข้อแล้ว', 'speechStatusPractice');
+  }
+});
+
+document.getElementById('btnFs').addEventListener('click', () => {
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen?.().catch(() => {});
+  else document.exitFullscreen?.();
+});
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) stopSpeech();
+});
+window.addEventListener('pagehide', stopSpeech);
+
+window.getState = () => Object.freeze({
+  slug: MEDIA_SLUG,
+  mode: mode,
+  practiceSubMode: practiceSubMode,
+  selectedIndex: curIdx,
+  totalItems: ITEMS.length,
+  speaking: speaking,
+  quizState: quizSession ? quizSession.getState() : null,
+  classifyState: classifySession ? classifySession.getState() : null,
+  reducedMotion: typeof window.matchMedia === 'function'
+    ? Boolean(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+    : false,
+});
+window.__getState = window.getState;
+
+render();
+setMode('learn');
 </script>
-</body></html>
+</body>
+</html>

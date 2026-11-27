@@ -2,29 +2,34 @@
 <html lang="th">
 <head>
   <script src="/games/kampai-sdk.js?v=1.181.0"></script>
+  <script src="/games/media-lab-runtime.js?v=2.0.0"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ดวงจันทร์ 8 ข้าง — สื่อการสอน — บ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root { --deep: #312e81; --line: #a5b4fc; --muted: #64748b; --ok: #16a34a; --bad: #dc2626; --sky: #1e1b4b; }
+    :root { --deep: #312e81; --line: #a5b4fc; --muted: #475569; --ok: #15803d; --bad: #b91c1c; --sky: #1e1b4b; }
+    html, body { max-width: 100%; overflow-x: hidden; }
     body { font-family: 'Sarabun', sans-serif; background: linear-gradient(160deg, #1e1b4b, #312e81 40%, #6366f1); min-height: 100%; padding: 12px; color: #0f172a; }
     .shell { max-width: 1100px; margin: 0 auto; background: #f8fafc; border-radius: 1.5rem; box-shadow: 0 20px 50px rgba(15,23,42,.35); overflow: hidden; min-height: calc(100vh - 24px); display: flex; flex-direction: column; }
     header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(90deg, #1e1b4b, #4c1d95); color: #fff; }
     header h1 { font-size: 1.1rem; font-weight: 800; flex: 1; min-width: 140px; }
     .badge { font-size: .75rem; background: rgba(255,255,255,.2); padding: 4px 10px; border-radius: 999px; font-weight: 700; }
-    .btn { font-family: inherit; font-weight: 700; border: none; border-radius: 12px; padding: 10px 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+    .btn { font-family: inherit; font-weight: 700; border: none; border-radius: 12px; padding: 10px 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; min-width: 44px; }
     .btn:active { transform: scale(.97); }
+    .btn:focus-visible, .seg button:focus-visible, .tl-card:focus-visible, .card:focus-visible, .choice:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
     .btn-back { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.35); padding: 8px 12px; font-size: .85rem; }
     .btn-primary { background: var(--deep); color: #fff; }
     .btn-accent { background: #fbbf24; color: #78350f; }
     .btn-ghost { background: #fff; color: var(--deep); border: 2px solid var(--line); }
     .toolbar { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 16px; background: #eef2ff; border-bottom: 1px solid var(--line); align-items: center; }
-    .seg { display: inline-flex; flex-wrap: wrap; border-radius: 12px; overflow: hidden; border: 2px solid #818cf8; }
-    .seg button { font-family: inherit; font-weight: 800; border: none; background: #fff; color: var(--deep); padding: 8px 11px; cursor: pointer; font-size: .8rem; }
+    .seg { display: inline-flex; flex-wrap: wrap; border-radius: 12px; overflow: hidden; border: 2px solid #818cf8; max-width: 100%; }
+    .seg button { font-family: inherit; font-weight: 800; border: none; background: #fff; color: var(--deep); padding: 8px 11px; cursor: pointer; font-size: .82rem; min-height: 44px; flex: 1 1 auto; }
     .seg button.on { background: var(--deep); color: #fff; }
     .hint { font-size: .85rem; color: #3730a3; font-weight: 600; flex: 1; min-width: 140px; }
+    .speech-status { font-size: .85rem; font-weight: 700; color: #92400e; background: #fef3c7; border-bottom: 1px solid #fcd34d; padding: 8px 16px; display: none; }
+    .speech-status.show { display: block; }
     .stage { flex: 1; padding: 16px; overflow: auto; }
     .panel { display: none; flex-direction: column; gap: 14px; max-width: 920px; margin: 0 auto; }
     .panel.on { display: flex; }
@@ -34,10 +39,10 @@
     .detail h2 { font-size: 1.3rem; font-weight: 800; color: var(--deep); margin-bottom: 6px; }
     .detail p { font-weight: 600; line-height: 1.5; color: #312e81; margin-bottom: 6px; }
     .tip { background: #fff; border: 2px dashed #a5b4fc; border-radius: 12px; padding: 10px; font-size: .9rem; color: var(--muted); font-weight: 600; }
-    .note { text-align: center; font-weight: 700; color: #4338ca; background: #e0e7ff; border-radius: 12px; padding: 10px; font-size: .92rem; }
+    .note { text-align: center; font-weight: 700; color: #3730a3; background: #e0e7ff; border-radius: 12px; padding: 10px; font-size: .92rem; }
     .timeline { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
     @media (max-width: 640px) { .timeline { grid-template-columns: repeat(2, 1fr); } }
-    .tl-card { font-family: inherit; border: 2px solid #c7d2fe; background: #fff; border-radius: 14px; padding: 10px 6px; cursor: pointer; text-align: center; }
+    .tl-card { font-family: inherit; border: 2px solid #c7d2fe; background: #fff; border-radius: 14px; padding: 10px 6px; cursor: pointer; text-align: center; min-height: 44px; }
     .tl-card.on { border-color: #4c1d95; background: #e0e7ff; box-shadow: 0 0 0 2px #818cf8; }
     .tl-card .moon { width: 48px; height: 48px; margin: 0 auto 6px; }
     .tl-card .nm { font-size: .78rem; font-weight: 800; color: var(--deep); line-height: 1.25; }
@@ -49,14 +54,14 @@
     .card .lab { font-size: .78rem; font-weight: 800; color: #312e81; text-align: center; line-height: 1.25; }
     .card.done { opacity: .4; pointer-events: none; background: #dcfce7; }
     .card.bad { animation: shake .35s; background: #fee2e2; border-color: #fca5a5; }
-    .track { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; align-items: center; }
-    .slot { width: 56px; height: 64px; border-radius: 10px; border: 2px dashed #a5b4fc; background: #eef2ff; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+    .track { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; align-items: center; max-width: 100%; }
+    .slot { width: 52px; height: 60px; border-radius: 10px; border: 2px dashed #a5b4fc; background: #eef2ff; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
     .slot.filled { border-style: solid; border-color: #86efac; background: #dcfce7; }
     .slot .sn { position: absolute; top: -8px; left: -4px; width: 16px; height: 16px; border-radius: 50%; background: var(--deep); color: #fde047; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
-    .arr { color: #818cf8; font-weight: 800; }
+    .arr { color: #6366f1; font-weight: 800; }
     .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     @media (min-width: 560px) { .choices { grid-template-columns: repeat(4, 1fr); } }
-    .choice { font-family: inherit; font-weight: 800; border: 2px solid #c7d2fe; border-radius: 14px; background: #fff; padding: 12px 8px; cursor: pointer; color: var(--deep); font-size: .9rem; text-align: center; }
+    .choice { font-family: inherit; font-weight: 800; border: 2px solid #c7d2fe; border-radius: 14px; background: #fff; padding: 12px 8px; cursor: pointer; color: var(--deep); font-size: .9rem; text-align: center; min-height: 44px; }
     .choice.ok { background: #dcfce7; border-color: #16a34a; }
     .choice.bad { background: #fee2e2; border-color: #fca5a5; }
     .guess-moon { width: 120px; height: 120px; margin: 0 auto; display: block; }
@@ -67,12 +72,22 @@
     .footer { padding: 10px 16px; font-size: .8rem; color: var(--muted); text-align: center; border-top: 1px solid var(--line); }
     .footer a { color: var(--deep); font-weight: 700; text-decoration: none; }
     @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+    @media (max-width: 600px) {
+      body { padding: 0; }
+      .shell { border-radius: 0; min-height: 100vh; }
+      .stage { padding: 12px; }
+      .choices { grid-template-columns: 1fr; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition: none !important; scroll-behavior: auto !important; }
+      .btn:active { transform: none; }
+    }
   </style>
 </head>
 <body>
   <div class="shell">
     <header>
-      <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back();">← กลับคลังสื่อ</button>
+      <button type="button" class="btn btn-back" id="btnBack">← กลับคลังสื่อ</button>
       <h1>🌙 ดวงจันทร์ 8 ข้าง</h1>
       <span class="badge">ป.4 · วิทยาศาสตร์</span>
     </header>
@@ -85,8 +100,9 @@
         <button type="button" data-mode="predict">🔮 พยากรณ์</button>
       </span>
       <p class="hint" id="hintText">โลก–จันทร์–ดวงอาทิตย์ หมุนช้า — เราเห็นส่วนที่โดนแสง</p>
-      <button type="button" class="btn btn-ghost" id="btnFs">⛶</button>
+      <button type="button" class="btn btn-ghost" id="btnFs" aria-label="ขยายเต็มจอ">⛶</button>
     </div>
+    <div class="speech-status" id="speechStatus" role="status" aria-live="polite"></div>
     <div class="stage">
       <div class="panel on" id="panel-learn">
         <p class="note">☀️ จันทร์ไม่มีแสงเอง — เราเห็นส่วนที่โดนแสงอาทิตย์สะท้อน</p>
@@ -111,12 +127,13 @@
           <button type="button" class="btn btn-accent" id="btnOrbitPause">⏸ หยุด/เล่น</button>
           <button type="button" class="btn btn-primary" id="btnOrbitPrev">← ข้างก่อน</button>
           <button type="button" class="btn btn-primary" id="btnOrbitNext">ข้างถัดไป →</button>
+          <button type="button" class="btn btn-ghost" id="btnOrbitSpeak">🔊 ฟังคำอธิบาย</button>
         </div>
         <div class="detail" id="orbitDetail"></div>
       </div>
 
       <div class="panel" id="panel-timeline">
-        <p class="prompt">แตะแต่ละข้างเพื่อดูรายละเอียด · TTS ชื่อข้าง</p>
+        <p class="prompt">แตะแต่ละข้างเพื่อดูรายละเอียด · ฟังคำอธิบายชื่อข้าง</p>
         <div class="timeline" id="timeline"></div>
         <div class="detail" id="tlDetail"><p style="color:var(--muted);text-align:center">เลือกข้างบนไทม์ไลน์</p></div>
       </div>
@@ -138,6 +155,7 @@
         <div class="choices" id="guessChoices"></div>
         <p class="fb" id="guessFb"></p>
         <div class="actions">
+          <button type="button" class="btn btn-ghost" id="btnGuessSpeak">🔊 ฟังคำใบ้</button>
           <button type="button" class="btn btn-accent" id="btnGuessReveal">ดูเฉลย</button>
           <button type="button" class="btn btn-primary" id="btnGuessNext">ข้อถัดไป</button>
         </div>
@@ -149,6 +167,7 @@
         <div class="choices" id="predictChoices"></div>
         <p class="fb" id="predictFb"></p>
         <div class="actions">
+          <button type="button" class="btn btn-ghost" id="btnPredictSpeak">🔊 ฟังโจทย์</button>
           <button type="button" class="btn btn-accent" id="btnPredictReveal">ดูเฉลย</button>
           <button type="button" class="btn btn-primary" id="btnPredictNext">ข้อถัดไป</button>
         </div>
@@ -158,7 +177,12 @@
   </div>
   <script>
     const MEDIA_SLUG = 'moon-phases-media';
-    if (window.KAMPAI) KAMPAI.setSlug('moon-phases-media');
+    if (window.KAMPAI) {
+      KAMPAI.setSlug(MEDIA_SLUG);
+      if (KAMPAI.sound && typeof KAMPAI.sound.mountToggles === 'function') {
+        try { KAMPAI.sound.mountToggles(); } catch (_) {}
+      }
+    }
 
     const PHASES = [
       { id: 'new', order: 1, nameTh: 'จันทร์ใหม่', nameShort: 'ใหม่', emoji: '🌑', litFraction: 0, waxing: null, dayApprox: '~วันที่ 1 ของจันทรคติ', tip: 'เกือบไม่เห็นจันทร์ เพราะด้านสว่างหันออกจากโลก', observeHint: 'ท้องฟ้ามืด — มองเห็นดาวได้ชัด หาจันทร์ยาก' },
@@ -179,6 +203,10 @@
       predict: 'ถัดจากข้างที่โชว์คือข้างใด? (ว 3.1 ป.4/2)',
     };
 
+    const motionQuery = typeof window.matchMedia === 'function'
+      ? window.matchMedia('(prefers-reduced-motion: reduce)')
+      : null;
+
     function shuffle(a) {
       a = a.slice();
       for (let i = a.length - 1; i > 0; i--) {
@@ -187,11 +215,57 @@
       }
       return a;
     }
+
     function speak(t) {
-      if (window.KAMPAI?.sound?.speak) KAMPAI.sound.speak(t, 'th-TH');
+      const clean = String(t || '').trim();
+      if (!clean) return;
+      const statusEl = document.getElementById('speechStatus');
+      if (window.KampaiMediaLab && typeof window.KampaiMediaLab.speakSafe === 'function') {
+        const res = window.KampaiMediaLab.speakSafe(clean, { lang: 'th-TH', rate: 0.92 });
+        if (statusEl) {
+          if (res && res.ok === false) {
+            statusEl.textContent = 'อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านข้อความต่อได้';
+            statusEl.classList.add('show');
+          } else {
+            statusEl.textContent = '';
+            statusEl.classList.remove('show');
+          }
+        }
+        return;
+      }
+      try {
+        if (window.KAMPAI?.sound?.speak) {
+          KAMPAI.sound.speak(clean, 'th-TH', true);
+          return;
+        }
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const u = new SpeechSynthesisUtterance(clean);
+          u.lang = 'th-TH';
+          u.rate = 0.92;
+          window.speechSynthesis.speak(u);
+          return;
+        }
+      } catch (_) {}
+      if (statusEl) {
+        statusEl.textContent = 'อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านข้อความต่อได้';
+        statusEl.classList.add('show');
+      }
     }
+
+    function stopSpeech() {
+      if (window.KampaiMediaLab && typeof window.KampaiMediaLab.stopAllSpeech === 'function') {
+        window.KampaiMediaLab.stopAllSpeech();
+      } else {
+        try { window.KAMPAI?.sound?.stopSpeak?.(); } catch (_) {}
+        try { window.speechSynthesis?.cancel?.(); } catch (_) {}
+      }
+    }
+
     function ding(ok) {
-      if (window.KAMPAI?.sound) ok ? KAMPAI.sound.correct() : KAMPAI.sound.wrong();
+      if (window.KAMPAI?.sound) {
+        try { ok ? KAMPAI.sound.correct() : KAMPAI.sound.wrong(); } catch (_) {}
+      }
     }
 
     /** SVG moon: lit from the right when waxing-ish, left when waning — N hemisphere school map */
@@ -205,7 +279,6 @@
         shade = `<circle cx="50" cy="50" r="${r}" fill="#f1f5f9"/>`;
       } else {
         const waxing = phase.waxing === true || (phase.waxing === null && lit > 0.5);
-        // Use ellipse overlay for crescent/gibbous
         const dark = '#1e293b';
         const bright = '#f1f5f9';
         if (lit === 0.5) {
@@ -215,7 +288,6 @@
             shade = `<circle cx="50" cy="50" r="${r}" fill="${dark}"/><path d="M50 10 A40 40 0 0 0 50 90 Z" fill="${bright}"/>`;
           }
         } else if (lit < 0.5) {
-          // crescent
           const off = 20 + (0.5 - lit) * 40;
           if (waxing) {
             shade = `<circle cx="50" cy="50" r="${r}" fill="${dark}"/><circle cx="50" cy="50" r="${r}" fill="${bright}"/><circle cx="${50 - off}" cy="50" r="${r}" fill="${dark}"/>`;
@@ -223,7 +295,6 @@
             shade = `<circle cx="50" cy="50" r="${r}" fill="${dark}"/><circle cx="50" cy="50" r="${r}" fill="${bright}"/><circle cx="${50 + off}" cy="50" r="${r}" fill="${dark}"/>`;
           }
         } else {
-          // gibbous
           const off = 12 + (lit - 0.5) * 28;
           if (waxing) {
             shade = `<circle cx="50" cy="50" r="${r}" fill="${bright}"/><circle cx="${50 - off}" cy="50" r="${r}" fill="${dark}"/>`;
@@ -243,22 +314,34 @@
 
     function detailHtml(p) {
       return `
-        <div style="display:flex;gap:12px;align-items:flex-start">
+        <div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap">
           <div>${moonSvgMarkup(p, 64)}</div>
-          <div>
+          <div style="flex:1;min-width:180px">
             <h2>${p.emoji} ${p.nameTh}</h2>
-            <p><strong>ลำดับ:</strong> ${p.order}/8 · ${waxLabel(p)} · lit ${Math.round(p.litFraction * 100)}%</p>
+            <p><strong>ลำดับ:</strong> ${p.order}/8 · ${waxLabel(p)} · สว่าง ${Math.round(p.litFraction * 100)}%</p>
             <p><strong>ช่วง:</strong> ${p.dayApprox}</p>
             <p class="tip">💡 ${p.tip}</p>
-            <p class="tip">🔭 ${p.observeHint}</p>
+            <p class="tip" style="margin-top:6px">🔭 ${p.observeHint}</p>
           </div>
         </div>`;
     }
 
-    let mode = 'learn', orbitIdx = 0, orbitPlaying = true, orderNext = 1;
-    let guessQ = null, predictQ = null, angle = 0;
+    let mode = 'learn';
+    let orbitIdx = 0;
+    let orbitPlaying = !(motionQuery && motionQuery.matches);
+    let orderNext = 1;
+    let guessQ = null;
+    let predictQ = null;
+    let angle = 0;
+
+    function syncOrbitButton() {
+      const btn = document.getElementById('btnOrbitPause');
+      if (btn) btn.textContent = orbitPlaying ? '⏸ หยุด' : '▶ เล่น';
+    }
+    syncOrbitButton();
 
     function setMode(m) {
+      stopSpeech();
       mode = m;
       document.querySelectorAll('#modeSeg button').forEach((b) => b.classList.toggle('on', b.dataset.mode === m));
       document.querySelectorAll('.panel').forEach((p) => p.classList.toggle('on', p.id === 'panel-' + m));
@@ -274,16 +357,19 @@
       if (b) setMode(b.dataset.mode);
     };
     document.getElementById('btnFs').onclick = () => {
-      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.().catch(() => {});
       else document.exitFullscreen?.();
+    };
+    document.getElementById('btnBack').onclick = () => {
+      stopSpeech();
+      if (window.KAMPAI && KAMPAI.goHome) KAMPAI.goHome();
+      else history.back();
     };
 
     /* ---- orbit ---- */
     function phaseFromAngle(a) {
-      // a 0 = new (opposite sun-ish for simple model: moon at far right from sun on left)
       const n = ((a % 360) + 360) % 360;
-      const idx = Math.round(n / 45) % 8;
-      return idx;
+      return Math.round(n / 45) % 8;
     }
     function placeMoon() {
       const cx = 240, cy = 150, rx = 130, ry = 70;
@@ -292,12 +378,6 @@
       const y = cy + ry * Math.sin(rad);
       const g = document.getElementById('moonOrb');
       g.innerHTML = '';
-      const fo = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
-      fo.setAttribute('x', x - 16);
-      fo.setAttribute('y', y - 16);
-      fo.setAttribute('width', 32);
-      fo.setAttribute('height', 32);
-      // foreignObject unreliable — use circle + clip approx
       const idx = phaseFromAngle(angle);
       orbitIdx = idx;
       const p = PHASES[idx];
@@ -316,17 +396,32 @@
       orbitIdx = ((i % 8) + 8) % 8;
       angle = orbitIdx * 45;
       placeMoon();
-      speak(PHASES[orbitIdx].nameTh);
+      speak(PHASES[orbitIdx].nameTh + ' ' + PHASES[orbitIdx].tip);
     }
-    document.getElementById('btnOrbitPause').onclick = () => { orbitPlaying = !orbitPlaying; };
-    document.getElementById('btnOrbitPrev').onclick = () => { orbitPlaying = false; showOrbitPhase(orbitIdx - 1); };
-    document.getElementById('btnOrbitNext').onclick = () => { orbitPlaying = false; showOrbitPhase(orbitIdx + 1); };
+    document.getElementById('btnOrbitPause').onclick = () => {
+      orbitPlaying = !orbitPlaying;
+      syncOrbitButton();
+    };
+    document.getElementById('btnOrbitPrev').onclick = () => {
+      orbitPlaying = false;
+      syncOrbitButton();
+      showOrbitPhase(orbitIdx - 1);
+    };
+    document.getElementById('btnOrbitNext').onclick = () => {
+      orbitPlaying = false;
+      syncOrbitButton();
+      showOrbitPhase(orbitIdx + 1);
+    };
+    document.getElementById('btnOrbitSpeak').onclick = () => {
+      const p = PHASES[orbitIdx];
+      speak(p.nameTh + ' ' + p.tip + ' ' + p.observeHint);
+    };
 
     let last = performance.now();
     function tick(now) {
-      if (orbitPlaying && mode === 'learn') {
+      if (orbitPlaying && mode === 'learn' && !document.hidden) {
         const dt = (now - last) / 1000;
-        angle = (angle + dt * 18) % 360; // slow
+        angle = (angle + dt * 18) % 360;
         placeMoon();
       }
       last = now;
@@ -348,7 +443,7 @@
           orbitIdx = i;
           document.querySelectorAll('.tl-card').forEach((c, j) => c.classList.toggle('on', j === i));
           document.getElementById('tlDetail').innerHTML = detailHtml(p);
-          speak(p.nameTh);
+          speak(p.nameTh + ' ' + p.tip);
         };
         el.appendChild(b);
       });
@@ -388,7 +483,7 @@
             b.classList.add('bad');
             setTimeout(() => b.classList.remove('bad'), 350);
             document.getElementById('orderFb').className = 'fb no';
-            document.getElementById('orderFb').textContent = 'ยังไม่ถูก';
+            document.getElementById('orderFb').textContent = 'ยังไม่ถูก — ลองสังเกตลำดับการสว่างอีกครั้ง';
             ding(false);
             return;
           }
@@ -415,8 +510,6 @@
     /* ---- guess ---- */
     function newGuess() {
       guessQ = PHASES[(Math.random() * PHASES.length) | 0];
-      document.getElementById('guessSvg').innerHTML = moonSvgMarkup(guessQ, 120).replace(/<\/?svg[^>]*>/g, '');
-      // rebuild properly
       const wrap = document.getElementById('guessSvg');
       wrap.outerHTML = moonSvgMarkup(guessQ, 120).replace('<svg', '<svg class="guess-moon" id="guessSvg"');
       document.getElementById('guessFb').textContent = '';
@@ -442,7 +535,7 @@
             b.classList.add('bad');
             setTimeout(() => b.classList.remove('bad'), 400);
             document.getElementById('guessFb').className = 'fb no';
-            document.getElementById('guessFb').textContent = 'ยังไม่ถูก';
+            document.getElementById('guessFb').textContent = 'ยังไม่ถูก — ลองสังเกตด้านที่สว่าง';
             ding(false);
           }
         };
@@ -453,6 +546,9 @@
     document.getElementById('btnGuessReveal').onclick = () => {
       document.getElementById('guessFb').className = 'fb ok';
       document.getElementById('guessFb').textContent = 'เฉลย: ' + guessQ.nameTh;
+    };
+    document.getElementById('btnGuessSpeak').onclick = () => {
+      if (guessQ) speak('มองเงาบนดวงจันทร์ แล้วเลือกชื่อข้างที่ถูกต้อง คำใบ้: ' + guessQ.observeHint);
     };
 
     /* ---- predict ---- */
@@ -499,8 +595,31 @@
       document.getElementById('predictFb').className = 'fb ok';
       document.getElementById('predictFb').textContent = 'เฉลย: ' + predictQ._next.nameTh;
     };
+    document.getElementById('btnPredictSpeak').onclick = () => {
+      if (predictQ) speak('ถัดจาก ' + predictQ.nameTh + ' คือข้างใด');
+    };
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        stopSpeech();
+        orbitPlaying = false;
+        syncOrbitButton();
+      }
+    });
+    window.addEventListener('pagehide', stopSpeech);
 
     renderTimeline();
+
+    window.getState = () => Object.freeze({
+      slug: MEDIA_SLUG,
+      mode: mode,
+      orbitIdx: orbitIdx,
+      orbitPlaying: orbitPlaying,
+      orderNext: orderNext,
+      guessPhase: guessQ ? guessQ.id : null,
+      predictPhase: predictQ ? predictQ.id : null,
+      reducedMotion: Boolean(motionQuery && motionQuery.matches),
+    });
   </script>
 </body>
 </html>
