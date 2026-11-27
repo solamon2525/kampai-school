@@ -525,17 +525,38 @@ export const educationalHubService = {
         return { error: (firstErr as Error | undefined) ?? null };
     },
 
-    /** ปักหมุด/ปลดหมุดเกมในคลัง (global) — ใช้จากหน้า /h/:identifier (admin) */
+    /** ปักหมุด/ปลดหมุดรายการในคลัง (global) — ใช้จากหน้า /h/:identifier (admin) */
     toggleLibraryPin: async (
         itemId: string,
         pinned: boolean,
         currentPinned: Pick<EduHubItem, 'library_pin_order'>[],
     ): Promise<{ error: Error | null }> => {
         if (pinned) {
-            const maxOrder = currentPinned.reduce(
+            let maxOrder = currentPinned.reduce(
                 (max, i) => Math.max(max, i.library_pin_order ?? 0),
                 0,
             );
+            // Query DB directly so pinning from page 2+ or filtered views never collides with existing pins
+            const { data: targetItem } = await supabase
+                .from('educational_hub_items' as never)
+                .select('owner_staff_id, category_id')
+                .eq('id', itemId)
+                .maybeSingle();
+            const target = targetItem as { owner_staff_id?: string; category_id?: string } | null;
+            if (target?.owner_staff_id && target?.category_id) {
+                const { data: topPinned } = await supabase
+                    .from('educational_hub_items' as never)
+                    .select('library_pin_order')
+                    .eq('owner_staff_id', target.owner_staff_id)
+                    .eq('category_id', target.category_id)
+                    .eq('library_pinned', true)
+                    .order('library_pin_order', { ascending: false })
+                    .limit(1);
+                const dbMaxOrder =
+                    (topPinned as Array<{ library_pin_order: number | null }> | null)?.[0]
+                        ?.library_pin_order ?? 0;
+                maxOrder = Math.max(maxOrder, dbMaxOrder);
+            }
             const { error } = await supabase
                 .from('educational_hub_items' as never)
                 .update({ library_pinned: true, library_pin_order: maxOrder + 10 } as never)

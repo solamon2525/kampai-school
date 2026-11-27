@@ -16,7 +16,7 @@ import {
     rectSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQueryClient, type QueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -39,10 +39,13 @@ interface Props {
     /** Skip rendering the section header (parent supplies its own) */
     hideHeader?: boolean;
     /**
-     * Admin-only edit mode: render drag handle on header (handled by parent
-     * DndContext) and enable item drag-drop inside the section.
+     * Admin-only full-category item drag-drop edit mode (requires unpaginated list).
      */
     editable?: boolean;
+    /** Allow showing and toggling the library pin button regardless of pagination. */
+    pinEditable?: boolean;
+    /** Allow drag-reordering pinned items when all pinned items are visible. */
+    pinSortEditable?: boolean;
     /** Category order is managed by the dedicated category-order dialog. */
     categoryDraggable?: boolean;
     /** Media ↔ worksheet pairs resolved from the teacher catalog */
@@ -75,16 +78,30 @@ const GRID_CLASS: Record<ViewMode, string> = {
     spotlight: 'grid grid-cols-1 lg:grid-cols-2 gap-6',
 };
 
+/** Invalidate every Educational Hub item query prefix (including paginated/full-list views). */
+export async function invalidateEduHubItemQueries(queryClient: QueryClient) {
+    await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['edu-hub', 'items'] }),
+        queryClient.invalidateQueries({ queryKey: ['edu-hub', 'items-all'] }),
+        queryClient.invalidateQueries({ queryKey: ['edu-hub', 'items-page'] }),
+        queryClient.invalidateQueries({ queryKey: ['edu-hub', 'filter-options'] }),
+    ]);
+}
+
 export const CategorySection = ({
     category,
     items,
     viewMode = 'grid',
     hideHeader = false,
     editable = false,
+    pinEditable,
+    pinSortEditable,
     categoryDraggable = false,
     pairedByItemId,
     teachingUnitsByItemId,
 }: Props) => {
+    const canPin = pinEditable ?? editable;
+    const canDragPinned = pinSortEditable ?? editable;
     const { toast } = useToast();
     const queryClient = useQueryClient();
     const itemIds = useMemo(() => items.map((it) => it.id), [items]);
@@ -153,7 +170,7 @@ export const CategorySection = ({
             return;
         }
         // Invalidate any cache that might show these items
-        await queryClient.invalidateQueries({ queryKey: ['edu-hub', 'items'] });
+        await invalidateEduHubItemQueries(queryClient);
         toast({ title: 'บันทึกลำดับใหม่' });
     };
 
@@ -176,7 +193,7 @@ export const CategorySection = ({
             toast({ title: 'จัดลำดับล้มเหลว', description: error.message, variant: 'destructive' });
             return;
         }
-        await queryClient.invalidateQueries({ queryKey: ['edu-hub', 'items'] });
+        await invalidateEduHubItemQueries(queryClient);
         toast({ title: 'บันทึกลำดับสื่อปักหมุดแล้ว' });
     };
 
@@ -193,7 +210,7 @@ export const CategorySection = ({
             toast({ title: 'อัปเดตไม่สำเร็จ', description: error.message, variant: 'destructive' });
             return;
         }
-        await queryClient.invalidateQueries({ queryKey: ['edu-hub', 'items'] });
+        await invalidateEduHubItemQueries(queryClient);
         toast({
             title: nextPinned ? 'ปักหมุดคลังแล้ว' : 'ปลดหมุดคลังแล้ว',
             description: `"${item.title}" — มีผลทุกเครื่อง`,
@@ -207,8 +224,8 @@ export const CategorySection = ({
             viewMode={viewMode}
             editable={dragEditable}
             libraryPinned={!!item.library_pinned}
-            showLibraryPinControl={editable}
-            onToggleLibraryPin={editable ? () => handleToggleLibraryPin(item) : undefined}
+            showLibraryPinControl={canPin}
+            onToggleLibraryPin={canPin ? () => handleToggleLibraryPin(item) : undefined}
             libraryPinLoading={pinningId === item.id}
             linkedIndicators={indicatorMap?.get(item.id)}
             categoryKey={category?.category_key}
@@ -224,7 +241,7 @@ export const CategorySection = ({
 
     const pinnedGrid = (
         <div className={cn(GRID_CLASS[viewMode], 'relative')}>
-            {orderedPinned.map((item) => renderCard(item, editable))}
+            {orderedPinned.map((item) => renderCard(item, canDragPinned))}
         </div>
     );
 
@@ -271,10 +288,10 @@ export const CategorySection = ({
                 </header>
             )}
 
-            {editable && category && (
+            {canPin && category && (
                 <p className="text-[11px] text-muted-foreground rounded-md border border-border bg-muted/30 px-3 py-2 leading-relaxed">
                     <Pin className="inline h-3 w-3 mr-1 text-primary animate-pulse" />
-                    กด <strong>📌</strong> บนการ์ดเพื่อปักหมุด — ลากเรียงเฉพาะสื่อที่ปักไว้ — มีผล<strong>ทุกเครื่อง</strong>
+                    กด <strong>📌</strong> บนการ์ดเพื่อปักหมุด{canDragPinned ? ' — ลากเรียงเฉพาะสื่อที่ปักไว้' : ''} — มีผล<strong>ทุกเครื่อง</strong>
                 </p>
             )}
 
@@ -285,9 +302,9 @@ export const CategorySection = ({
                 </div>
             ) : (
                 <div className="space-y-6">
-                    {(orderedPinned.length > 0 || editable) && category && (
+                    {(orderedPinned.length > 0 || canPin) && category && (
                         <div className="space-y-3">
-                            {editable && (
+                            {canPin && (
                                 <h3 className="text-xs font-semibold text-foreground flex items-center gap-1.5">
                                     <Pin className="h-3.5 w-3.5 text-primary" />
                                     สื่อการสอนปักหมุด
@@ -298,9 +315,9 @@ export const CategorySection = ({
                                     )}
                                 </h3>
                             )}
-                            {orderedPinned.length === 0 && editable ? (
+                            {orderedPinned.length === 0 && canPin ? (
                                 <p className="text-xs text-muted-foreground italic">ยังไม่มีสื่อปักหมุด</p>
-                            ) : editable ? (
+                            ) : canDragPinned ? (
                                 <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handlePinnedDragEnd}>
                                     <SortableContext items={orderedPinned.map((it) => it.id)} strategy={rectSortingStrategy}>
                                         <div className="relative">
@@ -322,7 +339,7 @@ export const CategorySection = ({
 
                     {orderedItems.length > 0 && (
                         <div className="space-y-3">
-                            {editable && orderedPinned.length > 0 && (
+                            {canPin && orderedPinned.length > 0 && (
                                 <h3 className="text-xs font-semibold text-muted-foreground">
                                     สื่อการสอนทั่วไป ({orderedItems.length})
                                 </h3>

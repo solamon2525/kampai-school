@@ -150,6 +150,13 @@ const EducationalHubTeacher = () => {
         [activeCategoryKey, categories],
     );
     const showAllMedia = activeCategoryKey === 'media';
+    const hasActiveFilters = Boolean(
+        filter.search.trim() ||
+        filter.subjects.length ||
+        filter.grades.length ||
+        filter.tags.length ||
+        filter.types.length,
+    );
     const paginationSizeKey = showAllMedia ? 'all' : pageSize;
 
     useEffect(() => {
@@ -608,7 +615,7 @@ const EducationalHubTeacher = () => {
 
                             {isAdmin && (
                                 <p className="text-[10px] text-muted-foreground -mb-4 italic">
-                                    💡 โหมด admin: กด “จัดลำดับหมวด” ที่แถบด้านบน · หมวดเกม: กด 📌 ปักหมุด + ลากเรียงเกมที่ปักไว้ (มีผลทุกเครื่อง)
+                                    💡 โหมด admin: กด “จัดลำดับหมวด” ที่แถบด้านบน · กด 📌 ปักหมุดและลากเรียงสื่อที่ปักไว้ได้ทุกหมวด (มีผลทุกเครื่อง)
                                 </p>
                             )}
                             <div
@@ -622,28 +629,41 @@ const EducationalHubTeacher = () => {
                                         ไม่พบหมวด “{deepLinkCat}” — เลือกหมวดอื่นจากแถบด้านบน
                                     </div>
                                 ) : null}
-                                {visibleCategories.map((cat) =>
-                                    cat.category_key === 'games' ? (
+                                {visibleCategories.map((cat) => {
+                                    const catItems = itemsByCategory.get(cat.id) ?? [];
+                                    const catTotalCount = allTeacherItems.filter((item) => item.category_id === cat.id).length;
+                                    const allInCatLoaded = catTotalCount <= pageSize || (showAllMedia && activeCategory?.id === cat.id);
+                                    const allPinnedVisible = !hasActiveFilters && (
+                                        allInCatLoaded || (currentPage === 1 && catItems.some((item) => !item.library_pinned))
+                                    );
+                                    const fullListEditable = isAdmin && !hasActiveFilters && catTotalCount <= pageSize;
+                                    const pinSortEditable = isAdmin && allPinnedVisible;
+
+                                    return cat.category_key === 'games' ? (
                                         <GamesCategorySection
                                             key={cat.id}
                                             category={cat}
-                                            items={itemsByCategory.get(cat.id) ?? []}
+                                            items={catItems}
                                             viewMode={viewMode}
-                                            editable={isAdmin && allTeacherItems.filter((item) => item.category_id === cat.id).length <= pageSize}
+                                            editable={fullListEditable}
+                                            pinEditable={isAdmin}
+                                            pinSortEditable={pinSortEditable}
                                             pairedByItemId={pairedByItemId}
                                         />
                                     ) : (
                                         <CategorySection
                                             key={cat.id}
                                             category={cat}
-                                            items={itemsByCategory.get(cat.id) ?? []}
+                                            items={catItems}
                                             viewMode={viewMode}
-                                            editable={isAdmin && allTeacherItems.filter((item) => item.category_id === cat.id).length <= pageSize}
+                                            editable={fullListEditable}
+                                            pinEditable={isAdmin}
+                                            pinSortEditable={pinSortEditable}
                                             pairedByItemId={pairedByItemId}
                                             teachingUnitsByItemId={teachingUnitsByItemId}
                                         />
-                                    ),
-                                )}
+                                    );
+                                })}
                             </div>
                             {!showAllMedia && totalPages > 1 ? (
                                 <nav className="flex flex-wrap items-center justify-center gap-1 pt-2" aria-label="หน้ารายการสื่อ">

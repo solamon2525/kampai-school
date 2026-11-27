@@ -290,6 +290,49 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v2.8.36',
+        date: '27 พ.ย. 2569',
+        title: 'เกมภาษาไทยใหม่: มาริโอตะลุยคำไทย (Phaser 4.2.1 · 2D Platformer)',
+        description:
+            'เปิดตัวเกม 2D Platformer แนวมาริโอวิชาภาษาไทย (/play/thai-mario-vocab) พัฒนาด้วย Phaser 4.2.1 แบบ self-hosted พร้อมภาพพิกเซลอาร์ต 8-bit, เสียงซินธิไซเซอร์ Chiptune, ระบบหัวใจ 5 ดวง, เก็บคำศัพท์ที่สะกดถูกต้องและหลีกเลี่ยงคำผิดข้าม 3 ด่าน (วิสรรชนีย์ / สมาส-ตัวสะกด / ตัวการันต์) และรองรับการแข่งขัน 3 โหมดผ่าน KampaiVersus',
+        type: 'feature',
+        author: 'ครูณัฐพงศ์ สิงห์ชมภู',
+        tags: [
+            'Thai Language Game',
+            'Phaser 4',
+            '2D Platformer',
+            'KampaiVersus',
+            'Chiptune Audio',
+        ],
+        badge: 'bg-primary',
+        items: [
+            'Phaser 4.2.1 Platformer: ฟิสิกส์กระโดดแนวมาริโอ (Coyote Time, Jump Buffer, Variable Jump Height, Asymmetric Gravity) พร้อม Pixel Art Tiles/Sprites และบล็อก ? ลับ',
+            '8-bit NES Chiptune + Thai TTS: ซินธิไซเซอร์เสียง 8-bit แยก 3 ธีมด่าน (Overworld / Underground / Castle) และอ่านออกเสียงคำศัพท์ภาษาไทยผ่าน KAMPAI SDK',
+            'ระบบหัวใจ 5 ดวง & 3 โหมด: เก็บคำถูก +100 (+คอมโบ) เก็บคำผิดเสีย 1 ดวงพร้อมเฉลยหลักภาษา รองรับ Solo / Hot-seat / Online (Migration 595 + game_docs v1.0.0)',
+        ],
+    },
+    {
+        version: 'v2.8.35',
+        date: '27 พ.ย. 2569',
+        title: 'คลังสื่อ & ใบงาน: แก้ปุ่มปักหมุด (📌) หายในหมวดที่มีรายการเกิน pageSize',
+        description:
+            'แยกสิทธิ์การกดปักหมุดคลัง (pinEditable) และลากเรียงเฉพาะกลุ่มปักหมุด (pinSortEditable) ออกจากเงื่อนไข <= pageSize ของการลากเรียงทั้งหมวด ทำให้ผู้ดูแลระบบสามารถปักหมุด/ปลดหมุดได้ครบทุกหมวด (สื่อการสอน, ใบงาน, เกม และหมวดอื่นๆ) ทุกขนาดหน้าจอ พร้อมแก้ cache invalidation และลำดับ library_pin_order เมื่อปักหมุดจากหน้าแบ่งหน้าหรือระหว่างกรองข้อมูล',
+        type: 'fix',
+        author: 'ครูณัฐพงศ์ สิงห์ชมภู',
+        tags: [
+            'Educational Hub',
+            'Library Pin',
+            'Media & Worksheets',
+            'Query Cache Fix',
+        ],
+        badge: 'bg-primary',
+        items: [
+            'Decoupled Pin Permissions: เพิ่ม pinEditable และ pinSortEditable ใน CategorySection.tsx และ GamesCategorySection.tsx เพื่อให้ EducationalHubTeacher.tsx เปิดปุ่ม 📌 สำหรับ admin ในทุกหมวดโดยไม่ถูกตัดเมื่อรายการเกิน pageSize',
+            'Query Cache Sync: เพิ่ม invalidateEduHubItemQueries() ให้ invalidate ทั้ง items, items-all, items-page และ filter-options ทันทีหลังปักหมุดหรือจัดลำดับ',
+            'Order Collision Guard: อัปเดต educationalHubService.toggleLibraryPin ให้ดึง max library_pin_order ล่าสุดของหมวดนั้นจาก Supabase ป้องกันลำดับชนกันเมื่อปักหมุดจากหน้า 2+ หรือระหว่างกรองรายวิชา',
+        ],
+    },
+    {
         version: 'v2.8.34',
         date: '26 พ.ย. 2569',
         title: 'ระบบฟาร์มไก่ไข่โรงเรียน: บันทึกเก็บไข่, ขายไข่, ตั้งราคา และรายงาน Excel',

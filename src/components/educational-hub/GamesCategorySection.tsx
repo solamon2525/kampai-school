@@ -21,6 +21,7 @@ import { useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { useGameCardIndicators } from '@/hooks/useGameCardIndicators';
+import { invalidateEduHubItemQueries } from './CategorySection';
 import { EduHubItemCard } from './EduHubItemCard';
 import {
     educationalHubService,
@@ -36,6 +37,10 @@ interface Props {
     items: EduHubItem[];
     viewMode?: ViewMode;
     editable?: boolean;
+    /** Allow showing and toggling the library pin button regardless of pagination. */
+    pinEditable?: boolean;
+    /** Allow drag-reordering pinned items when all pinned items are visible. */
+    pinSortEditable?: boolean;
     /** Category order is managed by the dedicated category-order dialog. */
     categoryDraggable?: boolean;
     pairedByItemId?: Map<string, PairedHubLink | null>;
@@ -70,9 +75,13 @@ export const GamesCategorySection = ({
     items,
     viewMode = 'grid',
     editable = false,
+    pinEditable,
+    pinSortEditable,
     categoryDraggable = false,
     pairedByItemId,
 }: Props) => {
+    const canPin = pinEditable ?? editable;
+    const canDragPinned = pinSortEditable ?? editable;
     const { toast } = useToast();
     const queryClient = useQueryClient();
     const { pinned, unpinned } = splitGamesLibraryItems(items);
@@ -107,8 +116,7 @@ export const GamesCategorySection = ({
 
     const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
-    const invalidateItems = () =>
-        queryClient.invalidateQueries({ queryKey: ['edu-hub', 'items'] });
+    const invalidateItems = () => invalidateEduHubItemQueries(queryClient);
 
     const handlePinnedDragEnd = async (e: DragEndEvent) => {
         const { active, over } = e;
@@ -160,8 +168,8 @@ export const GamesCategorySection = ({
             viewMode={viewMode}
             editable={dragEditable}
             libraryPinned={!!item.library_pinned}
-            showLibraryPinControl={editable}
-            onToggleLibraryPin={editable ? () => handleToggleLibraryPin(item) : undefined}
+            showLibraryPinControl={canPin}
+            onToggleLibraryPin={canPin ? () => handleToggleLibraryPin(item) : undefined}
             libraryPinLoading={pinningId === item.id}
             linkedIndicators={indicatorMap?.get(item.id)}
             categoryKey={category.category_key}
@@ -171,7 +179,7 @@ export const GamesCategorySection = ({
 
     const pinnedGrid = (
         <div className={cn(GRID_CLASS[viewMode], 'relative')}>
-            {orderedPinned.map((item) => renderCard(item, editable))}
+            {orderedPinned.map((item) => renderCard(item, canDragPinned))}
         </div>
     );
 
@@ -215,10 +223,10 @@ export const GamesCategorySection = ({
                 </span>
             </header>
 
-            {editable && (
+            {canPin && (
                 <p className="text-[11px] text-muted-foreground rounded-md border border-border bg-muted/30 px-3 py-2 leading-relaxed">
                     <Pin className="inline h-3 w-3 mr-1 text-primary" />
-                    กด <strong>📌</strong> บนการ์ดเพื่อปักหมุด — ลากเรียงเฉพาะเกมที่ปักไว้ — มีผล<strong>ทุกเครื่อง</strong>
+                    กด <strong>📌</strong> บนการ์ดเพื่อปักหมุด{canDragPinned ? ' — ลากเรียงเฉพาะเกมที่ปักไว้' : ''} — มีผล<strong>ทุกเครื่อง</strong>
                 </p>
             )}
 
@@ -229,9 +237,9 @@ export const GamesCategorySection = ({
                 </div>
             ) : (
                 <div className="space-y-6">
-                    {(orderedPinned.length > 0 || editable) && (
+                    {(orderedPinned.length > 0 || canPin) && (
                         <div className="space-y-3">
-                            {editable && (
+                            {canPin && (
                                 <h3 className="text-xs font-semibold text-foreground flex items-center gap-1.5">
                                     <Pin className="h-3.5 w-3.5 text-primary" />
                                     เกมปักหมุด
@@ -242,9 +250,9 @@ export const GamesCategorySection = ({
                                     )}
                                 </h3>
                             )}
-                            {orderedPinned.length === 0 && editable ? (
+                            {orderedPinned.length === 0 && canPin ? (
                                 <p className="text-xs text-muted-foreground italic">ยังไม่มีเกมปักหมุด</p>
-                            ) : editable ? (
+                            ) : canDragPinned ? (
                                 <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handlePinnedDragEnd}>
                                     <SortableContext items={orderedPinned.map((it) => it.id)} strategy={rectSortingStrategy}>
                                         <div className="relative">
@@ -266,7 +274,7 @@ export const GamesCategorySection = ({
 
                     {unpinned.length > 0 && (
                         <div className="space-y-3">
-                            {editable && orderedPinned.length > 0 && (
+                            {canPin && orderedPinned.length > 0 && (
                                 <h3 className="text-xs font-semibold text-muted-foreground">
                                     เกมล่าสุด ({unpinned.length})
                                 </h3>
