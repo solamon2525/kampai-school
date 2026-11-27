@@ -1,82 +1,304 @@
 <!DOCTYPE html>
-<html lang="th"><head>
+<html lang="th">
+<head>
   <script src="/games/kampai-sdk.js?v=1.181.0"></script>
-  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>เศรษฐศาสตร์ ป.6 — บ้านคำไผ่</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet"/>
+  <script src="/games/media-lab-runtime.js?v=2.0.0"></script>
+  <script src="/games/engine/classify-bucket-engine.js?v=2.0.0"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>เศรษฐศาสตร์ ป.6 — สื่อการสอน — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
   <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{--deep:#047857;--line:#a7f3d0;--muted:#64748b}
-    body{font-family:'Sarabun',sans-serif;background:linear-gradient(145deg,#a7f3d0,#04785722);min-height:100%;padding:12px;color:#0f172a}
-    .shell{max-width:1100px;margin:0 auto;background:#fff;border-radius:1.5rem;box-shadow:0 20px 50px rgba(15,23,42,.12);overflow:hidden;min-height:calc(100vh - 24px);display:flex;flex-direction:column}
-    header{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 16px;background:linear-gradient(90deg,var(--deep),#047857);color:#fff}
-    header h1{font-size:1.15rem;font-weight:800;flex:1;min-width:160px}
-    .badge{font-size:.75rem;background:rgba(255,255,255,.2);padding:4px 10px;border-radius:999px;font-weight:700}
-    .btn{font-family:inherit;font-weight:700;border:none;border-radius:12px;padding:10px 14px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
-    .btn:active{transform:scale(.97)}
-    .btn-back{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);padding:8px 12px;font-size:.85rem}
-    .btn-primary{background:var(--deep);color:#fff}
-    .btn-ghost{background:#fff;color:var(--deep);border:2px solid var(--line)}
-    .toolbar{display:flex;flex-wrap:wrap;gap:8px;padding:12px 16px;background:#f8fafc;border-bottom:1px solid var(--line);align-items:center}
-    .seg{display:inline-flex;border-radius:12px;overflow:hidden;border:2px solid var(--line)}
-    .seg button{font-family:inherit;font-weight:800;border:none;background:#fff;color:var(--deep);padding:8px 14px;cursor:pointer}
-    .seg button.on{background:var(--deep);color:#fff}
-    .hint{font-size:.9rem;color:var(--deep);font-weight:700;flex:1;min-width:140px}
-    .stage{flex:1;padding:16px;overflow:auto}
-    .footer{padding:10px;font-size:.8rem;color:var(--muted);text-align:center;border-top:1px solid var(--line)}
-    .practice{display:none;flex-direction:column;gap:12px;max-width:520px;margin:0 auto}
-    .shell.mode-practice .learn{display:none}.shell.mode-practice .practice{display:flex}
-    .choice{font-family:inherit;font-weight:800;font-size:1.05rem;padding:14px;border:2px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;text-align:left}
-    .choice.ok{background:#dcfce7}.choice.no{background:#fee2e2}
-    .pick{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
-     .pick button{font-family:inherit;font-weight:800;font-size:1rem;padding:12px 14px;border:2px solid var(--line);border-radius:14px;background:#fff;cursor:pointer;color:var(--deep)}
-     .pick button.on{background:var(--deep);color:#fff}
-     .box{background:#f8fafc;border:2px solid var(--line);border-radius:16px;padding:18px;font-weight:700;line-height:1.7;font-size:1.1rem}
-     .box h2{color:var(--deep);margin-bottom:8px;font-size:1.45rem}
-     .emo{font-size:3.2rem;margin-bottom:8px}
-     .ex{margin-top:10px;padding:10px 12px;border-radius:12px;background:#fff;border:1px dashed var(--line);font-size:1rem}
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --deep: #047857; --line: #a7f3d0; --muted: #475569; --ok: #15803d; --bad: #b91c1c; --ink: #0f172a; }
+    html, body { max-width: 100%; overflow-x: hidden; }
+    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(145deg, #a7f3d0, #d1fae5); min-height: 100%; padding: 12px; color: var(--ink); }
+    .shell { max-width: 960px; margin: 0 auto; background: #fff; border-radius: 1.5rem; box-shadow: 0 20px 50px rgba(15,23,42,.12); overflow: hidden; min-height: calc(100vh - 24px); display: flex; flex-direction: column; }
+    header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(90deg, #065f46, var(--deep)); color: #fff; }
+    header h1 { font-size: 1.15rem; font-weight: 800; flex: 1; min-width: 140px; }
+    .badge { font-size: .75rem; background: rgba(255,255,255,.2); padding: 4px 10px; border-radius: 999px; font-weight: 700; }
+    .btn { font-family: inherit; font-weight: 700; border: none; border-radius: 12px; padding: 10px 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; min-width: 44px; }
+    .btn:active { transform: scale(.97); }
+    .btn:focus-visible, .seg button:focus-visible, .pick button:focus-visible, .ke-bucket-btn:focus-visible, .ke-btn:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+    .btn-back { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.35); padding: 8px 12px; font-size: .85rem; }
+    .btn-primary { background: var(--deep); color: #fff; }
+    .btn-ghost { background: #fff; color: var(--deep); border: 2px solid var(--line); }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 16px; background: #f8fafc; border-bottom: 1px solid var(--line); align-items: center; }
+    .seg { display: inline-flex; border-radius: 12px; overflow: hidden; border: 2px solid var(--line); }
+    .seg button { font-family: inherit; font-weight: 800; border: none; background: #fff; color: var(--deep); padding: 8px 14px; cursor: pointer; min-height: 44px; font-size: .9rem; }
+    .seg button.on { background: var(--deep); color: #fff; }
+    .hint { font-size: .88rem; color: var(--deep); font-weight: 700; flex: 1; min-width: 140px; }
+    .stage { flex: 1; padding: 16px; overflow: auto; }
+    .learn { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+    .practice { display: none; flex-direction: column; gap: 12px; max-width: 660px; margin: 0 auto; width: 100%; }
+    .shell.mode-practice .learn { display: none; }
+    .shell.mode-practice .practice { display: flex; }
+    .pick { display: flex; flex-wrap: wrap; gap: 8px; }
+    .pick button { font-family: inherit; font-weight: 800; font-size: .95rem; padding: 10px 14px; border: 2px solid var(--line); border-radius: 14px; background: #fff; cursor: pointer; color: var(--deep); min-height: 44px; }
+    .pick button.on { background: var(--deep); color: #fff; border-color: var(--deep); }
+    .box { background: #f8fafc; border: 2px solid var(--line); border-radius: 16px; padding: 18px; font-weight: 700; line-height: 1.65; font-size: 1.05rem; display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+    .box h2 { color: var(--deep); font-size: 1.4rem; font-weight: 800; }
+    .emo { font-size: 3.1rem; line-height: 1; }
+    .box-tip { color: var(--muted); font-size: .95rem; }
+    .ex { padding: 10px 12px; border-radius: 12px; background: #fff; border: 1.5px dashed var(--line); font-size: .98rem; width: 100%; }
+    .practice-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+    .practice-note { font-size: .88rem; font-weight: 700; color: var(--deep); }
+    .speech-status { font-size: .85rem; font-weight: 700; color: #92400e; background: #fef3c7; border-radius: 10px; padding: 8px 12px; display: none; }
+    .speech-status.show { display: block; }
+    .ke-classify-card { background: #ecfdf5; border: 2px solid var(--line); border-radius: 20px; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+    .ke-classify-head { display: flex; justify-content: space-between; align-items: center; font-weight: 800; color: var(--deep); font-size: .95rem; }
+    .ke-classify-item { text-align: center; padding: 18px 14px; background: #fff; border: 2px dashed #34d399; border-radius: 16px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .ke-item-icon { font-size: clamp(52px, 12vw, 78px); line-height: 1.05; }
+    .ke-item-label { font-size: clamp(1.15rem, 2.8vw, 1.45rem); font-weight: 800; color: var(--ink); line-height: 1.4; }
+    .ke-item-sub { font-size: .92rem; font-weight: 600; color: var(--muted); line-height: 1.4; }
+    .ke-buckets { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    @media (max-width: 580px) { .ke-buckets { grid-template-columns: 1fr; } }
+    .ke-bucket-btn { font-family: inherit; font-weight: 800; font-size: .95rem; min-height: 54px; padding: 10px 12px; border-radius: 14px; border: 2px solid #cbd5e1; background: #fff; color: var(--ink); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; text-align: center; transition: transform .12s, border-color .12s, background .12s; }
+    .ke-bucket-btn[data-bucket-id="producer"] { border-color: #d97706; background: #fffbeb; color: #78350f; }
+    .ke-bucket-btn[data-bucket-id="consumer"] { border-color: #16a34a; background: #f0fdf4; color: #14532d; }
+    .ke-bucket-btn[data-bucket-id="system"] { border-color: #2563eb; background: #eff6ff; color: #1e3a8a; }
+    .ke-bucket-btn.is-correct { outline: 3px solid #15803d; background: #dcfce7; color: #14532d; }
+    .ke-bucket-btn.is-wrong { opacity: .65; text-decoration: line-through; }
+    .ke-bucket-btn:disabled { cursor: default; }
+    .ke-classify-feedback { padding: 12px 14px; border-radius: 12px; font-weight: 700; line-height: 1.45; background: #fff; border: 1.5px solid #cbd5e1; color: var(--ink); }
+    .ke-classify-feedback.is-good { background: #dcfce7; border-color: #16a34a; color: #14532d; }
+    .ke-classify-feedback.is-learn { background: #fef3c7; border-color: #d97706; color: #78350f; }
+    .ke-btn { font-family: inherit; font-weight: 800; font-size: .95rem; min-height: 44px; padding: 10px 16px; border-radius: 12px; border: none; background: var(--deep); color: #fff; cursor: pointer; align-items: center; justify-content: center; gap: 6px; align-self: center; }
+    .ke-classify-summary { text-align: center; padding: 24px 16px; background: #ecfdf5; border: 2px solid var(--line); border-radius: 20px; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+    .ke-classify-summary h3 { color: var(--deep); font-size: 1.3rem; font-weight: 800; }
+    .footer { padding: 10px 16px; font-size: .8rem; color: var(--muted); text-align: center; border-top: 1px solid var(--line); }
+    @media (max-width: 600px) {
+      body { padding: 0; }
+      .shell { border-radius: 0; min-height: 100vh; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition: none !important; scroll-behavior: auto !important; }
+      .btn:active { transform: none; }
+    }
   </style>
-</head><body>
-<div class="shell" id="shell">
-  <header>
-    <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back()">← กลับคลังสื่อ</button>
-    <h1>💹 เศรษฐศาสตร์ ป.6</h1>
-    <span class="badge">ป.6 · สังคมศึกษา</span>
-  </header>
-  <div class="toolbar">
-    <span class="seg" id="modeSeg">
-      <button type="button" data-mode="learn" class="on">📖 เรียนรู้</button>
-      <button type="button" data-mode="practice">✏️ ฝึก</button>
-    </span>
-    <p class="hint" id="hintText">สื่อ ป.6 — ไม่เก็บคะแนน</p>
-    <button type="button" class="btn btn-ghost" id="btnFs">⛶ เต็มจอ</button>
-    <a class="btn btn-ghost" href="/games/social/economics-p6-worksheet.html" target="_blank" rel="noopener">📝 เปิดใบงาน</a>
+</head>
+<body>
+  <div class="shell" id="shell">
+    <header>
+      <button type="button" class="btn btn-back" id="btnBack">← กลับคลังสื่อ</button>
+      <h1>💹 เศรษฐศาสตร์ ป.6</h1>
+      <span class="badge">ป.6 · สังคมศึกษา</span>
+    </header>
+    <div class="toolbar">
+      <span class="seg" id="modeSeg">
+        <button type="button" data-mode="learn" class="on">📖 เรียนรู้</button>
+        <button type="button" data-mode="practice">✏️ ฝึกแยกบทบาท</button>
+      </span>
+      <p class="hint" id="hintText">เลือกหัวข้อ · อ่านและฟังคำอธิบาย</p>
+      <button type="button" class="btn btn-ghost" id="btnFs" aria-label="ขยายเต็มจอ">⛶ เต็มจอ</button>
+      <a class="btn btn-ghost" href="/games/social/economics-p6-worksheet.html" target="_blank" rel="noopener">📝 เปิดใบงาน</a>
+    </div>
+    <div class="stage" id="stage">
+      <div class="learn" id="learn">
+        <div class="pick" id="pick"></div>
+        <div class="box" id="box"></div>
+        <div class="speech-status" id="speechStatusLearn" role="status" aria-live="polite"></div>
+      </div>
+      <div class="practice" id="practice">
+        <div class="practice-bar">
+          <span class="practice-note">แตะเลือกหมวดหรือกดปุ่มตัวเลข 1–3 (ไม่จับเวลา · ไม่เก็บคะแนน)</span>
+          <button type="button" class="btn btn-ghost" id="btnSpeakCurrent">🔊 ฟังเสียง</button>
+        </div>
+        <div class="speech-status" id="speechStatusPractice" role="status" aria-live="polite"></div>
+        <div id="classifyEngineRoot"></div>
+      </div>
+    </div>
+    <div class="footer">โรงเรียนบ้านคำไผ่ · สื่อ ป.6 · ไม่เก็บคะแนน</div>
   </div>
-  <div class="stage" id="stage"><div class="learn"><div class="pick" id="pick"></div><div class="box" id="box"></div></div>
-     <div class="practice"><p style="font-weight:800;font-size:1.15rem;color:var(--deep)" id="prQ"></p><div id="prChoices" style="display:grid;gap:8px"></div><p id="prFb" style="font-weight:800;min-height:24px"></p><button type="button" class="btn btn-primary" id="btnNext">ข้อถัดไป</button></div></div>
-  <div class="footer">โรงเรียนบ้านคำไผ่ · สื่อ ป.6 · Phase 13 · ไม่เก็บคะแนน</div>
-</div>
-<script>
-const MEDIA_SLUG='economics-p6-media';
-if(window.KAMPAI){KAMPAI.setSlug(MEDIA_SLUG);if(KAMPAI.sound&&KAMPAI.sound.mountToggles)KAMPAI.sound.mountToggles();}
-const ITEMS=[{"emoji":"🏭","name":"ผู้ผลิตที่รับผิดชอบ","body":"ผลิตสินค้าปลอดภัย ไม่หลอกลวง ดูแลสิ่งแวดล้อม","tip":"คุณภาพ + จริยธรรม","ex":"ติดฉลากส่วนประกอบครบ","q":"ผู้ผลิตที่รับผิดชอบควรทำอย่างไร?","a":"ผลิตปลอดภัย/ไม่หลอกลวง"},{"emoji":"🛒","name":"ผู้บริโภครู้เท่าทัน","body":"เปรียบเทียบราคา คุณภาพ อ่านฉลาก ไม่เชื่อโฆษณาเกินจริง","tip":"สิทธิผู้บริโภค","ex":"เช็กวันหมดอายุก่อนซื้อ","q":"ผู้บริโภครู้เท่าทันควรทำอะไรก่อนซื้อ?","a":"เปรียบเทียบ/อ่านฉลาก"},{"emoji":"🌱","name":"ใช้ทรัพยากรยั่งยืน","body":"ใช้พอดี ลด ใช้ซ้ำ รีไซเคิล เลือกวัสดุที่เป็นมิตร","tip":"ทรัพยากรมีจำกัด","ex":"พกถุงผ้า ลดพลาสติก","q":"การใช้ทรัพยากรอย่างยั่งยืนหมายถึง?","a":"ใช้พอดีและรักษ์โลก"},{"emoji":"🏦","name":"ผู้ผลิต·ผู้บริโภค·ธนาคาร·รัฐ","body":"เกี่ยวข้องกัน: ผลิต→ขาย→ซื้อ→ออม/กู้→ภาษี/บริการรัฐ","tip":"มองเป็นระบบ","ex":"ร้านฝากเงินธนาคาร · รัฐเก็บภาษีให้บริการ","q":"ธนาคารเกี่ยวข้องอย่างไร?","a":"ออม/กู้/บริการการเงิน"},{"emoji":"🤝","name":"รวมกลุ่มเศรษฐกิจท้องถิ่น","body":"กลุ่มอาชีพ วิสาหกิจชุมชน สหกรณ์ ช่วยเพิ่มอำนาจต่อรอง","tip":"ร่วมมือกันในชุมชน","ex":"กลุ่มทอผ้าพื้นบ้าน","q":"ตัวอย่างการรวมกลุ่มทางเศรษฐกิจ?","a":"วิสาหกิจชุมชน/สหกรณ์"},{"emoji":"🧭","name":"ตัดสินใจทางเศรษฐกิจ","body":"ชั่งน้ำหนักความต้องการ ความจำเป็น ผลกระทบระยะยาว","tip":"คิดก่อนซื้อ","ex":"ออมก่อนซื้อของฟุ่มเฟือย","q":"ก่อนใช้จ่ายควรถามอะไร?","a":"จำเป็นหรืออยากได้"}];
-let cur=ITEMS[0];
-function setMode(m){document.getElementById('shell').classList.toggle('mode-practice',m==='practice');document.getElementById('hintText').textContent=m==='learn'?'เลือกหัวข้อ · อ่านให้เข้าใจ':'ตอบคำถาม';if(m==='practice')nextPr();}
-function render(){
-  document.getElementById('pick').innerHTML=ITEMS.map((x,i)=>'<button type="button" data-i="'+i+'" class="'+(x===cur?'on':'')+'">'+(x.emoji?x.emoji+' ':'')+x.name+'</button>').join('');
-  document.getElementById('box').innerHTML=(cur.emoji?'<div class="emo">'+cur.emoji+'</div>':'')+'<h2>'+cur.name+'</h2><p>'+cur.body+'</p>'+(cur.tip?'<p style="margin-top:10px;color:var(--muted);font-size:1rem">💡 '+cur.tip+'</p>':'')+(cur.ex?'<div class="ex">'+cur.ex+'</div>':'');
-}
-document.getElementById('pick').onclick=e=>{const b=e.target.closest('[data-i]');if(!b)return;cur=ITEMS[+b.dataset.i];render();};
-function nextPr(){const a=ITEMS[Math.floor(Math.random()*ITEMS.length)];document.getElementById('prQ').textContent=a.q;document.getElementById('prFb').textContent='';
-  const opts=new Set([a.a]);while(opts.size<4)opts.add(ITEMS[Math.floor(Math.random()*ITEMS.length)].a);
-  const box=document.getElementById('prChoices');box.innerHTML=[...opts].sort(()=>Math.random()-0.5).map(o=>'<button type="button" class="choice">'+o+'</button>').join('');
-  box.onclick=e=>{const b=e.target.closest('.choice');if(!b)return;const ok=b.textContent===a.a;b.classList.add(ok?'ok':'no');document.getElementById('prFb').textContent=ok?'✅ เก่งมาก!':'เฉลย: '+a.a;if(KAMPAI&&KAMPAI.sound)(ok?KAMPAI.sound.correct:KAMPAI.sound.wrong)();};}
-document.getElementById('btnNext').onclick=nextPr;render();setMode('learn');
-document.getElementById('modeSeg').onclick=e=>{
-  const b=e.target.closest('button[data-mode]');if(!b)return;
-  [...document.querySelectorAll('#modeSeg button')].forEach(x=>x.classList.toggle('on',x===b));
-  setMode(b.dataset.mode);
-};
-document.getElementById('btnFs').onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.();};
-</script>
-</body></html>
+  <script>
+    const MEDIA_SLUG = 'economics-p6-media';
+    if (window.KAMPAI) {
+      KAMPAI.setSlug(MEDIA_SLUG);
+      if (KAMPAI.sound && typeof KAMPAI.sound.mountToggles === 'function') {
+        try { KAMPAI.sound.mountToggles(); } catch (_) {}
+      }
+    }
+
+    const ITEMS = [
+      { emoji: '🏭', name: 'ผู้ผลิตที่รับผิดชอบ', body: 'ผลิตสินค้าปลอดภัย ไม่หลอกลวง ดูแลสิ่งแวดล้อม', tip: 'คุณภาพ + จริยธรรม', ex: 'ติดฉลากส่วนประกอบครบ', q: 'ผู้ผลิตที่รับผิดชอบควรทำอย่างไร?', a: 'ผลิตปลอดภัย/ไม่หลอกลวง' },
+      { emoji: '🛒', name: 'ผู้บริโภครู้เท่าทัน', body: 'เปรียบเทียบราคา คุณภาพ อ่านฉลาก ไม่เชื่อโฆษณาเกินจริง', tip: 'สิทธิผู้บริโภค', ex: 'เช็กวันหมดอายุก่อนซื้อ', q: 'ผู้บริโภครู้เท่าทันควรทำอะไรก่อนซื้อ?', a: 'เปรียบเทียบ/อ่านฉลาก' },
+      { emoji: '🌱', name: 'ใช้ทรัพยากรยั่งยืน', body: 'ใช้พอดี ลด ใช้ซ้ำ รีไซเคิล เลือกวัสดุที่เป็นมิตร', tip: 'ทรัพยากรมีจำกัด', ex: 'พกถุงผ้า ลดพลาสติก', q: 'การใช้ทรัพยากรอย่างยั่งยืนหมายถึง?', a: 'ใช้พอดีและรักษ์โลก' },
+      { emoji: '🏦', name: 'ผู้ผลิต·ผู้บริโภค·ธนาคาร·รัฐ', body: 'เกี่ยวข้องกัน: ผลิต→ขาย→ซื้อ→ออม/กู้→ภาษี/บริการรัฐ', tip: 'มองเป็นระบบ', ex: 'ร้านฝากเงินธนาคาร · รัฐเก็บภาษีให้บริการ', q: 'ธนาคารเกี่ยวข้องอย่างไร?', a: 'ออม/กู้/บริการการเงิน' },
+      { emoji: '🤝', name: 'รวมกลุ่มเศรษฐกิจท้องถิ่น', body: 'กลุ่มอาชีพ วิสาหกิจชุมชน สหกรณ์ ช่วยเพิ่มอำนาจต่อรอง', tip: 'ร่วมมือกันในชุมชน', ex: 'กลุ่มทอผ้าพื้นบ้าน', q: 'ตัวอย่างการรวมกลุ่มทางเศรษฐกิจ?', a: 'วิสาหกิจชุมชน/สหกรณ์' },
+      { emoji: '🧭', name: 'ตัดสินใจทางเศรษฐกิจ', body: 'ชั่งน้ำหนักความต้องการ ความจำเป็น ผลกระทบระยะยาว', tip: 'คิดก่อนซื้อ', ex: 'ออมก่อนซื้อของฟุ่มเฟือย', q: 'ก่อนใช้จ่ายควรถามอะไร?', a: 'จำเป็นหรืออยากได้' },
+    ];
+
+    const BUCKETS = [
+      { id: 'producer', label: 'ผู้ผลิตที่รับผิดชอบ', icon: '🏭' },
+      { id: 'consumer', label: 'ผู้บริโภครู้เท่าทัน', icon: '🛒' },
+      { id: 'system', label: 'ธนาคาร รัฐ และกลุ่มชุมชน', icon: '🏦' },
+    ];
+
+    const CLASSIFY_ITEMS = [
+      { id: 'ec-p1', icon: '🏷️', label: 'ติดฉลากส่วนประกอบและวันหมดอายุให้ชัดเจนครบถ้วน', sub: 'การผลิตสินค้า', bucketId: 'producer', reason: 'ผู้ผลิตที่มีจริยธรรมต้องให้ข้อมูลสินค้าตามจริง ไม่หลอกลวงผู้บริโภค' },
+      { id: 'ec-p2', icon: '♻️', label: 'เลือกใช้วัสดุที่เป็นมิตรต่อสิ่งแวดล้อมและบำบัดน้ำเสียก่อนปล่อย', sub: 'ความรับผิดชอบต่อสังคม', bucketId: 'producer', reason: 'ผู้ผลิตที่รับผิดชอบต้องดูแลสิ่งแวดล้อมควบคู่กับการผลิตสินค้าปลอดภัย' },
+      { id: 'ec-p3', icon: '🧪', label: 'ผลิตอาหารโดยไม่ใส่สารปนเปื้อนอันตรายเพื่อลดต้นทุน', sub: 'คุณภาพและความปลอดภัย', bucketId: 'producer', reason: 'ผู้ผลิตต้องคำนึงถึงความปลอดภัยของผู้บริโภคเป็นสำคัญ' },
+      { id: 'ec-c1', icon: '🔍', label: 'เปรียบเทียบราคา คุณภาพ และเช็กวันหมดอายุก่อนจ่ายเงิน', sub: 'ก่อนตัดสินใจซื้อ', bucketId: 'consumer', reason: 'เป็นหลักการของผู้บริโภครู้เท่าทันเพื่อรักษาสิทธิและคุ้มค่าเงิน' },
+      { id: 'ec-c2', icon: '👜', label: 'พกถุงผ้าไปตลาดเพื่อลดขยะพลาสติกและใช้ทรัพยากรอย่างยั่งยืน', sub: 'การบริโภคอย่างยั่งยืน', bucketId: 'consumer', reason: 'ผู้บริโภคช่วยรักษาทรัพยากรด้วยการใช้พอดี ลด ใช้ซ้ำ และรีไซเคิล' },
+      { id: 'ec-c3', icon: '🧭', label: 'ถามตัวเองก่อนซื้อว่าจำเป็นจริงหรือไม่ และออมเงินไว้ก่อนใช้จ่าย', sub: 'การตัดสินใจทางเศรษฐกิจ', bucketId: 'consumer', reason: 'เป็นการตัดสินใจเลือกใช้จ่ายอย่างมีเหตุผลและคำนึงถึงผลระยะยาว' },
+      { id: 'ec-c4', icon: '📢', label: 'ตรวจสอบข้อเท็จจริง ไม่หลงเชื่อโฆษณาที่อ้างสรรพคุณเกินจริง', sub: 'สิทธิผู้บริโภค', bucketId: 'consumer', reason: 'ผู้บริโภครู้เท่าทันจะไม่ตกเป็นเหยื่อของการโฆษณาเกินจริง' },
+      { id: 'ec-s1', icon: '🏦', label: 'รับฝากเงินจากประชาชนและปล่อยสินเชื่อให้ร้านค้าลงทุนขยายกิจการ', sub: 'กลไกการเงินในระบบเศรษฐกิจ', bucketId: 'system', reason: 'เป็นบทบาทหลักของธนาคารในการเชื่อมโยงผู้ออมและผู้ลงทุน' },
+      { id: 'ec-s2', icon: '🏛️', label: 'จัดเก็บภาษีเพื่อนำไปสร้างถนน โรงเรียน และบริการสาธารณะ', sub: 'กลไกภาครัฐในระบบเศรษฐกิจ', bucketId: 'system', reason: 'รัฐบาลเก็บภาษีจากระบบเศรษฐกิจมาพัฒนาสาธารณูปโภคและสวัสดิการ' },
+      { id: 'ec-s3', icon: '🤝', label: 'รวมกลุ่มทอผ้าพื้นบ้านเป็นวิสาหกิจชุมชนหรือสหกรณ์เพื่อเพิ่มอำนาจต่อรอง', sub: 'เศรษฐกิจท้องถิ่น', bucketId: 'system', reason: 'การรวมกลุ่มทางเศรษฐกิจในชุมชนช่วยให้สมาชิกพึ่งพากันและต่อรองราคาได้ดีขึ้น' },
+    ];
+
+    let cur = ITEMS[0];
+    let mode = 'learn';
+    let classifySession = null;
+
+    function speakText(text, statusId) {
+      const clean = String(text || '').trim();
+      if (!clean) return;
+      const statusEl = document.getElementById(statusId || (mode === 'practice' ? 'speechStatusPractice' : 'speechStatusLearn'));
+      if (window.KampaiMediaLab && typeof window.KampaiMediaLab.speakSafe === 'function') {
+        const res = window.KampaiMediaLab.speakSafe(clean, { lang: 'th-TH', rate: 0.92 });
+        if (statusEl) {
+          if (res && res.ok === false) {
+            statusEl.textContent = 'อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านข้อความต่อได้';
+            statusEl.classList.add('show');
+          } else {
+            statusEl.textContent = '';
+            statusEl.classList.remove('show');
+          }
+        }
+        return;
+      }
+      try {
+        if (window.KAMPAI?.sound?.speak) {
+          KAMPAI.sound.speak(clean, 'th-TH', true);
+          return;
+        }
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const u = new SpeechSynthesisUtterance(clean);
+          u.lang = 'th-TH';
+          u.rate = 0.92;
+          window.speechSynthesis.speak(u);
+          return;
+        }
+      } catch (_) {}
+      if (statusEl) {
+        statusEl.textContent = 'อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านข้อความต่อได้';
+        statusEl.classList.add('show');
+      }
+    }
+
+    function stopSpeech() {
+      if (window.KampaiMediaLab && typeof window.KampaiMediaLab.stopAllSpeech === 'function') {
+        window.KampaiMediaLab.stopAllSpeech();
+      } else {
+        try { window.KAMPAI?.sound?.stopSpeak?.(); } catch (_) {}
+        try { window.speechSynthesis?.cancel?.(); } catch (_) {}
+      }
+    }
+
+    function render() {
+      document.getElementById('pick').innerHTML = ITEMS.map((x, i) =>
+        '<button type="button" data-i="' + i + '" class="' + (x === cur ? 'on' : '') + '">' + (x.emoji ? x.emoji + ' ' : '') + x.name + '</button>'
+      ).join('');
+      document.getElementById('box').innerHTML =
+        (cur.emoji ? '<div class="emo" aria-hidden="true">' + cur.emoji + '</div>' : '') +
+        '<h2>' + cur.name + '</h2>' +
+        '<p>' + cur.body + '</p>' +
+        (cur.tip ? '<p class="box-tip">💡 ' + cur.tip + '</p>' : '') +
+        (cur.ex ? '<div class="ex">ตัวอย่าง: ' + cur.ex + '</div>' : '') +
+        '<button type="button" class="btn btn-ghost" id="btnSpeakLearn">🔊 ฟังคำอธิบาย</button>';
+      document.getElementById('btnSpeakLearn').onclick = () => {
+        speakText(cur.name + ' ' + cur.body + (cur.ex ? ' ตัวอย่างเช่น ' + cur.ex : ''), 'speechStatusLearn');
+      };
+    }
+
+    function mountClassifyPractice() {
+      if (!window.KampaiEngines || !window.KampaiEngines.ClassifyBucket) return;
+      classifySession = window.KampaiEngines.ClassifyBucket.mount('#classifyEngineRoot', {
+        items: CLASSIFY_ITEMS,
+        buckets: BUCKETS,
+        mode: 'media',
+        roundSize: 9,
+        onAnswer: function (res) {
+          if (window.KAMPAI && window.KAMPAI.sound) {
+            try {
+              if (res.isCorrect) KAMPAI.sound.correct();
+              else KAMPAI.sound.wrong();
+            } catch (_) {}
+          }
+        },
+      });
+    }
+
+    function setMode(nextMode) {
+      stopSpeech();
+      mode = nextMode === 'practice' ? 'practice' : 'learn';
+      const pr = mode === 'practice';
+      document.getElementById('shell').classList.toggle('mode-practice', pr);
+      document.getElementById('modeSeg').querySelectorAll('button').forEach((x) => x.classList.toggle('on', x.dataset.mode === mode));
+      document.getElementById('hintText').textContent = pr
+        ? 'จำแนกบทบาทผู้ผลิต · ผู้บริโภค · ธนาคาร/รัฐ/ชุมชน — ไม่จับเวลา ไม่เก็บคะแนน'
+        : 'เลือกหัวข้อ · อ่านและฟังคำอธิบาย';
+      if (pr) {
+        mountClassifyPractice();
+      } else if (window.KampaiEngines?.ClassifyBucket?.cleanup) {
+        window.KampaiEngines.ClassifyBucket.cleanup();
+      }
+    }
+
+    document.getElementById('pick').onclick = (e) => {
+      const b = e.target.closest('[data-i]');
+      if (!b) return;
+      stopSpeech();
+      cur = ITEMS[+b.dataset.i];
+      render();
+    };
+
+    document.getElementById('modeSeg').onclick = (e) => {
+      const b = e.target.closest('button[data-mode]');
+      if (b) setMode(b.dataset.mode);
+    };
+
+    document.getElementById('btnSpeakCurrent').onclick = () => {
+      const item = classifySession?.currentItem?.();
+      if (item) {
+        speakText(item.label + ' เป็นบทบาทของหมวดใด', 'speechStatusPractice');
+      } else {
+        speakText('ฝึกจำแนกบทบาททางเศรษฐกิจสำเร็จแล้ว กดฝึกใหม่อีกครั้งได้', 'speechStatusPractice');
+      }
+    };
+
+    document.getElementById('btnBack').onclick = () => {
+      stopSpeech();
+      if (window.KAMPAI && KAMPAI.goHome) KAMPAI.goHome();
+      else history.back();
+    };
+
+    document.getElementById('btnFs').onclick = () => {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.().catch(() => {});
+      else document.exitFullscreen?.();
+    };
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stopSpeech();
+    });
+    window.addEventListener('pagehide', stopSpeech);
+
+    render();
+    setMode('learn');
+
+    window.getState = () => Object.freeze({
+      slug: MEDIA_SLUG,
+      mode: mode,
+      currentTopic: cur ? cur.name : null,
+      totalItems: CLASSIFY_ITEMS.length,
+      bucketsCount: BUCKETS.length,
+      classify: classifySession ? classifySession.getState() : null,
+      reducedMotion: typeof window.matchMedia === 'function'
+        ? Boolean(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+        : false,
+    });
+  </script>
+</body>
+</html>

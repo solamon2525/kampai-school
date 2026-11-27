@@ -2,6 +2,9 @@
 <html lang="th">
 <head>
   <script src="/games/kampai-sdk.js?v=1.181.0"></script>
+  <script src="/games/media-lab-runtime.js?v=2.0.0"></script>
+  <script src="/games/engine/vocab-quiz-engine.js?v=2.0.0"></script>
+  <script src="/games/engine/connect-match-engine.js?v=2.0.0"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Classroom Action & TPR Commands Studio — โรงเรียนบ้านคำไผ่</title>
@@ -902,6 +905,125 @@
       align-items: center;
       justify-content: center;
     }
+
+    /* SPEECH STATUS & ENGINE MATCH/QUIZ PANEL */
+    .speech-status {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #78350f;
+      background: #fef3c7;
+      border: 1px solid #f59e0b;
+      border-radius: 10px;
+      padding: 8px 12px;
+      display: none;
+      width: 100%;
+    }
+    .speech-status.show { display: block; }
+    .engine-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .engine-mode-group {
+      display: inline-flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .ke-match-wrap { position: relative; display: flex; flex-direction: column; gap: 12px; width: 100%; }
+    .ke-match-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+    .ke-match-grid {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+    .ke-match-col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+    .ke-match-card, .ke-memory-card {
+      width: 100%;
+      min-height: 46px;
+      min-width: 44px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      background: #f8fafc;
+      color: var(--navy-dark);
+      font-family: inherit;
+      font-size: 0.96rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      overflow-wrap: anywhere;
+    }
+    .ke-match-card:hover, .ke-memory-card:hover { border-color: var(--navy); background: #eff6ff; }
+    .ke-match-card.active { border-color: var(--navy); background: var(--navy-light); box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.2); }
+    .ke-match-card.matched, .ke-memory-card.matched { background: var(--emerald-light); border-color: var(--emerald); color: #065f46; cursor: default; }
+    .ke-match-card.error, .ke-memory-card.error { background: var(--rose-light); border-color: var(--rose); color: var(--rose-hover); }
+    .ke-memory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(115px, 1fr)); gap: 10px; }
+    .ke-memory-card.flipped { background: #eff6ff; border-color: var(--navy); }
+    .ke-match-feedback, .ke-feedback {
+      min-height: 24px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-weight: 700;
+      background: #f1f5f9;
+      color: var(--navy-dark);
+    }
+    .ke-feedback.is-good { background: var(--emerald-light); color: #065f46; border: 1.5px solid var(--emerald); }
+    .ke-feedback.is-learn { background: var(--gold-light); color: #78350f; border: 1.5px solid var(--gold); }
+    .ke-quiz-card, .ke-quiz-summary { display: flex; flex-direction: column; gap: 14px; }
+    .ke-quiz-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; font-weight: 800; }
+    .ke-badge { padding: 4px 10px; border-radius: 999px; background: var(--navy-light); color: var(--navy); font-size: 0.85rem; }
+    .ke-progress { color: var(--slate); font-size: 0.92rem; }
+    .ke-prompt { font-size: 1.15rem; font-weight: 800; color: var(--navy-dark); line-height: 1.5; }
+    .ke-audio-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .ke-options { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    @media (min-width: 640px) { .ke-options { grid-template-columns: 1fr 1fr; } }
+    .ke-option, .ke-btn {
+      min-height: 46px;
+      min-width: 44px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      background: #ffffff;
+      color: var(--navy-dark);
+      font-family: inherit;
+      font-size: 0.98rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: left;
+      overflow-wrap: anywhere;
+    }
+    .ke-btn {
+      background: var(--navy);
+      color: #ffffff;
+      border-color: var(--navy);
+      text-align: center;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .ke-option.is-correct { background: var(--emerald-light); border-color: var(--emerald); color: #065f46; }
+    .ke-option.is-wrong { background: var(--rose-light); border-color: var(--rose); color: var(--rose-hover); }
+    .ke-clue { padding: 10px 12px; border-radius: 10px; background: var(--gold-light); color: #78350f; font-weight: 700; }
+    @media (max-width: 480px) {
+      .ke-match-grid { gap: 10px; }
+      .ke-match-card { font-size: 0.88rem; padding: 8px 6px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+      }
+      .panel, .judge-feedback, .word-slot.wrong { animation: none !important; }
+      #blindCurtain, .btn-act, .word-chip { transition: none !important; }
+    }
   </style>
 </head>
 
@@ -940,7 +1062,7 @@
   <div class="shortcut-bar">
     <span>💡 <strong>คำแนะนำ Smartboard:</strong> ใช้หน้าจอสัมผัส หรือแป้นพิมพ์ครูสำหรับควบคุมอย่างรวดเร็ว</span>
     <div class="shortcut-tags">
-      <span><span class="kbd-tag">1-4</span> สลับโหมด</span>
+      <span><span class="kbd-tag">1-5</span> สลับโหมด</span>
       <span><span class="kbd-tag">Space</span> ฟังเสียง</span>
       <span><span class="kbd-tag">Enter / R</span> เปิด/ปิดม่าน</span>
       <span><span class="kbd-tag">⬅ / ➔</span> เปลี่ยนคำสั่ง</span>
@@ -962,12 +1084,16 @@
     <button class="tab-btn mode-btn mode-practice" data-mode="builder" role="tab" aria-selected="false" id="tab-builder">
       <span>🧩 4. ต่อประโยคคำสั่ง</span>
     </button>
+    <button class="tab-btn mode-btn mode-practice" data-mode="practice" role="tab" aria-selected="false" id="tab-practice">
+      <span>🔗 5. จับคู่ & ทายคำสั่ง</span>
+    </button>
   </nav>
   <div style="display:none;" data-mode="learn" id="learn">📖 สอน/เรียนรู้</div>
   <div style="display:none;" data-mode="practice" id="practice">✏️ ฝึก/ฝึกสั้น</div>
 
   <!-- MAIN CONTENT -->
   <main class="content">
+    <div class="speech-status" id="speechStatus" role="status" aria-live="polite"></div>
 
     <!-- PANEL 1: BLIND LISTEN & REVEAL -->
     <section id="panel-blind" class="panel active" role="tabpanel" aria-labelledby="tab-blind">
@@ -1217,6 +1343,38 @@
             </div>
           </div>
         </div>
+      </div>
+    </section>
+
+    <!-- PANEL 5: CONNECT MATCH & QUIZ (MEDIA MODE) -->
+    <section id="panel-practice" class="panel" role="tabpanel" aria-labelledby="tab-practice">
+      <div class="card">
+        <div class="card-title">
+          <span>🔗 จับคู่คำสั่ง TPR กับความหมาย</span>
+          <span class="cat-badge">ฝึกเพื่อเรียนรู้ · ไม่เก็บคะแนน</span>
+        </div>
+        <div class="engine-toolbar">
+          <div class="engine-mode-group">
+            <button type="button" class="btn-act btn-navy" id="btnMatchConnect">🔗 โยงคู่คำสั่ง</button>
+            <button type="button" class="btn-act btn-outline" id="btnMatchMemory">🃏 เปิดป้ายจำคู่</button>
+          </div>
+          <button type="button" class="btn-act btn-outline" id="btnMatchNew">🔄 ชุดใหม่</button>
+        </div>
+        <div id="matchEngineRoot"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">
+          <span>✏️ ทายความหมายและฟังคำสั่ง TPR</span>
+          <span class="cat-badge">ไม่จับเวลา · ไม่เก็บคะแนน</span>
+        </div>
+        <div class="engine-toolbar">
+          <div class="engine-mode-group">
+            <button type="button" class="btn-act btn-navy" id="btnQuizChoice">📝 ทายความหมาย</button>
+            <button type="button" class="btn-act btn-outline" id="btnQuizListen">🔊 ฟังเสียงเลือกคำสั่ง</button>
+          </div>
+          <button type="button" class="btn-act btn-outline" id="btnQuizNew">🔄 ชุดใหม่</button>
+        </div>
+        <div id="quizEngineRoot"></div>
       </div>
     </section>
 
@@ -1580,7 +1738,7 @@ const COMMANDS = [
 
 /* 2. STATE OBJECT */
 const state = {
-  mode: 'blind', // 'blind' | 'simon' | 'speed' | 'builder'
+  mode: 'blind', // 'blind' | 'simon' | 'speed' | 'builder' | 'practice'
   currentIndex: 0,
   blindRevealed: false,
   isSimonSays: true,
@@ -1590,11 +1748,17 @@ const state = {
   builderComplete: false,
   voiceAccent: 'en-US',
   ttsEnabled: true,
-  currentCategory: 'all'
+  currentCategory: 'all',
+  matchSubMode: 'connect',
+  quizQuestionType: 'choice'
 };
 
+let matchSession = null;
+let quizSession = null;
+
 /* 3. STATE INSPECTION HOOK */
-window.__getState = () => ({
+window.getState = () => Object.freeze({
+  slug: MEDIA_SLUG,
   mode: state.mode,
   currentIndex: state.currentIndex,
   totalCommands: COMMANDS.length,
@@ -1605,8 +1769,16 @@ window.__getState = () => ({
   builderPlaced: [...state.builderPlaced],
   builderComplete: state.builderComplete,
   voiceAccent: state.voiceAccent,
-  ttsEnabled: state.ttsEnabled
+  ttsEnabled: state.ttsEnabled,
+  matchSubMode: state.matchSubMode,
+  quizQuestionType: state.quizQuestionType,
+  matchState: matchSession ? matchSession.getState() : null,
+  quizState: quizSession ? quizSession.getState() : null,
+  reducedMotion: typeof window.matchMedia === 'function'
+    ? Boolean(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+    : false
 });
+window.__getState = window.getState;
 
 /* 4. KAMPAI SDK AUDIO UNLOCK & FALLBACK */
 if (!window.KAMPAI) {
@@ -1643,11 +1815,45 @@ if ('speechSynthesis' in window) {
   }
 }
 
+function stopSpeech() {
+  if (window.KampaiMediaLab && typeof window.KampaiMediaLab.stopAllSpeech === 'function') {
+    window.KampaiMediaLab.stopAllSpeech();
+  } else {
+    try { window.KAMPAI?.sound?.stopSpeak?.(); } catch (_) {}
+    try { window.speechSynthesis?.cancel?.(); } catch (_) {}
+  }
+}
+
 function speakText(text, lang = state.voiceAccent) {
-  if (!state.ttsEnabled || !('speechSynthesis' in window)) return;
+  if (!state.ttsEnabled) return;
+  const clean = String(text || '').trim();
+  if (!clean) return;
+  const statusEl = document.getElementById('speechStatus');
+
+  if (window.KampaiMediaLab && typeof window.KampaiMediaLab.speakSafe === 'function') {
+    const res = window.KampaiMediaLab.speakSafe(clean, { lang: lang, rate: 0.88 });
+    if (statusEl) {
+      if (res && res.ok === false) {
+        statusEl.textContent = 'อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านคำสั่งและทำท่าทางต่อได้';
+        statusEl.classList.add('show');
+      } else {
+        statusEl.textContent = '';
+        statusEl.classList.remove('show');
+      }
+    }
+    return;
+  }
+
+  if (!('speechSynthesis' in window)) {
+    if (statusEl) {
+      statusEl.textContent = 'อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านคำสั่งและทำท่าทางต่อได้';
+      statusEl.classList.add('show');
+    }
+    return;
+  }
   try {
     window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
+    const u = new SpeechSynthesisUtterance(clean);
     u.lang = lang;
     u.rate = 0.88; // primary school friendly pace
 
@@ -1679,11 +1885,13 @@ const panels = {
   blind: document.getElementById('panel-blind'),
   simon: document.getElementById('panel-simon'),
   speed: document.getElementById('panel-speed'),
-  builder: document.getElementById('panel-builder')
+  builder: document.getElementById('panel-builder'),
+  practice: document.getElementById('panel-practice')
 };
 
 function switchMode(newMode) {
   if (!panels[newMode]) return;
+  stopSpeech();
   state.mode = newMode;
 
   // If leaving speed mode, pause it
@@ -1712,6 +1920,9 @@ function switchMode(newMode) {
     renderSpeedItem();
   } else if (newMode === 'builder') {
     setupBuilderPuzzle();
+  } else if (newMode === 'practice') {
+    if (!matchSession) mountMatch();
+    if (!quizSession) mountQuiz();
   }
 }
 
@@ -2186,6 +2397,7 @@ document.getElementById('selVoiceAccent').addEventListener('change', (e) => {
 
 document.getElementById('btnAudioToggle').addEventListener('click', () => {
   state.ttsEnabled = !state.ttsEnabled;
+  if (!state.ttsEnabled) stopSpeech();
   document.getElementById('audioIcon').textContent = state.ttsEnabled ? '🔊' : '🔇';
   document.getElementById('audioLabel').textContent = state.ttsEnabled ? 'เปิดเสียง' : 'ปิดเสียง';
 });
@@ -2198,6 +2410,109 @@ document.getElementById('btnFullscreen').addEventListener('click', () => {
   }
 });
 
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) stopSpeech();
+});
+window.addEventListener('pagehide', stopSpeech);
+
+/* 11B. ENGINE PRACTICE PANEL (ConnectMatch & Quiz, media mode) */
+function buildActionEnginePool() {
+  return COMMANDS.map((c) => ({
+    id: c.id,
+    term: c.clean,
+    left: c.clean,
+    right: c.th,
+    reading: c.ph,
+    meaning: c.th,
+    explain: `${c.en} (${c.ph}) — ${c.th}`,
+    locale: state.voiceAccent
+  }));
+}
+
+function updateMatchButtons() {
+  const cBtn = document.getElementById('btnMatchConnect');
+  const mBtn = document.getElementById('btnMatchMemory');
+  if (cBtn) cBtn.className = 'btn-act ' + (state.matchSubMode === 'connect' ? 'btn-navy' : 'btn-outline');
+  if (mBtn) mBtn.className = 'btn-act ' + (state.matchSubMode === 'memory' ? 'btn-navy' : 'btn-outline');
+}
+
+function mountMatch() {
+  if (!window.KampaiEngines || !window.KampaiEngines.ConnectMatch) return;
+  updateMatchButtons();
+  matchSession = window.KampaiEngines.ConnectMatch.mount('#matchEngineRoot', {
+    items: buildActionEnginePool(),
+    pairCount: 6,
+    mode: 'media',
+    subMode: state.matchSubMode,
+    locale: state.voiceAccent,
+    onMatch: (pair) => {
+      if (window.KAMPAI && window.KAMPAI.sound) {
+        try { window.KAMPAI.sound.correct(); } catch (_) {}
+      }
+      if (pair && pair.leftText) speakText(pair.leftText, state.voiceAccent);
+    }
+  });
+}
+
+function updateQuizButtons() {
+  const cBtn = document.getElementById('btnQuizChoice');
+  const lBtn = document.getElementById('btnQuizListen');
+  if (cBtn) cBtn.className = 'btn-act ' + (state.quizQuestionType === 'choice' ? 'btn-navy' : 'btn-outline');
+  if (lBtn) lBtn.className = 'btn-act ' + (state.quizQuestionType === 'listen' ? 'btn-navy' : 'btn-outline');
+}
+
+function mountQuiz() {
+  if (!window.KampaiEngines || !window.KampaiEngines.Quiz) return;
+  updateQuizButtons();
+  const opts = {
+    items: buildActionEnginePool(),
+    mode: 'media',
+    roundSize: 8,
+    locale: state.voiceAccent,
+    speak: (text, loc) => speakText(text, loc || state.voiceAccent),
+    onAnswer: (res) => {
+      if (window.KAMPAI && window.KAMPAI.sound) {
+        try {
+          if (res.isCorrect) window.KAMPAI.sound.correct();
+          else window.KAMPAI.sound.wrong();
+        } catch (_) {}
+      }
+    }
+  };
+  quizSession = state.quizQuestionType === 'listen'
+    ? window.KampaiEngines.Quiz.mountListen('#quizEngineRoot', opts)
+    : window.KampaiEngines.Quiz.mountChoice('#quizEngineRoot', opts);
+}
+
+document.getElementById('btnMatchConnect').addEventListener('click', () => {
+  stopSpeech();
+  state.matchSubMode = 'connect';
+  mountMatch();
+});
+document.getElementById('btnMatchMemory').addEventListener('click', () => {
+  stopSpeech();
+  state.matchSubMode = 'memory';
+  mountMatch();
+});
+document.getElementById('btnMatchNew').addEventListener('click', () => {
+  stopSpeech();
+  mountMatch();
+});
+document.getElementById('btnQuizChoice').addEventListener('click', () => {
+  stopSpeech();
+  state.quizQuestionType = 'choice';
+  mountQuiz();
+});
+document.getElementById('btnQuizListen').addEventListener('click', () => {
+  stopSpeech();
+  state.quizQuestionType = 'listen';
+  mountQuiz();
+});
+document.getElementById('btnQuizNew').addEventListener('click', () => {
+  stopSpeech();
+  mountQuiz();
+});
+
 /* 12. KEYBOARD SHORTCUTS */
 window.addEventListener('keydown', (e) => {
   // If typing in input or select, skip
@@ -2207,6 +2522,7 @@ window.addEventListener('keydown', (e) => {
   if (e.key === '2') switchMode('simon');
   if (e.key === '3') switchMode('speed');
   if (e.key === '4') switchMode('builder');
+  if (e.key === '5') switchMode('practice');
 
   if (e.key === ' ' || e.code === 'Space') {
     e.preventDefault();
@@ -2253,6 +2569,8 @@ simonCommand = COMMANDS[0];
 renderSimonItem();
 renderSpeedItem();
 setupBuilderPuzzle();
+mountMatch();
+mountQuiz();
 
 </script>
 </body>

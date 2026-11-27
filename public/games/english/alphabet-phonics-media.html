@@ -2,6 +2,9 @@
 <html lang="th">
 <head>
   <script src="/games/kampai-sdk.js?v=1.181.0"></script>
+  <script src="/games/media-lab-runtime.js?v=2.0.0"></script>
+  <script src="/games/engine/vocab-quiz-engine.js?v=2.0.0"></script>
+  <script src="/games/engine/connect-match-engine.js?v=2.0.0"></script>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>🔤 ABC & Phonics Reading Studio — โรงเรียนบ้านคำไผ่</title>
@@ -541,6 +544,140 @@
     .quiz-feedback.ok { color: var(--ok); }
     .quiz-feedback.no { color: var(--bad); }
 
+    /* Speech status & Match/Quiz engine panels */
+    .speech-status {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #78350f;
+      background: #fef3c7;
+      border: 1px solid #f59e0b;
+      border-radius: 10px;
+      padding: 8px 12px;
+      display: none;
+      max-width: 960px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .speech-status.show { display: block; }
+    .match-view {
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+      max-width: 860px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .engine-card {
+      background: var(--surface);
+      border: 2px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      width: 100%;
+    }
+    .engine-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .engine-mode-group {
+      display: inline-flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .btn-eng-primary {
+      background: var(--navy);
+      color: #ffffff;
+    }
+    .btn-eng-ghost {
+      background: var(--surface);
+      color: var(--navy);
+      border: 2px solid var(--line);
+    }
+    .ke-match-wrap { position: relative; display: flex; flex-direction: column; gap: 12px; width: 100%; }
+    .ke-match-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+    .ke-match-grid {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+    .ke-match-col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+    .ke-match-card, .ke-memory-card {
+      width: 100%;
+      min-height: 44px;
+      min-width: 44px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 2px solid var(--line);
+      background: #f8fafc;
+      color: var(--navy);
+      font-family: inherit;
+      font-size: 0.96rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      overflow-wrap: anywhere;
+    }
+    .ke-match-card:hover, .ke-memory-card:hover { border-color: var(--blue); background: var(--blue-subtle); }
+    .ke-match-card.active { border-color: var(--blue); background: #dbeafe; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2); }
+    .ke-match-card.matched, .ke-memory-card.matched { background: var(--ok-bg); border-color: var(--ok); color: #14532d; cursor: default; }
+    .ke-match-card.error, .ke-memory-card.error { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+    .ke-memory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(115px, 1fr)); gap: 10px; }
+    .ke-memory-card.flipped { background: var(--blue-subtle); border-color: var(--blue); }
+    .ke-match-feedback, .ke-feedback {
+      min-height: 24px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-weight: 700;
+      background: #f1f5f9;
+      color: var(--navy);
+    }
+    .ke-feedback.is-good { background: var(--ok-bg); color: #14532d; border: 1.5px solid var(--ok); }
+    .ke-feedback.is-learn { background: var(--gold-subtle); color: #78350f; border: 1.5px solid var(--gold); }
+    .ke-quiz-card, .ke-quiz-summary { display: flex; flex-direction: column; gap: 14px; text-align: left; }
+    .ke-quiz-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; font-weight: 800; }
+    .ke-badge { padding: 4px 10px; border-radius: 999px; background: var(--blue-subtle); color: var(--navy); font-size: 0.85rem; }
+    .ke-progress { color: var(--muted); font-size: 0.92rem; }
+    .ke-prompt { font-size: 1.15rem; font-weight: 800; color: var(--navy); line-height: 1.5; }
+    .ke-audio-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .ke-options { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    @media (min-width: 640px) { .ke-options { grid-template-columns: 1fr 1fr; } }
+    .ke-option, .ke-btn {
+      min-height: 44px;
+      min-width: 44px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 2px solid var(--line);
+      background: var(--surface);
+      color: var(--navy);
+      font-family: inherit;
+      font-size: 0.98rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: left;
+      overflow-wrap: anywhere;
+    }
+    .ke-btn {
+      background: var(--navy);
+      color: #ffffff;
+      border-color: var(--navy);
+      text-align: center;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .ke-option.is-correct { background: var(--ok-bg); border-color: var(--ok); color: #14532d; }
+    .ke-option.is-wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+    .ke-clue { padding: 10px 12px; border-radius: 10px; background: var(--gold-subtle); color: #78350f; font-weight: 700; }
+
     /* Footer */
     footer.bottombar {
       padding: 12px 20px;
@@ -555,12 +692,20 @@
       color: var(--muted);
     }
 
+    @media (max-width: 480px) {
+      .ke-match-grid { gap: 10px; }
+      .ke-match-card { font-size: 0.88rem; padding: 8px 6px; }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
         scroll-behavior: auto !important;
+      }
+      .studio-card, .grid-card, .quiz-choice, .ke-match-card, .ke-memory-card, .ke-option {
+        transition: none !important;
       }
     }
   </style>
@@ -586,6 +731,9 @@
         </button>
         <button type="button" class="seg-btn" data-mode="practice" id="tabModePractice" role="tab" aria-selected="false">
           ✏️ แบบทดสอบ (Quiz)
+        </button>
+        <button type="button" class="seg-btn" data-mode="match" id="tabModeMatch" role="tab" aria-selected="false">
+          🔗 จับคู่ (Match)
         </button>
       </div>
 
@@ -620,6 +768,7 @@
 
     <!-- Stage -->
     <main class="stage" id="stage">
+      <div class="speech-status" id="speechStatus" role="status" aria-live="polite"></div>
       <!-- Mode 1: Flashcard Studio -->
       <div class="studio-view" id="studioView">
         <div class="studio-card" id="studioCard">
@@ -674,6 +823,30 @@
             ข้อถัดไป ▶
           </button>
         </div>
+        <div class="engine-card">
+          <div class="engine-toolbar">
+            <div class="engine-mode-group">
+              <button type="button" class="btn btn-eng-primary" id="btnVocabChoice">📝 ทายคำศัพท์ A–Z</button>
+              <button type="button" class="btn btn-eng-ghost" id="btnVocabListen">🔊 ฟังเสียงเลือกคำ</button>
+            </div>
+            <button type="button" class="btn btn-eng-ghost" id="btnVocabNew">🔄 ชุดใหม่</button>
+          </div>
+          <div id="vocabQuizEngineRoot"></div>
+        </div>
+      </div>
+
+      <!-- Mode 4: Connect & Match -->
+      <div class="match-view" id="matchView">
+        <div class="engine-card">
+          <div class="engine-toolbar">
+            <div class="engine-mode-group">
+              <button type="button" class="btn btn-eng-primary" id="btnMatchConnect">🔗 โยงคู่ A–Z กับคำศัพท์</button>
+              <button type="button" class="btn btn-eng-ghost" id="btnMatchMemory">🃏 เปิดป้ายจำคู่</button>
+            </div>
+            <button type="button" class="btn btn-eng-ghost" id="btnMatchNew">🔄 ชุดใหม่</button>
+          </div>
+          <div id="matchEngineRoot"></div>
+        </div>
       </div>
     </main>
 
@@ -721,11 +894,17 @@
       { letter:'Z z', upper:'Z', lower:'z', sound:'/z/', thSound:'เซอะ (สั่น)', word:'Zebra', thWord:'ม้าลาย', img:'/games/english/vocab-hub-assets/animals/zebra.webp', tip:'ฟันสบกัน พ่นลมพร้อมสั่นสายเสียง "ซึสั่น"' }
     ];
 
+    let curMode = 'learn';
     let curIdx = 0;
     let speechRate = 0.75;
     let selectedVoiceKind = 'us-female';
     let readMode = 'sound';
     let speechVoices = [];
+    let matchSubMode = 'connect';
+    let vocabQuizType = 'choice';
+    let matchSession = null;
+    let vocabQuizSession = null;
+    let speakUnlockTimer = null;
 
     function refreshVoices() {
       if ('speechSynthesis' in window) {
@@ -750,35 +929,88 @@
              speechVoices.find(v => /^en/i.test(v.lang)) || null;
     }
 
+    function stopSpeech() {
+      isSpeakingLocked = false;
+      if (speakUnlockTimer) {
+        clearTimeout(speakUnlockTimer);
+        speakUnlockTimer = null;
+      }
+      if (window.KampaiMediaLab && typeof window.KampaiMediaLab.stopAllSpeech === 'function') {
+        window.KampaiMediaLab.stopAllSpeech();
+      } else {
+        try { window.KAMPAI?.sound?.stopSpeak?.(); } catch (_) {}
+        try { window.speechSynthesis?.cancel?.(); } catch (_) {}
+      }
+    }
+
+    function updateSpeechBanner(ok) {
+      const statusEl = document.getElementById('speechStatus');
+      if (!statusEl) return;
+      if (ok === false) {
+        statusEl.textContent = 'อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านตัวอักษร คำศัพท์ และคำอธิบายต่อได้';
+        statusEl.classList.add('show');
+      } else {
+        statusEl.textContent = '';
+        statusEl.classList.remove('show');
+      }
+    }
+
     let isSpeakingLocked = false;
     function speakText(text, lang, onEnd) {
-      if (isSpeakingLocked) return;
+      const clean = String(text || '').trim();
+      if (!clean || isSpeakingLocked) return;
       isSpeakingLocked = true;
+      const targetLang = lang || (selectedVoiceKind === 'uk' ? 'en-GB' : 'en-US');
+
+      const finish = () => {
+        isSpeakingLocked = false;
+        if (speakUnlockTimer) {
+          clearTimeout(speakUnlockTimer);
+          speakUnlockTimer = null;
+        }
+        if (onEnd) onEnd();
+      };
+
+      if (!onEnd && selectedVoiceKind === 'us-female' && window.KampaiMediaLab && typeof window.KampaiMediaLab.speakSafe === 'function') {
+        const res = window.KampaiMediaLab.speakSafe(clean, { lang: targetLang, rate: speechRate });
+        updateSpeechBanner(res && res.ok);
+        speakUnlockTimer = setTimeout(finish, 900);
+        return;
+      }
+
       try {
-        if ('speechSynthesis' in window) {
+        if ('speechSynthesis' in window && typeof window.SpeechSynthesisUtterance === 'function') {
           window.speechSynthesis.cancel();
           setTimeout(() => {
-            const u = new SpeechSynthesisUtterance(text);
-            u.lang = lang || 'en-US';
-            u.rate = speechRate;
-            const v = getVoiceForKind(selectedVoiceKind);
-            if (v) u.voice = v;
-            u.onend = u.onerror = () => {
-              isSpeakingLocked = false;
-              if (onEnd) onEnd();
-            };
-            window.speechSynthesis.speak(u);
+            try {
+              const u = new SpeechSynthesisUtterance(clean);
+              u.lang = targetLang;
+              u.rate = speechRate;
+              const v = getVoiceForKind(selectedVoiceKind);
+              if (v) u.voice = v;
+              u.onend = u.onerror = finish;
+              window.speechSynthesis.speak(u);
+              updateSpeechBanner(true);
+              speakUnlockTimer = setTimeout(finish, 2500);
+            } catch (_) {
+              finish();
+            }
           }, 50);
+        } else if (window.KampaiMediaLab && typeof window.KampaiMediaLab.speakSafe === 'function') {
+          const res = window.KampaiMediaLab.speakSafe(clean, { lang: targetLang, rate: speechRate });
+          updateSpeechBanner(res && res.ok);
+          speakUnlockTimer = setTimeout(finish, 1100);
         } else if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.speak) {
-          KAMPAI.sound.speak(text, lang);
-          setTimeout(() => { isSpeakingLocked = false; if(onEnd) onEnd(); }, 1200);
+          KAMPAI.sound.speak(clean, targetLang);
+          updateSpeechBanner(true);
+          speakUnlockTimer = setTimeout(finish, 1200);
         } else {
-          isSpeakingLocked = false;
-          if (onEnd) onEnd();
+          updateSpeechBanner(false);
+          finish();
         }
       } catch (err) {
-        isSpeakingLocked = false;
-        if (onEnd) onEnd();
+        updateSpeechBanner(false);
+        finish();
       }
     }
 
@@ -862,6 +1094,7 @@
 
     // Event Listeners
     document.getElementById('btnBack').onclick = () => {
+      stopSpeech();
       if (window.KAMPAI && KAMPAI.goHome) KAMPAI.goHome();
       else history.back();
     };
@@ -895,8 +1128,81 @@
       playActiveItem();
     };
 
+    function buildAlphabetEnginePool() {
+      const lang = selectedVoiceKind === 'uk' ? 'en-GB' : 'en-US';
+      return ALPHABET_DATA.map(it => ({
+        id: it.upper,
+        term: it.word,
+        left: `${it.letter} · ${it.word}`,
+        right: `${it.thWord} (${it.sound})`,
+        reading: `${it.sound} (${it.thSound})`,
+        meaning: it.thWord,
+        explain: `${it.letter} — ${it.word} (${it.thWord}) เสียง ${it.sound} (${it.thSound}) · ${it.tip}`,
+        locale: lang
+      }));
+    }
+
+    function updateMatchButtons() {
+      const cBtn = document.getElementById('btnMatchConnect');
+      const mBtn = document.getElementById('btnMatchMemory');
+      if (cBtn) cBtn.className = 'btn ' + (matchSubMode === 'connect' ? 'btn-eng-primary' : 'btn-eng-ghost');
+      if (mBtn) mBtn.className = 'btn ' + (matchSubMode === 'memory' ? 'btn-eng-primary' : 'btn-eng-ghost');
+    }
+
+    function mountMatch() {
+      if (!window.KampaiEngines || !window.KampaiEngines.ConnectMatch) return;
+      updateMatchButtons();
+      const lang = selectedVoiceKind === 'uk' ? 'en-GB' : 'en-US';
+      matchSession = window.KampaiEngines.ConnectMatch.mount('#matchEngineRoot', {
+        items: buildAlphabetEnginePool(),
+        pairCount: 6,
+        mode: 'media',
+        subMode: matchSubMode,
+        locale: lang,
+        onMatch: (pair) => {
+          if (window.KAMPAI && KAMPAI.sound) {
+            try { KAMPAI.sound.correct(); } catch (_) {}
+          }
+          if (pair && pair.item && pair.item.term) speakText(pair.item.term, lang);
+        }
+      });
+    }
+
+    function updateVocabQuizButtons() {
+      const cBtn = document.getElementById('btnVocabChoice');
+      const lBtn = document.getElementById('btnVocabListen');
+      if (cBtn) cBtn.className = 'btn ' + (vocabQuizType === 'choice' ? 'btn-eng-primary' : 'btn-eng-ghost');
+      if (lBtn) lBtn.className = 'btn ' + (vocabQuizType === 'listen' ? 'btn-eng-primary' : 'btn-eng-ghost');
+    }
+
+    function mountVocabQuiz() {
+      if (!window.KampaiEngines || !window.KampaiEngines.Quiz) return;
+      updateVocabQuizButtons();
+      const lang = selectedVoiceKind === 'uk' ? 'en-GB' : 'en-US';
+      const opts = {
+        items: buildAlphabetEnginePool(),
+        mode: 'media',
+        roundSize: 8,
+        locale: lang,
+        speak: (text, loc) => speakText(text, loc || lang),
+        onAnswer: (res) => {
+          if (window.KAMPAI && KAMPAI.sound) {
+            try {
+              if (res.isCorrect) KAMPAI.sound.correct();
+              else KAMPAI.sound.wrong();
+            } catch (_) {}
+          }
+        }
+      };
+      vocabQuizSession = vocabQuizType === 'listen'
+        ? window.KampaiEngines.Quiz.mountListen('#vocabQuizEngineRoot', opts)
+        : window.KampaiEngines.Quiz.mountChoice('#vocabQuizEngineRoot', opts);
+    }
+
     // Mode Switcher
     function setMode(mode) {
+      stopSpeech();
+      curMode = mode;
       document.querySelectorAll('.seg-btn').forEach(b => {
         const on = b.dataset.mode === mode;
         b.classList.toggle('on', on);
@@ -905,14 +1211,48 @@
       document.getElementById('studioView').style.display = mode === 'learn' ? 'flex' : 'none';
       document.getElementById('gridView').style.display = mode === 'grid' ? 'grid' : 'none';
       document.getElementById('quizView').style.display = mode === 'practice' ? 'flex' : 'none';
+      document.getElementById('matchView').style.display = mode === 'match' ? 'flex' : 'none';
 
       if (mode === 'grid') renderGrid();
-      if (mode === 'practice') setupQuizQuestion();
+      if (mode === 'practice') {
+        setupQuizQuestion();
+        if (!vocabQuizSession) mountVocabQuiz();
+      }
+      if (mode === 'match' && !matchSession) mountMatch();
     }
 
     document.querySelectorAll('.seg-btn').forEach(btn => {
       btn.onclick = () => setMode(btn.dataset.mode);
     });
+
+    document.getElementById('btnMatchConnect').onclick = () => {
+      stopSpeech();
+      matchSubMode = 'connect';
+      mountMatch();
+    };
+    document.getElementById('btnMatchMemory').onclick = () => {
+      stopSpeech();
+      matchSubMode = 'memory';
+      mountMatch();
+    };
+    document.getElementById('btnMatchNew').onclick = () => {
+      stopSpeech();
+      mountMatch();
+    };
+    document.getElementById('btnVocabChoice').onclick = () => {
+      stopSpeech();
+      vocabQuizType = 'choice';
+      mountVocabQuiz();
+    };
+    document.getElementById('btnVocabListen').onclick = () => {
+      stopSpeech();
+      vocabQuizType = 'listen';
+      mountVocabQuiz();
+    };
+    document.getElementById('btnVocabNew').onclick = () => {
+      stopSpeech();
+      mountVocabQuiz();
+    };
 
     // Grid item click
     document.getElementById('gridView').onclick = e => {
@@ -966,9 +1306,35 @@
     };
     document.getElementById('btnQuizNext').onclick = setupQuizQuestion;
 
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stopSpeech();
+    });
+    window.addEventListener('pagehide', stopSpeech);
+
+    window.getState = () => Object.freeze({
+      slug: MEDIA_SLUG,
+      mode: curMode,
+      curIdx: curIdx,
+      letter: ALPHABET_DATA[curIdx]?.letter || '',
+      letterCount: ALPHABET_DATA.length,
+      speechRate: speechRate,
+      selectedVoiceKind: selectedVoiceKind,
+      readMode: readMode,
+      matchSubMode: matchSubMode,
+      vocabQuizType: vocabQuizType,
+      matchState: matchSession ? matchSession.getState() : null,
+      vocabQuizState: vocabQuizSession ? vocabQuizSession.getState() : null,
+      reducedMotion: typeof window.matchMedia === 'function'
+        ? Boolean(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+        : false
+    });
+    window.__getState = window.getState;
+
     // Initialize
     renderStudioCard();
     renderGrid();
+    mountVocabQuiz();
+    mountMatch();
   </script>
 </body>
 </html>

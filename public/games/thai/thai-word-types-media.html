@@ -2,6 +2,9 @@
 <html lang="th">
 <head>
   <script src="/games/kampai-sdk.js?v=1.181.0"></script>
+  <script src="/games/media-lab-runtime.js?v=2.0.0"></script>
+  <script src="/games/engine/vocab-quiz-engine.js?v=2.0.0"></script>
+  <script src="/games/engine/connect-match-engine.js?v=2.0.0"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>สื่อชนิดของคำ — บ้านคำไผ่</title>
@@ -9,17 +12,18 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --deep: #7c2d12; --line: #fdba74; --muted: #64748b;
-      --ok: #16a34a; --bad: #dc2626;
-      --noun: #2563eb; --verb: #16a34a; --adj: #c026d3;
+      --deep: #7c2d12; --line: #fdba74; --muted: #475569; --border: #cbd5e1;
+      --ok: #15803d; --bad: #b91c1c;
+      --noun: #1d4ed8; --verb: #15803d; --adj: #a21caf;
     }
+    html, body { max-width: 100%; overflow-x: hidden; }
     body {
       font-family: 'Sarabun', sans-serif;
       background: linear-gradient(145deg, #ffedd5 0%, #fff7ed 40%, #fed7aa 100%);
-      min-height: 100%; color: #0f172a; padding: 12px;
+      min-height: 100vh; color: #0f172a; padding: 12px;
     }
     .shell {
-      max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 1.5rem;
+      max-width: 1100px; width: 100%; margin: 0 auto; background: #fff; border-radius: 1.5rem;
       box-shadow: 0 20px 50px rgba(15,23,42,.12); overflow: hidden;
       display: flex; flex-direction: column; min-height: calc(100vh - 24px);
     }
@@ -30,14 +34,19 @@
     header h1 { font-size: 1.15rem; font-weight: 800; flex: 1; min-width: 160px; }
     header .badge {
       font-size: .75rem; background: rgba(255,255,255,.2); padding: 4px 10px;
-      border-radius: 999px; font-weight: 700;
+      border-radius: 999px; font-weight: 700; white-space: nowrap;
     }
     .btn {
       font-family: inherit; font-weight: 700; border: none; border-radius: 12px;
       padding: 10px 14px; cursor: pointer; font-size: .95rem; text-decoration: none;
       display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      min-height: 44px; min-width: 44px;
     }
     .btn:active { transform: scale(.97); }
+    .btn:focus-visible, .seg button:focus-visible, .type-tab:focus-visible, .word-chip:focus-visible, .choice-btn:focus-visible,
+    .ke-option:focus-visible, .ke-btn:focus-visible, .ke-match-card:focus-visible, .ke-memory-card:focus-visible {
+      outline: 3px solid #f59e0b; outline-offset: 2px;
+    }
     .btn-back {
       background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.35);
       padding: 8px 12px; font-size: .85rem;
@@ -50,10 +59,11 @@
       display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 16px; background: #fff7ed;
       border-bottom: 1px solid var(--line); align-items: center;
     }
-    .seg { display: inline-flex; border-radius: 12px; overflow: hidden; border: 2px solid #fb923c; }
+    .seg { display: inline-flex; flex-wrap: wrap; border-radius: 12px; overflow: hidden; border: 2px solid #fb923c; background: #fff; }
     .seg button {
       font-family: inherit; font-weight: 800; border: none; background: #fff;
-      color: var(--deep); padding: 8px 14px; cursor: pointer; font-size: .9rem;
+      color: var(--deep); padding: 8px 12px; cursor: pointer; font-size: .88rem;
+      min-height: 44px; min-width: 44px;
     }
     .seg button.on { background: var(--deep); color: #fff; }
     .hint { font-size: .85rem; color: #9a3412; font-weight: 600; flex: 1; min-width: 160px; }
@@ -139,14 +149,93 @@
     .learn-only { display: contents; }
     .shell.mode-practice .learn-only { display: none; }
     .shell.mode-practice .stage { grid-template-columns: 1fr; }
-    .practice-wrap { display: none; padding: 20px; max-width: 480px; margin: 0 auto; width: 100%; }
+    .practice-wrap { display: none; padding: 20px; max-width: 720px; margin: 0 auto; width: 100%; }
     .shell.mode-practice .practice-wrap { display: block; }
     .shell.mode-practice .stage > .main-panel,
     .shell.mode-practice .stage > .detail { display: none; }
-    .idiom-wrap { display: none; padding: 20px; max-width: 720px; margin: 0 auto; }
+    .idiom-wrap { display: none; padding: 20px; max-width: 720px; margin: 0 auto; width: 100%; }
     .shell.mode-idiom .idiom-wrap { display: block; }
     .shell.mode-idiom .learn-only { display: none !important; }
     .shell.mode-idiom .practice-wrap { display: none; }
+    .match-wrap { display: none; padding: 20px; max-width: 900px; margin: 0 auto; width: 100%; }
+    .shell.mode-match .match-wrap { display: block; }
+    .shell.mode-match .learn-only { display: none !important; }
+    .shell.mode-match .practice-wrap,
+    .shell.mode-match .idiom-wrap { display: none; }
+    .speech-status {
+      font-size: 0.88rem; font-weight: 700; color: #78350f; background: #fef3c7;
+      border: 1px solid #f59e0b; border-radius: 10px; padding: 8px 12px; display: none;
+      margin: 12px 16px 0;
+    }
+    .speech-status.show { display: block; }
+    .engine-card {
+      background: #fff7ed; border: 2px solid var(--line); border-radius: 18px;
+      padding: 16px; display: flex; flex-direction: column; gap: 14px; width: 100%;
+    }
+    .engine-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+    .engine-mode-group { display: inline-flex; flex-wrap: wrap; gap: 8px; }
+    .ke-quiz-card, .ke-quiz-summary { display: flex; flex-direction: column; gap: 14px; }
+    .ke-quiz-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; font-weight: 800; }
+    .ke-badge { padding: 4px 10px; border-radius: 999px; background: #ffedd5; color: var(--deep); font-size: 0.85rem; }
+    .ke-progress { color: var(--muted); font-size: 0.92rem; }
+    .ke-prompt { font-size: 1.15rem; font-weight: 800; color: #0f172a; line-height: 1.5; overflow-wrap: anywhere; }
+    .ke-audio-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .ke-options { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    @media (min-width: 640px) { .ke-options { grid-template-columns: 1fr 1fr; } }
+    .ke-option, .ke-btn {
+      min-height: 46px; min-width: 44px; padding: 10px 14px; border-radius: 12px;
+      border: 2px solid var(--border); background: #fff; color: #0f172a;
+      font-family: inherit; font-size: 0.98rem; font-weight: 700; cursor: pointer;
+      text-align: left; overflow-wrap: anywhere;
+    }
+    .ke-btn {
+      background: var(--deep); color: #fff; border-color: var(--deep); text-align: center;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .ke-option.is-correct { background: #dcfce7; border-color: var(--ok); color: #14532d; }
+    .ke-option.is-wrong { background: #fee2e2; border-color: var(--bad); color: #7f1d1d; }
+    .ke-clue { padding: 10px 12px; border-radius: 10px; background: #fef3c7; color: #78350f; font-weight: 700; }
+    .ke-feedback, .ke-match-feedback {
+      min-height: 24px; padding: 10px 14px; border-radius: 12px; font-weight: 700;
+      background: #e2e8f0; color: #0f172a; line-height: 1.45;
+    }
+    .ke-feedback.is-good { background: #dcfce7; color: #14532d; border: 1.5px solid var(--ok); }
+    .ke-feedback.is-learn { background: #fef3c7; color: #78350f; border: 1.5px solid #d97706; }
+    .ke-match-wrap { position: relative; display: flex; flex-direction: column; gap: 12px; width: 100%; }
+    .ke-match-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+    .ke-match-grid {
+      position: relative; z-index: 2; display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start;
+    }
+    .ke-match-col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+    .ke-match-card, .ke-memory-card {
+      width: 100%; min-height: 48px; min-width: 44px; padding: 10px 12px; border-radius: 12px;
+      border: 2px solid var(--border); background: #fff; color: #0f172a;
+      font-family: inherit; font-size: 0.94rem; font-weight: 700; cursor: pointer;
+      text-align: center; overflow-wrap: anywhere;
+    }
+    .ke-match-card:hover, .ke-memory-card:hover { border-color: var(--deep); background: #fff7ed; }
+    .ke-match-card.active { border-color: var(--deep); background: #ffedd5; box-shadow: 0 0 0 3px rgba(124, 45, 18, 0.2); }
+    .ke-match-card.matched, .ke-memory-card.matched { background: #dcfce7; border-color: var(--ok); color: #14532d; cursor: default; }
+    .ke-match-card.error, .ke-memory-card.error { background: #fee2e2; border-color: var(--bad); color: #7f1d1d; }
+    .ke-memory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(115px, 1fr)); gap: 10px; }
+    .ke-memory-card.flipped { background: #fff7ed; border-color: var(--deep); }
+    @media (max-width: 600px) {
+      body { padding: 0; }
+      .shell { border-radius: 0; min-height: 100vh; }
+      .practice-wrap, .match-wrap, .idiom-wrap { padding: 12px; }
+      .ke-match-grid { gap: 10px; }
+      .ke-match-card { font-size: 0.86rem; padding: 8px 6px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+      }
+      .btn:active { transform: none; }
+    }
     .idiom-card { background: #fff7ed; border: 2px solid #fdba74; border-radius: 14px; padding: 14px; margin-bottom: 10px; cursor: pointer; }
     .idiom-card.on { border-color: #c2410c; background: #ffedd5; }
     .idiom-phrase { font-size: 1.4rem; font-weight: 800; color: #7c2d12; }
@@ -167,12 +256,15 @@
       <span class="seg" id="modeSeg">
         <button type="button" data-mode="learn" class="on">📖 เรียนรู้</button>
         <button type="button" data-mode="practice">✏️ ฝึก</button>
+        <button type="button" data-mode="match">🔗 จับคู่คำ</button>
         <button type="button" data-mode="sort">🧺 จัดกล่อง</button>
         <button type="button" data-mode="idiom">💬 สำนวน</button>
       </span>
       <p class="hint" id="hintText">แตะชนิดของคำ → ดูคำตัวอย่างและคำอธิบาย</p>
       <button type="button" class="btn btn-ghost" id="btnFs">⛶ เต็มจอ</button>
     </div>
+
+    <div class="speech-status" id="speechStatus" role="status" aria-live="polite"></div>
 
     <div class="stage learn-only" id="learnStage">
       <div class="main-panel">
@@ -213,16 +305,42 @@
     </div>
 
     <div class="practice-wrap">
-      <div class="practice-card show">
-        <p class="streak" id="streakLabel">ถูกติดกัน: 0</p>
-        <div class="practice-word" id="practiceWord">?</div>
-        <p class="explain">คำนี้เป็นอะไร?</p>
-        <div class="choices" id="practiceChoices"></div>
-        <div class="practice-fb" id="practiceFb"></div>
-        <div class="actions">
-          <button type="button" class="btn btn-accent" id="btnPracticeSpeak">🔊 อ่านคำ</button>
-          <button type="button" class="btn btn-ok" id="btnPracticeNext">ข้อถัดไป →</button>
+      <div class="engine-card">
+        <div class="engine-toolbar">
+          <div class="engine-mode-group">
+            <button type="button" class="btn btn-primary" id="btnPracTypes">🏷️ ทายชนิดของคำ</button>
+            <button type="button" class="btn btn-ghost" id="btnPracChoice">📝 ทายคำและความหมาย</button>
+            <button type="button" class="btn btn-ghost" id="btnPracListen">🔊 ฟังเสียงเลือกคำ</button>
+          </div>
+          <button type="button" class="btn btn-ghost" id="btnPracEngineNew" style="display:none;">🔄 ชุดใหม่</button>
         </div>
+        <div id="practiceTypesBox">
+          <div class="practice-card show">
+            <p class="streak" id="streakLabel">ถูกติดกัน: 0</p>
+            <div class="practice-word" id="practiceWord">?</div>
+            <p class="explain">คำนี้เป็นอะไร?</p>
+            <div class="choices" id="practiceChoices"></div>
+            <div class="practice-fb" id="practiceFb"></div>
+            <div class="actions">
+              <button type="button" class="btn btn-accent" id="btnPracticeSpeak">🔊 อ่านคำ</button>
+              <button type="button" class="btn btn-ok" id="btnPracticeNext">ข้อถัดไป →</button>
+            </div>
+          </div>
+        </div>
+        <div id="quizEngineRoot" style="display:none;"></div>
+      </div>
+    </div>
+
+    <div class="match-wrap" id="matchWrap">
+      <div class="engine-card">
+        <div class="engine-toolbar">
+          <div class="engine-mode-group">
+            <button type="button" class="btn btn-primary" id="btnMatchConnect">🔗 โยงคู่คำกับบริบท/ความหมาย</button>
+            <button type="button" class="btn btn-ghost" id="btnMatchMemory">🃏 เปิดป้ายจำคู่</button>
+          </div>
+          <button type="button" class="btn btn-ghost" id="btnMatchNew">🔄 ชุดใหม่</button>
+        </div>
+        <div id="matchEngineRoot"></div>
       </div>
     </div>
 
@@ -275,6 +393,31 @@
         { p: 'ตาไว', m: 'สังเกตเห็นเร็ว' },
       ];
 
+      var ENGINE_POOL = WORDS.map(function (x, i) {
+        return {
+          id: 'w-' + i + '-' + x.w,
+          term: x.w,
+          left: x.w,
+          right: TYPES[x.t].short + ' · ' + x.ex.split(x.w).join('___'),
+          reading: TYPES[x.t].label,
+          meaning: TYPES[x.t].short + ' — ' + x.ex,
+          example: x.ex,
+          explain: '「' + x.w + '」เป็น' + TYPES[x.t].label + ' · ตัวอย่าง: ' + x.ex,
+          locale: 'th-TH'
+        };
+      }).concat(IDIOMS.map(function (item, i) {
+        return {
+          id: 'idiom-' + i,
+          term: item.p,
+          left: item.p,
+          right: '💬 ' + item.m,
+          reading: 'สำนวนไทย',
+          meaning: item.m,
+          explain: 'สำนวน「' + item.p + '」หมายถึง ' + item.m,
+          locale: 'th-TH'
+        };
+      }));
+
       var shell = document.getElementById('shell');
       var mode = 'learn';
       var activeType = 'noun';
@@ -283,34 +426,79 @@
       var sortPlaced = {};
       var streak = 0;
       var practiceItem = null;
+      var practiceSubMode = 'types';
+      var quizQuestionType = 'choice';
+      var matchSubMode = 'connect';
+      var quizSession = null;
+      var matchSession = null;
+
+      function stopSpeech() {
+        if (window.KampaiMediaLab && typeof window.KampaiMediaLab.stopAllSpeech === 'function') {
+          window.KampaiMediaLab.stopAllSpeech();
+        } else {
+          try { window.KAMPAI?.sound?.stopSpeak?.(); } catch (_) {}
+          try { window.speechSynthesis?.cancel?.(); } catch (_) {}
+        }
+      }
 
       function speak(text, lang) {
-        if (!window.speechSynthesis) return;
+        var clean = String(text || '').trim();
+        if (!clean) return;
+        var statusEl = document.getElementById('speechStatus');
+        if (window.KampaiMediaLab && typeof window.KampaiMediaLab.speakSafe === 'function') {
+          var res = window.KampaiMediaLab.speakSafe(clean, { lang: lang || 'th-TH', rate: 0.92 });
+          if (statusEl) {
+            if (res && res.ok === false) {
+              statusEl.textContent = 'อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านคำและตัวอย่างต่อได้';
+              statusEl.classList.add('show');
+            } else {
+              statusEl.textContent = '';
+              statusEl.classList.remove('show');
+            }
+          }
+          return;
+        }
+        if (!window.speechSynthesis) {
+          if (statusEl) {
+            statusEl.textContent = 'อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านคำและตัวอย่างต่อได้';
+            statusEl.classList.add('show');
+          }
+          return;
+        }
         window.speechSynthesis.cancel();
-        var u = new SpeechSynthesisUtterance(text);
+        var u = new SpeechSynthesisUtterance(clean);
         u.lang = lang || 'th-TH';
         u.rate = 0.92;
         window.speechSynthesis.speak(u);
       }
 
       function setMode(m) {
-        mode = m;
-        shell.classList.toggle('mode-practice', m === 'practice');
-        shell.classList.toggle('mode-idiom', m === 'idiom');
-        document.getElementById('learnStage').style.display = (m === 'learn') ? '' : 'none';
-        document.getElementById('sortStage').style.display = (m === 'sort') ? '' : 'none';
+        stopSpeech();
+        mode = (m === 'practice' || m === 'match' || m === 'sort' || m === 'idiom') ? m : 'learn';
+        shell.classList.toggle('mode-practice', mode === 'practice');
+        shell.classList.toggle('mode-match', mode === 'match');
+        shell.classList.toggle('mode-idiom', mode === 'idiom');
+        document.getElementById('learnStage').style.display = (mode === 'learn') ? '' : 'none';
+        document.getElementById('sortStage').style.display = (mode === 'sort') ? '' : 'none';
         var hints = {
           learn: 'แตะชนิดของคำ → ดูคำตัวอย่างและคำอธิบาย',
-          practice: 'เลือกชนิดของคำให้ถูก — ไม่จับเวลา',
+          practice: 'เลือกชนิดของคำหรือฝึกควิซคำศัพท์ — ไม่จับเวลา',
+          match: 'จับคู่คำกับชนิดของคำและบริบทประโยค (ไม่จับเวลา · ไม่เก็บคะแนน)',
           sort: 'แตะคำแล้วแตะกล่อง หรือลากวางให้ถูกกล่อง',
           idiom: 'สำนวนไทย — แตะการ์ดเพื่อฟังและดูความหมาย',
         };
-        document.getElementById('hintText').textContent = hints[m] || '';
+        document.getElementById('hintText').textContent = hints[mode] || '';
         document.querySelectorAll('#modeSeg button').forEach(function (b) {
-          b.classList.toggle('on', b.dataset.mode === m);
+          var active = b.dataset.mode === mode;
+          b.classList.toggle('on', active);
+          b.setAttribute('aria-pressed', String(active));
         });
-        if (m === 'practice') nextPractice();
-        if (m === 'sort') resetSort();
+        if (mode === 'practice') {
+          if (practiceSubMode === 'types') nextPractice();
+          else if (!quizSession) mountQuiz();
+        }
+        if (mode === 'match' && !matchSession) mountMatch();
+        if (mode === 'sort') resetSort();
       }
 
       function renderTypeTabs() {
@@ -491,9 +679,134 @@
         else if (document.exitFullscreen) document.exitFullscreen();
       });
 
+      function updatePracticeSubUI() {
+        var isTypes = practiceSubMode === 'types';
+        document.getElementById('practiceTypesBox').style.display = isTypes ? '' : 'none';
+        document.getElementById('quizEngineRoot').style.display = isTypes ? 'none' : '';
+        document.getElementById('btnPracEngineNew').style.display = isTypes ? 'none' : '';
+        document.getElementById('btnPracTypes').className = 'btn ' + (practiceSubMode === 'types' ? 'btn-primary' : 'btn-ghost');
+        document.getElementById('btnPracChoice').className = 'btn ' + (practiceSubMode === 'choice' ? 'btn-primary' : 'btn-ghost');
+        document.getElementById('btnPracListen').className = 'btn ' + (practiceSubMode === 'listen' ? 'btn-primary' : 'btn-ghost');
+      }
+
+      function mountQuiz() {
+        if (!window.KampaiEngines || !window.KampaiEngines.Quiz) return;
+        var opts = {
+          items: ENGINE_POOL,
+          mode: 'media',
+          roundSize: 8,
+          locale: 'th-TH',
+          speak: function (text) { speak(text, 'th-TH'); },
+          onAnswer: function (res) {
+            if (window.KAMPAI && window.KAMPAI.sound) {
+              try {
+                if (res.isCorrect) window.KAMPAI.sound.correct();
+                else window.KAMPAI.sound.wrong();
+              } catch (_) {}
+            }
+          }
+        };
+        quizSession = quizQuestionType === 'listen'
+          ? window.KampaiEngines.Quiz.mountListen('#quizEngineRoot', opts)
+          : window.KampaiEngines.Quiz.mountChoice('#quizEngineRoot', opts);
+      }
+
+      function updateMatchButtons() {
+        var cBtn = document.getElementById('btnMatchConnect');
+        var mBtn = document.getElementById('btnMatchMemory');
+        if (cBtn) cBtn.className = 'btn ' + (matchSubMode === 'connect' ? 'btn-primary' : 'btn-ghost');
+        if (mBtn) mBtn.className = 'btn ' + (matchSubMode === 'memory' ? 'btn-primary' : 'btn-ghost');
+      }
+
+      function mountMatch() {
+        if (!window.KampaiEngines || !window.KampaiEngines.ConnectMatch) return;
+        updateMatchButtons();
+        matchSession = window.KampaiEngines.ConnectMatch.mount('#matchEngineRoot', {
+          items: ENGINE_POOL,
+          pairCount: 6,
+          mode: 'media',
+          subMode: matchSubMode,
+          locale: 'th-TH',
+          onMatch: function (pair) {
+            if (window.KAMPAI && window.KAMPAI.sound) {
+              try { window.KAMPAI.sound.correct(); } catch (_) {}
+            }
+            if (pair && pair.leftText) speak(pair.leftText, 'th-TH');
+          }
+        });
+      }
+
+      document.getElementById('btnPracTypes').addEventListener('click', function () {
+        stopSpeech();
+        practiceSubMode = 'types';
+        updatePracticeSubUI();
+        nextPractice();
+      });
+      document.getElementById('btnPracChoice').addEventListener('click', function () {
+        stopSpeech();
+        practiceSubMode = 'choice';
+        quizQuestionType = 'choice';
+        updatePracticeSubUI();
+        mountQuiz();
+      });
+      document.getElementById('btnPracListen').addEventListener('click', function () {
+        stopSpeech();
+        practiceSubMode = 'listen';
+        quizQuestionType = 'listen';
+        updatePracticeSubUI();
+        mountQuiz();
+      });
+      document.getElementById('btnPracEngineNew').addEventListener('click', function () {
+        stopSpeech();
+        mountQuiz();
+      });
+      document.getElementById('btnMatchConnect').addEventListener('click', function () {
+        stopSpeech();
+        matchSubMode = 'connect';
+        mountMatch();
+      });
+      document.getElementById('btnMatchMemory').addEventListener('click', function () {
+        stopSpeech();
+        matchSubMode = 'memory';
+        mountMatch();
+      });
+      document.getElementById('btnMatchNew').addEventListener('click', function () {
+        stopSpeech();
+        mountMatch();
+      });
+
+      document.addEventListener('visibilitychange', function () {
+        if (document.hidden) stopSpeech();
+      });
+      window.addEventListener('pagehide', stopSpeech);
+
+      window.getState = function () {
+        return Object.freeze({
+          slug: MEDIA_SLUG,
+          mode: mode,
+          activeType: activeType,
+          selectedWord: selectedWord ? selectedWord.w : null,
+          streak: streak,
+          wordCount: WORDS.length,
+          idiomCount: IDIOMS.length,
+          practiceSubMode: practiceSubMode,
+          quizQuestionType: quizQuestionType,
+          matchSubMode: matchSubMode,
+          quizState: quizSession ? quizSession.getState() : null,
+          matchState: matchSession ? matchSession.getState() : null,
+          reducedMotion: typeof window.matchMedia === 'function'
+            ? Boolean(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+            : false
+        });
+      };
+      window.__getState = window.getState;
+
       renderTypeTabs();
       renderLearnWords();
       resetSort();
+      updatePracticeSubUI();
+      mountQuiz();
+      mountMatch();
       (function renderIdioms() {
         var el = document.getElementById('idiomList');
         el.innerHTML = '';

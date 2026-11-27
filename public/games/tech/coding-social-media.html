@@ -2,42 +2,76 @@
 <html lang="th">
 <head>
   <script src="/games/kampai-sdk.js?v=1.181.0"></script>
+  <script src="/games/media-lab-runtime.js?v=2.0.0"></script>
+  <script src="/games/engine/classify-bucket-engine.js?v=2.0.0"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>วิทยาการคำนวณ &amp; สังคมออนไลน์ — สื่อการสอน — บ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
   <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{--deep:#7e22ce;--line:#e9d5ff;--muted:#64748b;--ok:#16a34a;--bad:#dc2626}
-    body{font-family:'Sarabun',sans-serif;background:linear-gradient(145deg,#faf5ff,#e9d5ff);min-height:100%;padding:12px;color:#0f172a}
-    .shell{max-width:980px;margin:0 auto;background:#fff;border-radius:1.5rem;box-shadow:0 20px 50px rgba(15,23,42,.12);overflow:hidden;min-height:calc(100vh - 24px);display:flex;flex-direction:column}
-    header{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 16px;background:linear-gradient(90deg,#6b21a8,#7e22ce);color:#fff}
-    header h1{font-size:1.1rem;font-weight:800;flex:1;min-width:140px}
-    .badge{font-size:.75rem;background:rgba(255,255,255,.2);padding:4px 10px;border-radius:999px;font-weight:700}
-    .btn{font-family:inherit;font-weight:700;border:none;border-radius:12px;padding:10px 14px;cursor:pointer}
-    .btn-back{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);padding:8px 12px;font-size:.85rem}
-    .btn-primary{background:var(--deep);color:#fff}
-    .toolbar{display:flex;flex-wrap:wrap;gap:8px;padding:10px 16px;background:#faf5ff;border-bottom:1px solid var(--line);align-items:center}
-    .seg{display:inline-flex;border-radius:12px;overflow:hidden;border:2px solid #d8b4fe}
-    .seg button{font-family:inherit;font-weight:800;border:none;background:#fff;color:var(--deep);padding:8px 14px;cursor:pointer}
-    .seg button.on{background:var(--deep);color:#fff}
-    .hint{font-size:.85rem;font-weight:600;color:#6b21a8;flex:1;min-width:120px}
-    .stage{flex:1;padding:16px}
-    .panel{display:none;flex-direction:column;gap:12px;max-width:720px;margin:0 auto}
-    .panel.on{display:flex}
-    .card{border:2px solid var(--line);border-radius:14px;padding:14px;background:#faf5ff}
-    .card h3{color:var(--deep);font-weight:800;margin-bottom:6px}
-    .card p{font-weight:600;line-height:1.5}
-    .grid{display:grid;gap:10px}
-    @media(min-width:700px){.grid{grid-template-columns:1fr 1fr}}
-    .q{font-weight:800;font-size:1.15rem;text-align:center;color:var(--deep);line-height:1.45}
-    .opts{display:flex;flex-direction:column;gap:8px}
-    .opt{font-family:inherit;font-weight:700;padding:12px;border:2px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;text-align:left}
-    .opt.ok{background:#dcfce7;border-color:#86efac}
-    .opt.no{background:#fee2e2;border-color:#fca5a5}
-    .fb{font-weight:800;text-align:center;min-height:24px}
-    .footer{padding:10px 16px;font-size:.8rem;color:var(--muted);text-align:center;border-top:1px solid var(--line)}
-    .footer a{color:var(--deep);font-weight:700;text-decoration:none}
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --deep: #7e22ce; --line: #e9d5ff; --muted: #475569; --ok: #15803d; --bad: #b91c1c; --ink: #0f172a; }
+    html, body { max-width: 100%; overflow-x: hidden; }
+    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(145deg, #faf5ff, #e9d5ff); min-height: 100%; padding: 12px; color: var(--ink); }
+    .shell { max-width: 980px; margin: 0 auto; background: #fff; border-radius: 1.5rem; box-shadow: 0 20px 50px rgba(15,23,42,.12); overflow: hidden; min-height: calc(100vh - 24px); display: flex; flex-direction: column; }
+    header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(90deg, #6b21a8, #7e22ce); color: #fff; }
+    header h1 { font-size: 1.1rem; font-weight: 800; flex: 1; min-width: 140px; }
+    .badge { font-size: .75rem; background: rgba(255,255,255,.2); padding: 4px 10px; border-radius: 999px; font-weight: 700; }
+    .btn { font-family: inherit; font-weight: 700; border: none; border-radius: 12px; padding: 10px 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; min-width: 44px; }
+    .btn:active { transform: scale(.97); }
+    .btn:focus-visible, .seg button:focus-visible, .card:focus-visible, .ke-bucket-btn:focus-visible, .ke-btn:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+    .btn-back { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.35); padding: 8px 12px; font-size: .85rem; }
+    .btn-primary { background: var(--deep); color: #fff; }
+    .btn-ghost { background: #fff; color: var(--deep); border: 2px solid var(--line); }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 16px; background: #faf5ff; border-bottom: 1px solid var(--line); align-items: center; }
+    .seg { display: inline-flex; border-radius: 12px; overflow: hidden; border: 2px solid #d8b4fe; }
+    .seg button { font-family: inherit; font-weight: 800; border: none; background: #fff; color: var(--deep); padding: 8px 14px; cursor: pointer; min-height: 44px; font-size: .9rem; }
+    .seg button.on { background: var(--deep); color: #fff; }
+    .hint { font-size: .85rem; font-weight: 600; color: #6b21a8; flex: 1; min-width: 120px; }
+    .stage { flex: 1; padding: 16px; overflow: auto; }
+    .panel { display: none; flex-direction: column; gap: 12px; max-width: 720px; margin: 0 auto; width: 100%; }
+    .panel.on { display: flex; }
+    .grid { display: grid; gap: 10px; }
+    @media (min-width: 700px) { .grid { grid-template-columns: 1fr 1fr; } }
+    .card { border: 2px solid var(--line); border-radius: 14px; padding: 14px; background: #faf5ff; text-align: left; font-family: inherit; cursor: pointer; display: flex; flex-direction: column; gap: 6px; min-height: 44px; color: var(--ink); }
+    .card h3 { color: var(--deep); font-weight: 800; font-size: 1rem; }
+    .card p { font-weight: 600; line-height: 1.5; font-size: .95rem; }
+    .card .say-hint { font-size: .8rem; font-weight: 700; color: #6b21a8; }
+    .practice-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+    .practice-note { font-size: .88rem; font-weight: 700; color: var(--deep); }
+    .speech-status { font-size: .85rem; font-weight: 700; color: #92400e; background: #fef3c7; border-radius: 10px; padding: 8px 12px; display: none; }
+    .speech-status.show { display: block; }
+    .ke-classify-card { background: #faf5ff; border: 2px solid var(--line); border-radius: 20px; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+    .ke-classify-head { display: flex; justify-content: space-between; align-items: center; font-weight: 800; color: var(--deep); font-size: .95rem; }
+    .ke-classify-item { text-align: center; padding: 18px 14px; background: #fff; border: 2px dashed #c084fc; border-radius: 16px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .ke-item-icon { font-size: clamp(52px, 12vw, 78px); line-height: 1.05; }
+    .ke-item-label { font-size: clamp(1.15rem, 2.8vw, 1.45rem); font-weight: 800; color: var(--ink); line-height: 1.4; }
+    .ke-item-sub { font-size: .92rem; font-weight: 600; color: var(--muted); line-height: 1.4; }
+    .ke-buckets { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    @media (max-width: 580px) { .ke-buckets { grid-template-columns: 1fr; } }
+    .ke-bucket-btn { font-family: inherit; font-weight: 800; font-size: .95rem; min-height: 54px; padding: 10px 12px; border-radius: 14px; border: 2px solid #cbd5e1; background: #fff; color: var(--ink); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; text-align: center; transition: transform .12s, border-color .12s, background .12s; }
+    .ke-bucket-btn[data-bucket-id="coding"] { border-color: #7e22ce; background: #faf5ff; color: #581c87; }
+    .ke-bucket-btn[data-bucket-id="safe"] { border-color: #16a34a; background: #f0fdf4; color: #14532d; }
+    .ke-bucket-btn[data-bucket-id="avoid"] { border-color: #dc2626; background: #fef2f2; color: #7f1d1d; }
+    .ke-bucket-btn.is-correct { outline: 3px solid #15803d; background: #dcfce7; color: #14532d; }
+    .ke-bucket-btn.is-wrong { opacity: .65; text-decoration: line-through; }
+    .ke-bucket-btn:disabled { cursor: default; }
+    .ke-classify-feedback { padding: 12px 14px; border-radius: 12px; font-weight: 700; line-height: 1.45; background: #fff; border: 1.5px solid #cbd5e1; color: var(--ink); }
+    .ke-classify-feedback.is-good { background: #dcfce7; border-color: #16a34a; color: #14532d; }
+    .ke-classify-feedback.is-learn { background: #fef3c7; border-color: #d97706; color: #78350f; }
+    .ke-btn { font-family: inherit; font-weight: 800; font-size: .95rem; min-height: 44px; padding: 10px 16px; border-radius: 12px; border: none; background: var(--deep); color: #fff; cursor: pointer; align-items: center; justify-content: center; gap: 6px; align-self: center; }
+    .ke-classify-summary { text-align: center; padding: 24px 16px; background: #faf5ff; border: 2px solid var(--line); border-radius: 20px; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+    .ke-classify-summary h3 { color: var(--deep); font-size: 1.3rem; font-weight: 800; }
+    .footer { padding: 10px 16px; font-size: .8rem; color: var(--muted); text-align: center; border-top: 1px solid var(--line); }
+    .footer a { color: var(--deep); font-weight: 700; text-decoration: none; }
+    @media (max-width: 600px) {
+      body { padding: 0; }
+      .shell { border-radius: 0; min-height: 100vh; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition: none !important; scroll-behavior: auto !important; }
+      .btn:active { transform: none; }
+    }
   </style>
 </head>
 <body>
@@ -50,76 +84,207 @@
     <div class="toolbar">
       <span class="seg" id="modeSeg">
         <button type="button" data-mode="learn" class="on">📖 สอน</button>
-        <button type="button" data-mode="practice">✏️ ฝึกสั้น</button>
+        <button type="button" data-mode="practice">✏️ ฝึกแยกหลักการ</button>
       </span>
       <span class="hint" id="hintText">ลำดับขั้นตอน · สัญลักษณ์ · ความปลอดภัยออนไลน์</span>
+      <button type="button" class="btn btn-ghost" id="btnFs" aria-label="ขยายเต็มจอ">⛶</button>
     </div>
     <div class="stage">
       <div class="panel on" id="learn">
-        <div class="grid">
-          <div class="card"><h3>① แยกปัญหาเป็นขั้น</h3><p>ก่อนเขียนโปรแกรมหรือแก้โจทย์ ให้แตกเป็นขั้นตอนสั้น ๆ ที่ทำตามได้</p></div>
-          <div class="card"><h3>② อ่านสัญลักษณ์</h3><p>ลูกศร = ลำดับ · ข้าวหลามตัด = ตัดสินใจ · สี่เหลี่ยม = การกระทำ</p></div>
-          <div class="card"><h3>③ ความปลอดภัย</h3><p>ไม่แชร์รหัสผ่าน · ไม่คลิกลิงก์แปลก · ขออนุญาตผู้ใหญ่เมื่อไม่แน่ใจ</p></div>
-          <div class="card"><h3>④ มารยาทออนไลน์</h3><p>พูดจาสุภาพ · ไม่แชร์รูปเพื่อนโดยไม่ขอ · รายงานเนื้อหาไม่เหมาะสม</p></div>
+        <div class="grid" id="codingGrid">
+          <button type="button" class="card" data-say="แยกปัญหาเป็นขั้น ก่อนเขียนโปรแกรมหรือแก้โจทย์ ให้แตกเป็นขั้นตอนสั้นๆ ที่ทำตามได้">
+            <h3>① แยกปัญหาเป็นขั้น</h3>
+            <p>ก่อนเขียนโปรแกรมหรือแก้โจทย์ ให้แตกเป็นขั้นตอนสั้น ๆ ที่ทำตามได้</p>
+            <span class="say-hint">🔊 แตะเพื่อฟังคำอธิบาย</span>
+          </button>
+          <button type="button" class="card" data-say="อ่านสัญลักษณ์ผังงาน ลูกศรคือลำดับ ข้าวหลามตัดคือจุดตัดสินใจ สี่เหลี่ยมคือการกระทำ">
+            <h3>② อ่านสัญลักษณ์</h3>
+            <p>ลูกศร = ลำดับ · ข้าวหลามตัด = ตัดสินใจ · สี่เหลี่ยม = การกระทำ</p>
+            <span class="say-hint">🔊 แตะเพื่อฟังคำอธิบาย</span>
+          </button>
+          <button type="button" class="card" data-say="ความปลอดภัย ไม่แชร์รหัสผ่าน ไม่คลิกลิงก์แปลก ขออนุญาตผู้ใหญ่เมื่อไม่แน่ใจ">
+            <h3>③ ความปลอดภัย</h3>
+            <p>ไม่แชร์รหัสผ่าน · ไม่คลิกลิงก์แปลก · ขออนุญาตผู้ใหญ่เมื่อไม่แน่ใจ</p>
+            <span class="say-hint">🔊 แตะเพื่อฟังคำอธิบาย</span>
+          </button>
+          <button type="button" class="card" data-say="มารยาทออนไลน์ พูดจาสุภาพ ไม่แชร์รูปเพื่อนโดยไม่ขอ และรายงานเนื้อหาไม่เหมาะสม">
+            <h3>④ มารยาทออนไลน์</h3>
+            <p>พูดจาสุภาพ · ไม่แชร์รูปเพื่อนโดยไม่ขอ · รายงานเนื้อหาไม่เหมาะสม</p>
+            <span class="say-hint">🔊 แตะเพื่อฟังคำอธิบาย</span>
+          </button>
         </div>
+        <div class="speech-status" id="speechStatusLearn" role="status" aria-live="polite"></div>
       </div>
       <div class="panel" id="practice">
-        <p class="q" id="pq"></p>
-        <div class="opts" id="popts"></div>
-        <p class="fb" id="pfb"></p>
-        <button type="button" class="btn btn-primary" id="btnNext">ข้อถัดไป</button>
+        <div class="practice-bar">
+          <span class="practice-note">แตะเลือกหมวดหรือกดปุ่มตัวเลข 1–3 (ไม่จับเวลา · ไม่เก็บคะแนน)</span>
+          <button type="button" class="btn btn-ghost" id="btnSpeakCurrent">🔊 ฟังเสียง</button>
+        </div>
+        <div class="speech-status" id="speechStatusPractice" role="status" aria-live="polite"></div>
+        <div id="classifyEngineRoot"></div>
       </div>
     </div>
     <footer class="footer">ตัวชี้วัด <strong>ว 4.2 ป.4/1–5</strong> · คู่ใบงาน <a href="/games/tech/coding-social-worksheet.html">coding-social</a></footer>
   </div>
   <script>
-    if (window.KAMPAI) window.KAMPAI.setSlug('coding-social-media');
-    document.getElementById('btnBack').onclick = () => { if (window.KAMPAI?.goHome) KAMPAI.goHome(); else history.back(); };
+    const MEDIA_SLUG = 'coding-social-media';
+    if (window.KAMPAI) {
+      KAMPAI.setSlug(MEDIA_SLUG);
+      if (KAMPAI.sound && typeof KAMPAI.sound.mountToggles === 'function') {
+        try { KAMPAI.sound.mountToggles(); } catch (_) {}
+      }
+    }
 
-    const QS = [
-      { q: 'ก่อนแก้ปัญหาใหญ่ ควรทำอะไรก่อน?', opts: ['แยกเป็นขั้นตอนสั้น ๆ', 'สุ่มลองทุกอย่างพร้อมกัน', 'ข้ามไปดูเฉลยทันที', 'ปิดเครื่อง'], a: 'แยกเป็นขั้นตอนสั้น ๆ' },
-      { q: 'สัญลักษณ์ข้าวหลามตัดในผังงานหมายถึง…', opts: ['จุดตัดสินใจ', 'จุดเริ่มต้นเท่านั้น', 'การพิมพ์รายงาน', 'การปิดโปรแกรม'], a: 'จุดตัดสินใจ' },
-      { q: 'รหัสผ่านควร…', opts: ['เก็บเป็นความลับ ไม่บอกเพื่อน', 'โพสต์ในกลุ่มแชท', 'ใช้วันเกิดอย่างเดียว', 'แชร์กับทุกคนในห้อง'], a: 'เก็บเป็นความลับ ไม่บอกเพื่อน' },
-      { q: 'เจอลิงก์แปลกในแชท ควร…', opts: ['ถามผู้ใหญ่ / ไม่คลิกทันที', 'คลิกดูทันที', 'ส่งต่อให้เพื่อนทั้งห้อง', 'ใส่รหัสผ่านทันที'], a: 'ถามผู้ใหญ่ / ไม่คลิกทันที' },
-      { q: 'มารยาทออนไลน์ที่ดีคือ…', opts: ['พูดสุภาพและขออนุญาตก่อนแชร์รูป', 'ล้อเลียนเพื่อนในที่สาธารณะ', 'แชร์รหัส Wi‑Fi ของโรงเรียน', 'ดาวน์โหลดไฟล์ไม่รู้ที่มา'], a: 'พูดสุภาพและขออนุญาตก่อนแชร์รูป' },
-      { q: 'ลูกศรในผังงานส่วนใหญ่แสดง…', opts: ['ลำดับขั้นตอน', 'สีของปุ่ม', 'ชื่อไฟล์', 'คะแนนสอบ'], a: 'ลำดับขั้นตอน' },
+    const BUCKETS = [
+      { id: 'coding', label: 'ผังงานและการคิดเป็นขั้น', icon: '🧩' },
+      { id: 'safe', label: 'ปลอดภัยและมารยาทออนไลน์', icon: '🛡️' },
+      { id: 'avoid', label: 'พฤติกรรมเสี่ยง / ไม่เหมาะสม', icon: '⚠️' },
     ];
 
-    function nextPractice() {
-      const item = QS[(Math.random() * QS.length) | 0];
-      document.getElementById('pq').textContent = item.q;
-      document.getElementById('pfb').textContent = '';
-      const opts = item.opts.slice().sort(() => Math.random() - 0.5);
-      document.getElementById('popts').innerHTML = opts.map((o) =>
-        '<button type="button" class="opt" data-a="' + o + '">' + o + '</button>'
-      ).join('');
-      document.querySelectorAll('#popts .opt').forEach((btn) => {
-        btn.onclick = () => {
-          const ok = btn.dataset.a === item.a;
-          btn.classList.add(ok ? 'ok' : 'no');
-          document.querySelectorAll('#popts .opt').forEach((b) => {
-            b.disabled = true;
-            if (b.dataset.a === item.a) b.classList.add('ok');
-          });
-          document.getElementById('pfb').textContent = ok ? '✓ ถูกต้อง!' : '✗ คำตอบ: ' + item.a;
-          document.getElementById('pfb').style.color = ok ? 'var(--ok)' : 'var(--bad)';
-          if (window.KAMPAI?.sound) (ok ? KAMPAI.sound.correct : KAMPAI.sound.wrong)();
-        };
+    const ITEMS = [
+      { id: 'cs-c1', icon: '🪜', label: 'แตกปัญหาใหญ่ให้เป็นขั้นตอนสั้น ๆ ก่อนลงมือเขียนโปรแกรม', sub: 'แนวคิดเชิงคำนวณ', bucketId: 'coding', reason: 'การแยกปัญหาเป็นขั้นตอนย่อยช่วยให้เข้าใจง่ายและตรวจสอบข้อผิดพลาดได้สะดวก' },
+      { id: 'cs-c2', icon: '🔷', label: 'ใช้สัญลักษณ์รูปข้าวหลามตัดแทนจุดตัดสินใจ (ใช่/ไม่ใช่) ในผังงาน', sub: 'สัญลักษณ์ผังงาน', bucketId: 'coding', reason: 'รูปข้าวหลามตัดใช้กำหนดเงื่อนไขและเลือกทางเดินของโปรแกรม' },
+      { id: 'cs-c3', icon: '➡️', label: 'ใช้ลูกศรเชื่อมทิศทางเพื่อบอกลำดับการทำงานก่อน–หลัง', sub: 'สัญลักษณ์ผังงาน', bucketId: 'coding', reason: 'ลูกศรช่วยแสดงทิศทางและลำดับขั้นตอนของอัลกอริทึมอย่างชัดเจน' },
+      { id: 'cs-c4', icon: '▭', label: 'ใช้รูปสี่เหลี่ยมผืนผ้าแทนขั้นตอนการกระทำหรือการประมวลผล', sub: 'สัญลักษณ์ผังงาน', bucketId: 'coding', reason: 'สี่เหลี่ยมผืนผ้าใช้ระบุคำสั่งหรือการดำเนินการในผังงาน' },
+      { id: 'cs-s1', icon: '🔑', label: 'เก็บรหัสผ่านไว้เป็นความลับส่วนตัว ไม่บอกเพื่อนหรือโพสต์ลงกลุ่ม', sub: 'ความปลอดภัยออนไลน์', bucketId: 'safe', reason: 'รหัสผ่านเป็นข้อมูลส่วนตัวที่ช่วยปกป้องบัญชีจากการถูกแอบอ้างใช้งาน' },
+      { id: 'cs-s2', icon: '👨‍👩‍👧', label: 'ไม่คลิกลิงก์แปลกจากคนไม่รู้จักและรีบถามผู้ใหญ่ก่อนเสมอ', sub: 'ความปลอดภัยออนไลน์', bucketId: 'safe', reason: 'ช่วยป้องกันลิงก์หลอกลวงและมัลแวร์ที่อาจขโมยข้อมูลส่วนตัว' },
+      { id: 'cs-s3', icon: '💬', label: 'พูดจาสุภาพและขออนุญาตเพื่อนก่อนถ่ายหรือแชร์รูปภาพลงออนไลน์', sub: 'มารยาทออนไลน์', bucketId: 'safe', reason: 'การเคารพสิทธิส่วนบุคคลและสื่อสารอย่างสุภาพเป็นมารยาทที่ดีในสังคมออนไลน์' },
+      { id: 'cs-s4', icon: '🚩', label: 'กดรายงานเนื้อหาที่ไม่เหมาะสมหรือคำพูดกลั่นแกล้งแล้วแจ้งครู', sub: 'มารยาทออนไลน์', bucketId: 'safe', reason: 'ช่วยสร้างสังคมออนไลน์ที่ปลอดภัยและน่าอยู่สำหรับทุกคน' },
+      { id: 'cs-a1', icon: '🔓', label: 'ตั้งรหัสผ่านเป็นวันเกิดหรือแชร์รหัส Wi‑Fi และรหัสผ่านให้ทุกคนในแชท', sub: 'การใช้งานออนไลน์', bucketId: 'avoid', reason: 'เสี่ยงต่อการถูกผู้อื่นเข้าถึงบัญชีและข้อมูลส่วนตัวโดยไม่ได้รับอนุญาต' },
+      { id: 'cs-a2', icon: '🎁', label: 'คลิกลิงก์รับของรางวัลฟรีแล้วกรอกรหัสผ่านทันทีโดยไม่ตรวจสอบ', sub: 'การใช้งานออนไลน์', bucketId: 'avoid', reason: 'ลิงก์แจกของรางวัลมักใช้หลอกขโมยรหัสผ่านและบัญชีผู้ใช้' },
+      { id: 'cs-a3', icon: '📸', label: 'แอบถ่ายภาพตลกของเพื่อนแล้วโพสต์ล้อเลียนในที่สาธารณะ', sub: 'สังคมออนไลน์', bucketId: 'avoid', reason: 'เป็นการละเมิดสิทธิผู้อื่นและเป็นการกลั่นแกล้งทางออนไลน์ (Cyberbullying)' },
+      { id: 'cs-a4', icon: '📁', label: 'ดาวน์โหลดไฟล์และโปรแกรมจากแหล่งที่ไม่รู้ที่มาลงในเครื่องโรงเรียน', sub: 'การใช้งานอุปกรณ์', bucketId: 'avoid', reason: 'ไฟล์จากแหล่งไม่น่าเชื่อถืออาจแฝงไวรัสหรือโปรแกรมอันตราย' },
+    ];
+
+    let mode = 'learn';
+    let classifySession = null;
+
+    function speakText(text, statusId) {
+      const clean = String(text || '').trim();
+      if (!clean) return;
+      const statusEl = document.getElementById(statusId || (mode === 'practice' ? 'speechStatusPractice' : 'speechStatusLearn'));
+      if (window.KampaiMediaLab && typeof window.KampaiMediaLab.speakSafe === 'function') {
+        const res = window.KampaiMediaLab.speakSafe(clean, { lang: 'th-TH', rate: 0.92 });
+        if (statusEl) {
+          if (res && res.ok === false) {
+            statusEl.textContent = 'อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านข้อความต่อได้';
+            statusEl.classList.add('show');
+          } else {
+            statusEl.textContent = '';
+            statusEl.classList.remove('show');
+          }
+        }
+        return;
+      }
+      try {
+        if (window.KAMPAI?.sound?.speak) {
+          KAMPAI.sound.speak(clean, 'th-TH', true);
+          return;
+        }
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const u = new SpeechSynthesisUtterance(clean);
+          u.lang = 'th-TH';
+          u.rate = 0.92;
+          window.speechSynthesis.speak(u);
+          return;
+        }
+      } catch (_) {}
+      if (statusEl) {
+        statusEl.textContent = 'อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านข้อความต่อได้';
+        statusEl.classList.add('show');
+      }
+    }
+
+    function stopSpeech() {
+      if (window.KampaiMediaLab && typeof window.KampaiMediaLab.stopAllSpeech === 'function') {
+        window.KampaiMediaLab.stopAllSpeech();
+      } else {
+        try { window.KAMPAI?.sound?.stopSpeak?.(); } catch (_) {}
+        try { window.speechSynthesis?.cancel?.(); } catch (_) {}
+      }
+    }
+
+    function mountClassifyPractice() {
+      if (!window.KampaiEngines || !window.KampaiEngines.ClassifyBucket) return;
+      classifySession = window.KampaiEngines.ClassifyBucket.mount('#classifyEngineRoot', {
+        items: ITEMS,
+        buckets: BUCKETS,
+        mode: 'media',
+        roundSize: 9,
+        onAnswer: function (res) {
+          if (window.KAMPAI && window.KAMPAI.sound) {
+            try {
+              if (res.isCorrect) KAMPAI.sound.correct();
+              else KAMPAI.sound.wrong();
+            } catch (_) {}
+          }
+        },
       });
+    }
+
+    function setMode(nextMode) {
+      stopSpeech();
+      mode = nextMode === 'practice' ? 'practice' : 'learn';
+      const pr = mode === 'practice';
+      document.querySelectorAll('#modeSeg button').forEach((x) => x.classList.toggle('on', x.dataset.mode === mode));
+      document.getElementById('learn').classList.toggle('on', !pr);
+      document.getElementById('practice').classList.toggle('on', pr);
+      document.getElementById('hintText').textContent = pr
+        ? 'แยกหลักการผังงาน · ความปลอดภัยออนไลน์ · พฤติกรรมเสี่ยง — ไม่จับเวลา ไม่เก็บคะแนน'
+        : 'ลำดับขั้นตอน · สัญลักษณ์ · ความปลอดภัยออนไลน์';
+      if (pr) {
+        mountClassifyPractice();
+      } else if (window.KampaiEngines?.ClassifyBucket?.cleanup) {
+        window.KampaiEngines.ClassifyBucket.cleanup();
+      }
     }
 
     document.getElementById('modeSeg').onclick = (e) => {
       const b = e.target.closest('button[data-mode]');
-      if (!b) return;
-      const mode = b.dataset.mode;
-      document.querySelectorAll('#modeSeg button').forEach((x) => x.classList.toggle('on', x === b));
-      document.getElementById('learn').classList.toggle('on', mode === 'learn');
-      document.getElementById('practice').classList.toggle('on', mode === 'practice');
-      document.getElementById('hintText').textContent =
-        mode === 'learn' ? 'ลำดับขั้นตอน · สัญลักษณ์ · ความปลอดภัยออนไลน์' : 'เลือกคำตอบ 4 ตัวเลือก';
-      if (mode === 'practice') nextPractice();
+      if (b) setMode(b.dataset.mode);
     };
-    document.getElementById('btnNext').onclick = nextPractice;
+
+    document.getElementById('codingGrid').addEventListener('click', (e) => {
+      const card = e.target.closest('[data-say]');
+      if (card) speakText(card.dataset.say, 'speechStatusLearn');
+    });
+
+    document.getElementById('btnSpeakCurrent').onclick = () => {
+      const item = classifySession?.currentItem?.();
+      if (item) {
+        speakText((item.sub ? item.sub + ' ' : '') + item.label + ' จัดอยู่ในหมวดใด', 'speechStatusPractice');
+      } else {
+        speakText('ฝึกแยกหลักการวิทยาการคำนวณและสังคมออนไลน์สำเร็จแล้ว กดฝึกใหม่อีกครั้งได้', 'speechStatusPractice');
+      }
+    };
+
+    document.getElementById('btnBack').onclick = () => {
+      stopSpeech();
+      if (window.KAMPAI?.goHome) KAMPAI.goHome();
+      else history.back();
+    };
+
+    document.getElementById('btnFs').onclick = () => {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.().catch(() => {});
+      else document.exitFullscreen?.();
+    };
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stopSpeech();
+    });
+    window.addEventListener('pagehide', stopSpeech);
+
+    window.getState = () => Object.freeze({
+      slug: MEDIA_SLUG,
+      mode: mode,
+      totalItems: ITEMS.length,
+      bucketsCount: BUCKETS.length,
+      classify: classifySession ? classifySession.getState() : null,
+      reducedMotion: typeof window.matchMedia === 'function'
+        ? Boolean(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+        : false,
+    });
   </script>
 </body>
 </html>

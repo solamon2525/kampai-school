@@ -1,81 +1,307 @@
 <!DOCTYPE html>
-<html lang="th"><head>
+<html lang="th">
+<head>
   <script src="/games/kampai-sdk.js?v=1.181.0"></script>
-  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <script src="/games/media-lab-runtime.js?v=2.0.0"></script>
+  <script src="/games/engine/classify-bucket-engine.js?v=2.0.0"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>อาหาร-โภชนาการ — บ้านคำไผ่</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{--deep:#ca8a04;--line:#fef08a;--muted:#64748b;--ok:#16a34a;--bad:#dc2626}
-    body{font-family:'Sarabun',sans-serif;background:linear-gradient(145deg,#fef08a,#ca8a0422);min-height:100%;padding:12px;color:#0f172a}
+    :root{--deep:#a16207;--line:#fde047;--muted:#475569;--ok:#15803d;--bad:#b91c1c;--ink:#0f172a}
+    html,body{max-width:100%;overflow-x:hidden}
+    body{font-family:'Sarabun',sans-serif;background:linear-gradient(145deg,#fef08a,#fef9c3);min-height:100%;padding:12px;color:var(--ink)}
     .shell{max-width:1100px;margin:0 auto;background:#fff;border-radius:1.5rem;box-shadow:0 20px 50px rgba(15,23,42,.12);overflow:hidden;min-height:calc(100vh - 24px);display:flex;flex-direction:column}
-    header{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 16px;background:linear-gradient(90deg,var(--deep),#ca8a04);color:#fff}
+    header{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 16px;background:linear-gradient(90deg,#854d0e,#ca8a04);color:#fff}
     header h1{font-size:1.1rem;font-weight:800;flex:1;min-width:160px}
     .badge{font-size:.75rem;background:rgba(255,255,255,.2);padding:4px 10px;border-radius:999px;font-weight:700}
-    .btn{font-family:inherit;font-weight:700;border:none;border-radius:12px;padding:10px 14px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+    .btn{font-family:inherit;font-weight:700;border:none;border-radius:12px;padding:10px 14px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;min-width:44px}
     .btn:active{transform:scale(.97)}
+    .btn:focus-visible,.seg button:focus-visible,.pick button:focus-visible,.ke-bucket-btn:focus-visible,.ke-btn:focus-visible{outline:3px solid #0284c7;outline-offset:2px}
     .btn-back{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);padding:8px 12px;font-size:.85rem}
     .btn-primary{background:var(--deep);color:#fff}
     .btn-ghost{background:#fff;color:var(--deep);border:2px solid var(--line)}
-    .toolbar{display:flex;flex-wrap:wrap;gap:8px;padding:12px 16px;background:#f8fafc;border-bottom:1px solid var(--line);align-items:center}
+    .toolbar{display:flex;flex-wrap:wrap;gap:8px;padding:12px 16px;background:#fefce8;border-bottom:1px solid var(--line);align-items:center}
     .seg{display:inline-flex;border-radius:12px;overflow:hidden;border:2px solid var(--line)}
-    .seg button{font-family:inherit;font-weight:800;border:none;background:#fff;color:var(--deep);padding:8px 14px;cursor:pointer}
+    .seg button{font-family:inherit;font-weight:800;border:none;background:#fff;color:var(--deep);padding:8px 14px;cursor:pointer;min-height:44px}
     .seg button.on{background:var(--deep);color:#fff}
     .hint{font-size:.85rem;color:var(--deep);font-weight:600;flex:1;min-width:140px}
     .stage{flex:1;padding:16px;overflow:auto}
-    .footer{padding:10px;font-size:.8rem;color:var(--muted);text-align:center;border-top:1px solid var(--line)}
-    .practice{display:none;flex-direction:column;gap:12px;max-width:480px;margin:0 auto}
-    .shell.mode-practice .learn{display:none}.shell.mode-practice .practice{display:flex}
-    .choice{font-family:inherit;font-weight:800;padding:12px;border:2px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;text-align:left}
-    .choice.ok{background:#dcfce7}.choice.no{background:#fee2e2}
+    .learn,.practice{max-width:760px;margin:0 auto;width:100%}
+    .practice{display:none;flex-direction:column;gap:12px;max-width:640px}
+    .shell.mode-practice .learn{display:none}
+    .shell.mode-practice .practice{display:flex}
     .pick{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
-     .pick button{font-family:inherit;font-weight:800;padding:10px 12px;border:2px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;color:var(--deep)}
-     .pick button.on{background:var(--deep);color:#fff}
-     .box{background:#f8fafc;border:2px solid var(--line);border-radius:16px;padding:16px;font-weight:600;line-height:1.6}
-     .box h2{color:var(--deep);margin-bottom:8px;font-size:1.25rem}
-     .emo{font-size:3rem;margin-bottom:8px}
+    .pick button{font-family:inherit;font-weight:800;padding:10px 12px;border:2px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;color:var(--deep);min-height:44px}
+    .pick button.on{background:var(--deep);color:#fff;border-color:var(--deep)}
+    .box{background:#fefce8;border:2px solid var(--line);border-radius:16px;padding:16px;font-weight:600;line-height:1.6}
+    .box-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+    .box h2{color:var(--deep);font-size:1.25rem}
+    .emo{font-size:3rem;margin-bottom:8px}
+    .practice-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
+    .practice-note{font-size:.88rem;font-weight:700;color:var(--deep)}
+    .speech-status{font-size:.85rem;font-weight:700;color:#92400e;background:#fef3c7;border-radius:10px;padding:8px 12px;display:none;margin-top:8px}
+    .speech-status.show{display:block}
+    .ke-classify-card{background:#f8fafc;border:2px solid var(--line);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:14px}
+    .ke-classify-head{display:flex;justify-content:space-between;align-items:center;font-weight:800;color:var(--deep);font-size:.95rem}
+    .ke-classify-item{text-align:center;padding:18px 14px;background:#fefce8;border:2px dashed #eab308;border-radius:16px;display:flex;flex-direction:column;align-items:center;gap:6px}
+    .ke-item-icon{font-size:clamp(52px,13vw,80px);line-height:1.05}
+    .ke-item-label{font-size:clamp(1.2rem,3vw,1.55rem);font-weight:800;color:var(--ink)}
+    .ke-buckets{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    @media(max-width:420px){.ke-buckets{grid-template-columns:1fr}}
+    .ke-bucket-btn{font-family:inherit;font-weight:800;font-size:.92rem;min-height:52px;padding:10px 12px;border-radius:14px;border:2px solid #cbd5e1;background:#fff;color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;text-align:center;transition:transform .12s,border-color .12s,background .12s}
+    .ke-bucket-btn[data-bucket-id="energy"]{border-color:#d97706;background:#fffbeb;color:#78350f}
+    .ke-bucket-btn[data-bucket-id="protein"]{border-color:#ea580c;background:#fff7ed;color:#7c2d12}
+    .ke-bucket-btn[data-bucket-id="veg"]{border-color:#16a34a;background:#f0fdf4;color:#14532d}
+    .ke-bucket-btn[data-bucket-id="milk"]{border-color:#0284c7;background:#f0f9ff;color:#0c4a6e}
+    .ke-bucket-btn[data-bucket-id="sweet"]{border-color:#dc2626;background:#fef2f2;color:#7f1d1d}
+    .ke-bucket-btn[data-bucket-id="hygiene"]{border-color:#0d9488;background:#f0fdfa;color:#134e4a}
+    .ke-bucket-btn.is-correct{outline:3px solid #15803d;background:#dcfce7;color:#14532d}
+    .ke-bucket-btn.is-wrong{opacity:.65;text-decoration:line-through}
+    .ke-bucket-btn:disabled{cursor:default}
+    .ke-classify-feedback{padding:12px 14px;border-radius:12px;font-weight:700;line-height:1.45;background:#fff;border:1.5px solid #cbd5e1;color:var(--ink)}
+    .ke-classify-feedback.is-good{background:#dcfce7;border-color:#16a34a;color:#14532d}
+    .ke-classify-feedback.is-learn{background:#fef3c7;border-color:#d97706;color:#78350f}
+    .ke-btn{font-family:inherit;font-weight:800;font-size:.95rem;min-height:44px;padding:10px 16px;border-radius:12px;border:none;background:var(--deep);color:#fff;cursor:pointer;align-items:center;justify-content:center;gap:6px;align-self:center}
+    .ke-classify-summary{text-align:center;padding:24px 16px;background:#fefce8;border:2px solid var(--line);border-radius:20px;display:flex;flex-direction:column;gap:12px;align-items:center}
+    .ke-classify-summary h3{color:var(--deep);font-size:1.3rem;font-weight:800}
+    .footer{padding:10px 16px;font-size:.8rem;color:var(--muted);text-align:center;border-top:1px solid var(--line)}
+    @media(max-width:600px){
+      body{padding:0}
+      .shell{border-radius:0;min-height:100vh}
+    }
+    @media (prefers-reduced-motion: reduce){
+      *,*::before,*::after{animation-duration:0.001ms !important;animation-iteration-count:1 !important;transition:none !important;scroll-behavior:auto !important}
+      .btn:active{transform:none}
+    }
   </style>
-</head><body>
-<div class="shell" id="shell">
-  <header>
-    <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back()">← กลับคลังสื่อ</button>
-    <h1>🥗 อาหารและโภชนาการเบื้องต้น</h1>
-    <span class="badge">ป.2–3 · การงาน</span>
-  </header>
-  <div class="toolbar">
-    <span class="seg" id="modeSeg">
-      <button type="button" data-mode="learn" class="on">📖 เรียนรู้</button>
-      <button type="button" data-mode="practice">✏️ ฝึก</button>
-    </span>
-    <p class="hint" id="hintText">สื่อการสอน — ไม่เก็บคะแนน</p>
-    <button type="button" class="btn btn-ghost" id="btnFs">⛶ เต็มจอ</button>
-    <a class="btn btn-ghost" href="/games/career/food-nutrition-worksheet.html" target="_blank" rel="noopener">📝 เปิดใบงาน</a>
+</head>
+<body>
+  <div class="shell" id="shell">
+    <header>
+      <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back()">← กลับคลังสื่อ</button>
+      <h1>🥗 อาหารและโภชนาการเบื้องต้น</h1>
+      <span class="badge">ป.2–3 · การงาน</span>
+    </header>
+    <div class="toolbar">
+      <span class="seg" id="modeSeg">
+        <button type="button" data-mode="learn" class="on">📖 เรียนรู้</button>
+        <button type="button" data-mode="practice">✏️ ฝึกจำแนก</button>
+      </span>
+      <p class="hint" id="hintText">เลือกหัวข้ออ่าน</p>
+      <button type="button" class="btn btn-ghost" id="btnFs" aria-label="ขยายเต็มจอ">⛶ เต็มจอ</button>
+      <a class="btn btn-ghost" href="/games/career/food-nutrition-worksheet.html" target="_blank" rel="noopener">📝 เปิดใบงาน</a>
+    </div>
+    <div class="stage" id="stage">
+      <div class="learn" id="learn">
+        <div class="pick" id="pick"></div>
+        <div class="box" id="box"></div>
+        <div class="speech-status" id="speechStatusLearn" role="status" aria-live="polite"></div>
+      </div>
+      <div class="practice" id="practice">
+        <div class="practice-bar">
+          <span class="practice-note">แตะเลือกกลุ่มอาหารหรือกดปุ่มตัวเลข 1–6 (ไม่จับเวลา · ไม่เก็บคะแนน)</span>
+          <button type="button" class="btn btn-ghost" id="btnSpeakCurrent">🔊 ฟังเสียง</button>
+        </div>
+        <div class="speech-status" id="speechStatusPractice" role="status" aria-live="polite"></div>
+        <div id="classifyEngineRoot"></div>
+      </div>
+    </div>
+    <div class="footer">โรงเรียนบ้านคำไผ่ · สื่อการสอน · Phase 11 · ไม่เก็บคะแนน</div>
   </div>
-  <div class="stage" id="stage"><div class="learn"><div class="pick" id="pick"></div><div class="box" id="box"></div></div>
-     <div class="practice"><p style="font-weight:800;color:var(--deep)" id="prQ"></p><div id="prChoices" style="display:grid;gap:8px"></div><p id="prFb" style="font-weight:800;min-height:24px"></p><button type="button" class="btn btn-primary" id="btnNext">ข้อถัดไป</button></div></div>
-  <div class="footer">โรงเรียนบ้านคำไผ่ · สื่อการสอน · Phase 11 · ไม่เก็บคะแนน</div>
-</div>
-<script>
-const MEDIA_SLUG='food-nutrition-media';
-if(window.KAMPAI){KAMPAI.setSlug(MEDIA_SLUG);if(KAMPAI.sound&&KAMPAI.sound.mountToggles)KAMPAI.sound.mountToggles();}
-const ITEMS=[{"emoji":"🍚","name":"พลังงาน","body":"ข้าว ขนมปัง ให้พลังงานทำกิจกรรม","tip":"มื้อเช้าสำคัญ","q":"ข้าวจัดเป็นกลุ่มใด?","a":"พลังงาน / แป้ง"},{"emoji":"🍗","name":"โปรตีน","body":"เนื้อ ไข่ ถั่ว ช่วยซ่อมแซมร่างกาย","tip":"มังสวิรัติใช้ถั่วแทนได้","q":"ไข่ให้สารอาหารหลักใด?","a":"โปรตีน"},{"emoji":"🥦","name":"ผักผลไม้","body":"วิตามิน แร่ธาตุ ใยอาหาร","tip":"สีหลากหลายในจาน","q":"ผักช่วยเรื่องใด?","a":"วิตามิน / ใยอาหาร"},{"emoji":"🥛","name":"นม","body":"แคลเซียมแข็งแรงกระดูก","tip":"เลือกนมจืดดีกว่าหวานจัด","q":"นมเด่นเรื่องใด?","a":"แคลเซียม"},{"emoji":"🚫","name":"ของหวานจัด","body":"กินบ่อยทำฟันผุ อ้วนง่าย","tip":"เป็นของว่างไม่ใช่มื้อหลัก","q":"ทำไมไม่ควรหวานจัดบ่อย?","a":"ฟันผุ / อ้วน"},{"emoji":"🧼","name":"สุขลักษณะอาหาร","body":"ล้างมือ ล้างผัก ภาชนะสะอาด","tip":"ไม่ใช้ของสุกปนดิบ","q":"ก่อนปรุงอาหารควรทำอะไร?","a":"ล้างมือ / ล้างวัตถุดิบ"}];
-let cur=ITEMS[0];
-function setMode(m){document.getElementById('shell').classList.toggle('mode-practice',m==='practice');document.getElementById('hintText').textContent=m==='learn'?'เลือกหัวข้ออ่าน':'ตอบคำถาม';if(m==='practice')nextPr();}
-function render(){
-  document.getElementById('pick').innerHTML=ITEMS.map((x,i)=>'<button type="button" data-i="'+i+'" class="'+(x===cur?'on':'')+'">'+(x.emoji?x.emoji+' ':'')+x.name+'</button>').join('');
-  document.getElementById('box').innerHTML=(cur.emoji?'<div class="emo">'+cur.emoji+'</div>':'')+'<h2>'+cur.name+'</h2><p>'+cur.body+'</p>'+(cur.tip?'<p style="margin-top:10px;color:var(--muted)">💡 '+cur.tip+'</p>':'');
-}
-document.getElementById('pick').onclick=e=>{const b=e.target.closest('[data-i]');if(!b)return;cur=ITEMS[+b.dataset.i];render();};
-function nextPr(){const a=ITEMS[Math.floor(Math.random()*ITEMS.length)];document.getElementById('prQ').textContent=a.q;document.getElementById('prFb').textContent='';
-  const opts=new Set([a.a]);while(opts.size<4)opts.add(ITEMS[Math.floor(Math.random()*ITEMS.length)].a);
-  const box=document.getElementById('prChoices');box.innerHTML=[...opts].sort(()=>Math.random()-0.5).map(o=>'<button type="button" class="choice">'+o+'</button>').join('');
-  box.onclick=e=>{const b=e.target.closest('.choice');if(!b)return;const ok=b.textContent===a.a;b.classList.add(ok?'ok':'no');document.getElementById('prFb').textContent=ok?'✅ ถูกต้อง!':'เฉลย: '+a.a;if(KAMPAI&&KAMPAI.sound)(ok?KAMPAI.sound.correct:KAMPAI.sound.wrong)();};}
-document.getElementById('btnNext').onclick=nextPr;render();setMode('learn');
-document.getElementById('modeSeg').onclick=e=>{
-  const b=e.target.closest('button[data-mode]');if(!b)return;
-  [...document.querySelectorAll('#modeSeg button')].forEach(x=>x.classList.toggle('on',x===b));
-  setMode(b.dataset.mode);
-};
-document.getElementById('btnFs').onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.();};
-</script>
-</body></html>
+  <script>
+    const MEDIA_SLUG = 'food-nutrition-media';
+    if (window.KAMPAI) {
+      KAMPAI.setSlug('food-nutrition-media');
+      if (KAMPAI.sound && KAMPAI.sound.mountToggles) {
+        try { KAMPAI.sound.mountToggles(); } catch (_) {}
+      }
+    }
+
+    const ITEMS = [
+      { emoji: '🍚', name: 'พลังงาน', body: 'ข้าว ขนมปัง ให้พลังงานทำกิจกรรม', tip: 'มื้อเช้าสำคัญ', q: 'ข้าวจัดเป็นกลุ่มใด?', a: 'พลังงาน / แป้ง' },
+      { emoji: '🍗', name: 'โปรตีน', body: 'เนื้อ ไข่ ถั่ว ช่วยซ่อมแซมร่างกาย', tip: 'มังสวิรัติใช้ถั่วแทนได้', q: 'ไข่ให้สารอาหารหลักใด?', a: 'โปรตีน' },
+      { emoji: '🥦', name: 'ผักผลไม้', body: 'วิตามิน แร่ธาตุ ใยอาหาร', tip: 'สีหลากหลายในจาน', q: 'ผักช่วยเรื่องใด?', a: 'วิตามิน / ใยอาหาร' },
+      { emoji: '🥛', name: 'นม', body: 'แคลเซียมแข็งแรงกระดูก', tip: 'เลือกนมจืดดีกว่าหวานจัด', q: 'นมเด่นเรื่องใด?', a: 'แคลเซียม' },
+      { emoji: '🚫', name: 'ของหวานจัด', body: 'กินบ่อยทำฟันผุ อ้วนง่าย', tip: 'เป็นของว่างไม่ใช่มื้อหลัก', q: 'ทำไมไม่ควรหวานจัดบ่อย?', a: 'ฟันผุ / อ้วน' },
+      { emoji: '🧼', name: 'สุขลักษณะอาหาร', body: 'ล้างมือ ล้างผัก ภาชนะสะอาด', tip: 'ไม่ใช้ของสุกปนดิบ', q: 'ก่อนปรุงอาหารควรทำอะไร?', a: 'ล้างมือ / ล้างวัตถุดิบ' },
+    ];
+
+    const BUCKETS = [
+      { id: 'energy', label: 'พลังงาน (ข้าว-แป้ง)', icon: '🍚' },
+      { id: 'protein', label: 'โปรตีน (เนื้อ-ไข่-ถั่ว)', icon: '🍗' },
+      { id: 'veg', label: 'ผักผลไม้ (วิตามิน-ใย)', icon: '🥦' },
+      { id: 'milk', label: 'นม (แคลเซียม)', icon: '🥛' },
+      { id: 'sweet', label: 'ของหวานจัด (ควรลด)', icon: '🚫' },
+      { id: 'hygiene', label: 'สุขลักษณะอาหาร', icon: '🧼' },
+    ];
+
+    const CLASSIFY_ITEMS = [
+      { id: 'rice', icon: '🍚', label: 'ข้าวสวย', bucketId: 'energy', reason: 'ข้าวให้คาร์โบไฮเดรตและพลังงานทำกิจกรรม' },
+      { id: 'bread', icon: '🍞', label: 'ขนมปัง', bucketId: 'energy', reason: 'ขนมปังทำจากแป้ง จัดอยู่ในกลุ่มให้พลังงาน' },
+      { id: 'noodle', icon: '🍜', label: 'เส้นก๋วยเตี๋ยว', bucketId: 'energy', reason: 'เส้นแป้งช่วยเติมพลังงานให้ร่างกาย' },
+      { id: 'egg', icon: '🥚', label: 'ไข่ไก่', bucketId: 'protein', reason: 'ไข่ให้โปรตีนช่วยซ่อมแซมและสร้างร่างกาย' },
+      { id: 'chicken', icon: '🍗', label: 'เนื้อไก่และปลา', bucketId: 'protein', reason: 'เนื้อสัตว์เป็นแหล่งโปรตีนสำคัญ' },
+      { id: 'beans', icon: '🫘', label: 'ถั่วเมล็ดแห้ง', bucketId: 'protein', reason: 'ถั่วให้โปรตีนจากพืช ใช้แทนเนื้อสัตว์ได้' },
+      { id: 'broccoli', icon: '🥦', label: 'ผักใบเขียวและบรอกโคลี', bucketId: 'veg', reason: 'ผักมีวิตามิน แร่ธาตุ และใยอาหารช่วยขับถ่าย' },
+      { id: 'fruit', icon: '🍊', label: 'ส้มและผลไม้สด', bucketId: 'veg', reason: 'ผลไม้หลากสีอุดมด้วยวิตามินและใยอาหาร' },
+      { id: 'milk-plain', icon: '🥛', label: 'นมจืด', bucketId: 'milk', reason: 'นมจืดมีแคลเซียมสูง ช่วยบำรุงกระดูกและฟัน' },
+      { id: 'milk-box', icon: '🧃', label: 'นมกล่องรสจืด', bucketId: 'milk', reason: 'เลือกนมจืดแทนนมหวานจัด ได้แคลเซียมเต็มที่' },
+      { id: 'candy', icon: '🍭', label: 'ลูกอมและขนมหวานจัด', bucketId: 'sweet', reason: 'กินหวานจัดบ่อยทำให้ฟันผุและอ้วนง่าย' },
+      { id: 'soda', icon: '🥤', label: 'น้ำอัดลมหวานจัด', bucketId: 'sweet', reason: 'มีน้ำตาลสูง ไม่ควรกินแทนน้ำเปล่าหรือนม' },
+      { id: 'wash-hand', icon: '🧼', label: 'ล้างมือและล้างผักก่อนปรุง', bucketId: 'hygiene', reason: 'รักษาความสะอาดป้องกันเชื้อโรคปนเปื้อนอาหาร' },
+      { id: 'clean-utensil', icon: '🍽️', label: 'แยกภาชนะของสุกไม่ปนของดิบ', bucketId: 'hygiene', reason: 'หลักสุขลักษณะอาหารช่วยให้กินอย่างปลอดภัย' },
+    ];
+
+    let cur = ITEMS[0];
+    let mode = 'learn';
+    let classifySession = null;
+
+    function speakText(text, statusId) {
+      const clean = String(text || '').trim();
+      if (!clean) return;
+      const statusEl = document.getElementById(statusId || (mode === 'practice' ? 'speechStatusPractice' : 'speechStatusLearn'));
+      if (window.KampaiMediaLab && typeof window.KampaiMediaLab.speakSafe === 'function') {
+        const res = window.KampaiMediaLab.speakSafe(clean, { lang: 'th-TH', rate: 0.92 });
+        if (statusEl) {
+          if (res && res.ok === false) {
+            statusEl.textContent = 'อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านข้อความต่อได้';
+            statusEl.classList.add('show');
+          } else {
+            statusEl.textContent = '';
+            statusEl.classList.remove('show');
+          }
+        }
+        return;
+      }
+      try {
+        if (window.KAMPAI?.sound?.speak) {
+          KAMPAI.sound.speak(clean, 'th-TH', true);
+          return;
+        }
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const u = new SpeechSynthesisUtterance(clean);
+          u.lang = 'th-TH';
+          u.rate = 0.92;
+          window.speechSynthesis.speak(u);
+          return;
+        }
+      } catch (_) {}
+      if (statusEl) {
+        statusEl.textContent = 'อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านข้อความต่อได้';
+        statusEl.classList.add('show');
+      }
+    }
+
+    function stopSpeech() {
+      if (window.KampaiMediaLab && typeof window.KampaiMediaLab.stopAllSpeech === 'function') {
+        window.KampaiMediaLab.stopAllSpeech();
+      } else {
+        try { window.KAMPAI?.sound?.stopSpeak?.(); } catch (_) {}
+        try { window.speechSynthesis?.cancel?.(); } catch (_) {}
+      }
+    }
+
+    function mountClassifyPractice() {
+      if (!window.KampaiEngines || !window.KampaiEngines.ClassifyBucket) return;
+      classifySession = window.KampaiEngines.ClassifyBucket.mount('#classifyEngineRoot', {
+        items: CLASSIFY_ITEMS,
+        buckets: BUCKETS,
+        mode: 'media',
+        roundSize: 8,
+        onAnswer: function (res) {
+          if (window.KAMPAI && window.KAMPAI.sound) {
+            try {
+              if (res.isCorrect) KAMPAI.sound.correct();
+              else KAMPAI.sound.wrong();
+            } catch (_) {}
+          }
+        },
+      });
+    }
+
+    function setMode(m) {
+      stopSpeech();
+      mode = m === 'practice' ? 'practice' : 'learn';
+      document.getElementById('shell').classList.toggle('mode-practice', mode === 'practice');
+      document.querySelectorAll('#modeSeg button').forEach((x) => x.classList.toggle('on', x.dataset.mode === mode));
+      document.getElementById('hintText').textContent = mode === 'learn'
+        ? 'เลือกหัวข้ออ่าน'
+        : 'จำแนกอาหารและโภชนาการ 6 กลุ่ม — ไม่จับเวลา · ไม่เก็บคะแนน';
+      if (mode === 'practice') {
+        mountClassifyPractice();
+      } else if (window.KampaiEngines?.ClassifyBucket?.cleanup) {
+        window.KampaiEngines.ClassifyBucket.cleanup();
+      }
+    }
+
+    function render() {
+      document.getElementById('pick').innerHTML = ITEMS.map((x, i) =>
+        '<button type="button" data-i="' + i + '" class="' + (x === cur ? 'on' : '') + '">' + (x.emoji ? x.emoji + ' ' : '') + x.name + '</button>'
+      ).join('');
+      document.getElementById('box').innerHTML =
+        '<div class="box-head">' +
+          '<div>' + (cur.emoji ? '<div class="emo">' + cur.emoji + '</div>' : '') + '<h2>' + cur.name + '</h2></div>' +
+          '<button type="button" class="btn btn-ghost" id="btnSpeakTopic">🔊 ฟังเสียง</button>' +
+        '</div>' +
+        '<p>' + cur.body + '</p>' +
+        (cur.tip ? '<p style="margin-top:10px;color:var(--muted)">💡 ' + cur.tip + '</p>' : '');
+      const btnTopic = document.getElementById('btnSpeakTopic');
+      if (btnTopic) {
+        btnTopic.onclick = () => speakText(cur.name + ' ' + cur.body + (cur.tip ? ' เคล็ดลับ ' + cur.tip : ''), 'speechStatusLearn');
+      }
+    }
+
+    document.getElementById('pick').onclick = (e) => {
+      const b = e.target.closest('[data-i]');
+      if (!b) return;
+      stopSpeech();
+      cur = ITEMS[+b.dataset.i];
+      render();
+    };
+
+    document.getElementById('modeSeg').onclick = (e) => {
+      const b = e.target.closest('button[data-mode]');
+      if (!b) return;
+      setMode(b.dataset.mode);
+    };
+
+    document.getElementById('btnSpeakCurrent').onclick = () => {
+      const item = classifySession?.currentItem?.();
+      if (item) {
+        speakText(item.label + ' จัดอยู่ในกลุ่มใด', 'speechStatusPractice');
+      } else {
+        speakText('ฝึกจำแนกอาหารและโภชนาการครบแล้ว กดฝึกใหม่อีกครั้งได้', 'speechStatusPractice');
+      }
+    };
+
+    document.getElementById('btnFs').onclick = () => {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.().catch(() => {});
+      else document.exitFullscreen?.();
+    };
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stopSpeech();
+    });
+    window.addEventListener('pagehide', stopSpeech);
+
+    window.getState = () => Object.freeze({
+      slug: MEDIA_SLUG,
+      mode: mode,
+      selectedTopic: cur.name,
+      totalItems: CLASSIFY_ITEMS.length,
+      bucketsCount: BUCKETS.length,
+      classify: classifySession ? classifySession.getState() : null,
+      reducedMotion: typeof window.matchMedia === 'function'
+        ? Boolean(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+        : false,
+    });
+
+    render();
+    setMode('learn');
+  </script>
+</body>
+</html>

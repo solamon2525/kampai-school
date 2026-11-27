@@ -6,11 +6,14 @@
   <title>ความปลอดภัยในการทำงานและเครื่องมือ — สื่อการสอนสุขศึกษาและการงานอาชีพ</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="/games/kampai-sdk.js?v=1.181.0"></script>
+  <script src="/games/media-lab-runtime.js?v=2.0.0"></script>
+  <script src="/games/engine/classify-bucket-engine.js?v=2.0.0"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
   <style>
     * { font-family: 'Sarabun', sans-serif; }
+    html, body { max-width: 100%; overflow-x: hidden; }
     .tab-btn.active {
       background-color: #0284c7;
       color: #ffffff;
@@ -19,40 +22,73 @@
     }
     .custom-scrollbar::-webkit-scrollbar { width: 6px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+    button:focus-visible, a:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+    .ke-classify-card { background: #f8fafc; border: 2px solid #bae6fd; border-radius: 20px; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+    .ke-classify-head { display: flex; justify-content: space-between; align-items: center; font-weight: 800; color: #0369a1; font-size: .95rem; }
+    .ke-classify-item { text-align: center; padding: 18px 14px; background: #f0f9ff; border: 2px dashed #38bdf8; border-radius: 16px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .ke-item-icon { font-size: clamp(56px, 14vw, 84px); line-height: 1.05; }
+    .ke-item-label { font-size: clamp(1.15rem, 3vw, 1.5rem); font-weight: 800; color: #0f172a; }
+    .ke-buckets { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    @media (max-width: 480px) { .ke-buckets { grid-template-columns: 1fr; } }
+    .ke-bucket-btn { font-family: inherit; font-weight: 800; font-size: .95rem; min-height: 54px; padding: 10px 12px; border-radius: 14px; border: 2px solid #cbd5e1; background: #fff; color: #0f172a; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; text-align: center; transition: transform .12s, border-color .12s, background .12s; }
+    .ke-bucket-btn[data-bucket-id="ppe"] { border-color: #0284c7; background: #f0f9ff; color: #0c4a6e; }
+    .ke-bucket-btn[data-bucket-id="tool_check"] { border-color: #d97706; background: #fffbeb; color: #78350f; }
+    .ke-bucket-btn[data-bucket-id="workspace_5s"] { border-color: #059669; background: #ecfdf5; color: #064e3b; }
+    .ke-bucket-btn[data-bucket-id="emergency"] { border-color: #dc2626; background: #fef2f2; color: #7f1d1d; }
+    .ke-bucket-btn.is-correct { outline: 3px solid #15803d; background: #dcfce7; color: #14532d; }
+    .ke-bucket-btn.is-wrong { opacity: .65; text-decoration: line-through; }
+    .ke-bucket-btn:disabled { cursor: default; }
+    .ke-classify-feedback { padding: 12px 14px; border-radius: 12px; font-weight: 700; line-height: 1.45; background: #fff; border: 1.5px solid #cbd5e1; color: #0f172a; }
+    .ke-classify-feedback.is-good { background: #dcfce7; border-color: #16a34a; color: #14532d; }
+    .ke-classify-feedback.is-learn { background: #fef3c7; border-color: #d97706; color: #78350f; }
+    .ke-btn { font-family: inherit; font-weight: 800; font-size: .95rem; min-height: 44px; padding: 10px 16px; border-radius: 12px; border: none; background: #0284c7; color: #fff; cursor: pointer; align-items: center; justify-content: center; gap: 6px; align-self: center; }
+    .ke-classify-summary { text-align: center; padding: 24px 16px; background: #f0f9ff; border: 2px solid #bae6fd; border-radius: 20px; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+    .ke-classify-summary h3 { color: #0369a1; font-size: 1.3rem; font-weight: 800; }
+    .speech-status { font-size: .85rem; font-weight: 700; color: #92400e; background: #fef3c7; border-radius: 10px; padding: 8px 12px; display: none; }
+    .speech-status.show { display: block; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition: none !important; scroll-behavior: auto !important; }
+    }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
   <script>
     const MEDIA_SLUG = 'workplace-safety-media';
+    if (window.KAMPAI) {
+      KAMPAI.setSlug(MEDIA_SLUG);
+      if (KAMPAI.sound && typeof KAMPAI.sound.mountToggles === 'function') {
+        try { KAMPAI.sound.mountToggles(); } catch (_) {}
+      }
+    }
   </script>
 
   <!-- Top Navigation Bar -->
   <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
-    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-      <div class="flex items-center gap-3">
-        <button onclick="goHome()" class="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition flex items-center gap-1.5 text-sm font-medium">
+    <div class="max-w-6xl mx-auto px-3 sm:px-4 py-3 flex flex-wrap items-center justify-between gap-2 sm:gap-4">
+      <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+        <button type="button" onclick="goHome()" class="min-h-[44px] min-w-[44px] p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition flex items-center gap-1.5 text-sm font-medium shrink-0">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
           <span class="hidden sm:inline">กลับหน้าหลัก</span>
         </button>
-        <div class="h-5 w-px bg-slate-200"></div>
-        <div class="flex items-center gap-2.5">
-          <span class="text-2xl">🦺</span>
-          <div>
-            <h1 class="text-base sm:text-lg font-bold text-slate-900 leading-tight">ความปลอดภัยในการทำงานและเครื่องมือ</h1>
+        <div class="h-5 w-px bg-slate-200 shrink-0"></div>
+        <div class="flex items-center gap-2 min-w-0">
+          <span class="text-2xl shrink-0">🦺</span>
+          <div class="min-w-0">
+            <h1 class="text-sm sm:text-lg font-bold text-slate-900 leading-tight truncate">ความปลอดภัยในการทำงานและเครื่องมือ</h1>
             <p class="text-xs text-slate-500 hidden sm:block">ห้องปฏิบัติการตรวจจุดเสี่ยงและทักษะช่างปลอดภัย · ป.1–6</p>
           </div>
         </div>
       </div>
 
       <!-- Mode Switches -->
-      <div class="flex items-center gap-2">
-        <button id="btn-mode-learn" data-mode="learn" onclick="switchMode('learn')" class="tab-btn active px-3.5 py-1.5 rounded-lg border border-slate-200 text-sm font-semibold transition">
+      <div class="flex flex-wrap items-center gap-2">
+        <button type="button" id="btn-mode-learn" data-mode="learn" onclick="switchMode('learn')" class="tab-btn active min-h-[44px] px-3.5 py-1.5 rounded-lg border border-slate-200 text-sm font-semibold transition">
           📖 บทเรียน & แล็บ
         </button>
-        <button id="btn-mode-practice" data-mode="practice" onclick="switchMode('practice')" class="tab-btn px-3.5 py-1.5 rounded-lg border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-100 transition">
-          📝 แบบฝึกหัด (6 ข้อ)
+        <button type="button" id="btn-mode-practice" data-mode="practice" onclick="switchMode('practice')" class="tab-btn min-h-[44px] px-3.5 py-1.5 rounded-lg border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-100 transition">
+          ✏️ ฝึกแยกหมวด
         </button>
-        <button id="btn-sound-toggle" onclick="toggleSound()" title="เปิด/ปิดเสียง" class="p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition border border-slate-200">
+        <button type="button" id="btn-sound-toggle" onclick="toggleSound()" title="เปิด/ปิดเสียง" class="min-h-[44px] min-w-[44px] p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition border border-slate-200">
           🔊
         </button>
       </div>
@@ -60,21 +96,22 @@
   </header>
 
   <!-- Main Container -->
-  <main class="max-w-6xl mx-auto px-4 py-6 flex-1 w-full">
+  <main class="max-w-6xl mx-auto px-3 sm:px-4 py-6 flex-1 w-full">
+    <div class="speech-status mb-4" id="speechStatusGlobal" role="status" aria-live="polite"></div>
 
     <!-- LEARN MODE -->
     <section id="section-learn" class="space-y-6">
 
       <!-- Sub Navigation Tabs -->
       <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-2 rounded-2xl border border-slate-200 shadow-sm">
-        <div class="flex items-center gap-1.5 overflow-x-auto">
-          <button id="subtab-btn-pillars" onclick="switchSubTab('pillars')" class="px-4 py-2 rounded-xl text-sm font-bold bg-sky-50 text-sky-700 border border-sky-200 transition">
+        <div class="flex flex-wrap items-center gap-1.5">
+          <button type="button" id="subtab-btn-pillars" onclick="switchSubTab('pillars')" class="min-h-[44px] px-3 sm:px-4 py-2 rounded-xl text-sm font-bold bg-sky-50 text-sky-700 border border-sky-200 transition">
             🛡️ 4 เสาหลักความปลอดภัย
           </button>
-          <button id="subtab-btn-hazards" onclick="switchSubTab('hazards')" class="px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition">
+          <button type="button" id="subtab-btn-hazards" onclick="switchSubTab('hazards')" class="min-h-[44px] px-3 sm:px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition">
             🔍 ค้นหาจุดเสี่ยง 4 โซน
           </button>
-          <button id="subtab-btn-ppe" onclick="switchSubTab('ppe')" class="px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition">
+          <button type="button" id="subtab-btn-ppe" onclick="switchSubTab('ppe')" class="min-h-[44px] px-3 sm:px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition">
             🧰 จำลองแต่งกาย PPE ตามภารกิจ
           </button>
         </div>
@@ -172,7 +209,7 @@
               <p class="text-sm text-slate-600 leading-relaxed">
                 การทำงานช่างและงานประดิษฐ์ไม่ได้ฝึกแค่ความอดทนและความคิดสร้างสรรค์ แต่ยังฝึก <strong>สติ ความรับผิดชอบ และความรอบคอบ</strong> ทุกเครื่องมือมีพลังในการสร้างสรรค์ หากใช้อย่างถูกวิธีและเคารพกฎความปลอดภัย
               </p>
-              <div class="grid grid-cols-2 gap-2 pt-2">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2">
                 <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 flex items-center gap-2">
                   <span class="text-emerald-500 font-bold">✓</span> แผ่นรองตัดเสมอเมื่อใช้มีด
                 </div>
@@ -193,7 +230,7 @@
 
       <!-- SUBTAB 2: HAZARD HUNTER LAB -->
       <div id="subtab-hazards" class="space-y-6 hidden">
-        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+        <div class="bg-white rounded-2xl p-4 sm:p-6 border border-slate-200 shadow-sm">
           <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
             <div>
               <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
@@ -203,16 +240,16 @@
             </div>
             <!-- Zone Selector Buttons -->
             <div class="flex items-center gap-1.5 flex-wrap">
-              <button onclick="selectZone(0)" id="zone-btn-0" class="px-3 py-1.5 rounded-xl text-xs font-bold border transition bg-sky-50 text-sky-700 border-sky-300">
+              <button type="button" onclick="selectZone(0)" id="zone-btn-0" class="min-h-[44px] px-3 py-1.5 rounded-xl text-xs font-bold border transition bg-sky-50 text-sky-700 border-sky-300">
                 ✂️ โต๊ะตัดโมเดล
               </button>
-              <button onclick="selectZone(1)" id="zone-btn-1" class="px-3 py-1.5 rounded-xl text-xs font-bold border transition text-slate-600 border-slate-200 hover:bg-slate-50">
+              <button type="button" onclick="selectZone(1)" id="zone-btn-1" class="min-h-[44px] px-3 py-1.5 rounded-xl text-xs font-bold border transition text-slate-600 border-slate-200 hover:bg-slate-50">
                 🔨 โต๊ะงานช่างไม้
               </button>
-              <button onclick="selectZone(2)" id="zone-btn-2" class="px-3 py-1.5 rounded-xl text-xs font-bold border transition text-slate-600 border-slate-200 hover:bg-slate-50">
+              <button type="button" onclick="selectZone(2)" id="zone-btn-2" class="min-h-[44px] px-3 py-1.5 rounded-xl text-xs font-bold border transition text-slate-600 border-slate-200 hover:bg-slate-50">
                 ⚡ จุดปืนกาวร้อน & ไฟฟ้า
               </button>
-              <button onclick="selectZone(3)" id="zone-btn-3" class="px-3 py-1.5 rounded-xl text-xs font-bold border transition text-slate-600 border-slate-200 hover:bg-slate-50">
+              <button type="button" onclick="selectZone(3)" id="zone-btn-3" class="min-h-[44px] px-3 py-1.5 rounded-xl text-xs font-bold border transition text-slate-600 border-slate-200 hover:bg-slate-50">
                 🧹 จุดทำความสะอาด & จัดเก็บ
               </button>
             </div>
@@ -221,26 +258,26 @@
           <!-- Zone Interactive Card Display -->
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <!-- Left: Scene Visualization Box -->
-            <div class="lg:col-span-6 bg-slate-900 rounded-2xl p-6 text-white flex flex-col justify-between relative overflow-hidden">
-              <div class="absolute top-0 right-0 p-8 opacity-10 text-9xl font-black select-none" id="zone-watermark">✂️</div>
+            <div class="lg:col-span-6 bg-slate-900 rounded-2xl p-5 sm:p-6 text-white flex flex-col justify-between relative overflow-hidden">
+              <div class="absolute top-0 right-0 p-8 opacity-10 text-9xl font-black select-none pointer-events-none" id="zone-watermark">✂️</div>
               <div>
-                <div class="flex items-center justify-between mb-4">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
                   <span id="zone-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-amber-500 text-slate-950 flex items-center gap-1">
                     ⚠️ ตรวจพบจุดเสี่ยงอันตราย
                   </span>
                   <!-- Hazard Toggle Switch -->
-                  <div class="flex items-center gap-2 bg-slate-800 p-1 rounded-xl border border-slate-700">
-                    <button id="btn-state-danger" onclick="setZoneState('danger')" class="px-3 py-1 rounded-lg text-xs font-bold bg-rose-600 text-white shadow-sm transition">
+                  <div class="flex flex-wrap items-center gap-1 bg-slate-800 p-1 rounded-xl border border-slate-700">
+                    <button type="button" id="btn-state-danger" onclick="setZoneState('danger')" class="min-h-[44px] px-3 py-1 rounded-lg text-xs font-bold bg-rose-600 text-white shadow-sm transition">
                       ⚠️ สถานการณ์เสี่ยง
                     </button>
-                    <button id="btn-state-safe" onclick="setZoneState('safe')" class="px-3 py-1 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition">
+                    <button type="button" id="btn-state-safe" onclick="setZoneState('safe')" class="min-h-[44px] px-3 py-1 rounded-lg text-xs font-bold text-slate-300 hover:text-white transition">
                       ✅ ปลอดภัยถูกต้อง
                     </button>
                   </div>
                 </div>
 
                 <div class="text-center py-6">
-                  <div id="zone-icon" class="text-7xl mb-3 transform hover:scale-110 transition duration-300">🔪</div>
+                  <div id="zone-icon" class="text-7xl mb-3 transition duration-300">🔪</div>
                   <h3 id="zone-title" class="text-2xl font-black tracking-tight mb-2">ใบมีดคัตเตอร์ยื่นยาว ไม่มีแผ่นรองตัด</h3>
                   <p id="zone-subtitle" class="text-sm text-slate-300 max-w-md mx-auto leading-relaxed">
                     การกรีดกระดาษโดยดันใบมีดออกมาเกิน 1 ข้อ และไม่มีแผ่นรองตัด เสี่ยงใบมีดหักกระเด็นเข้าตาหรือบาดนิ้วลึก
@@ -248,12 +285,12 @@
                 </div>
               </div>
 
-              <div class="bg-slate-800/80 backdrop-blur-sm p-3.5 rounded-xl border border-slate-700 flex items-center justify-between text-xs">
-                <div class="flex items-center gap-2 text-slate-300">
+              <div class="bg-slate-800/80 backdrop-blur-sm p-3.5 rounded-xl border border-slate-700 flex flex-wrap items-center justify-between gap-2 text-xs">
+                <div class="flex flex-wrap items-center gap-2 text-slate-300">
                   <span class="text-amber-400">⚡ ดัชนีความเสี่ยง:</span>
                   <span id="zone-risk-level" class="font-bold text-rose-400">สูงมาก (เสี่ยงบาดเจ็บฉับพลัน)</span>
                 </div>
-                <button onclick="speakCurrentZone()" class="px-2.5 py-1 bg-sky-600 hover:bg-sky-500 rounded-lg text-white font-medium flex items-center gap-1 transition">
+                <button type="button" onclick="speakCurrentZone()" class="min-h-[44px] px-3 py-1 bg-sky-600 hover:bg-sky-500 rounded-lg text-white font-medium flex items-center gap-1 transition">
                   🔊 ฟังเสียง
                 </button>
               </div>
@@ -300,7 +337,7 @@
 
       <!-- SUBTAB 3: PPE DRESS-UP & MISSION CHECKLIST -->
       <div id="subtab-ppe" class="space-y-6 hidden">
-        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+        <div class="bg-white rounded-2xl p-4 sm:p-6 border border-slate-200 shadow-sm">
           <div class="flex flex-wrap items-center justify-between gap-4 mb-5">
             <div>
               <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
@@ -309,43 +346,43 @@
               <p class="text-xs text-slate-500">เลือกภารกิจงานช่าง จากนั้นติ๊กเลือกอุปกรณ์ป้องกันที่จำเป็นให้ถูกต้องครบถ้วน</p>
             </div>
             <!-- Mission Buttons -->
-            <div class="flex items-center gap-2">
-              <button onclick="selectMission(0)" id="mis-btn-0" class="px-3.5 py-1.5 rounded-xl text-xs font-bold border transition bg-sky-50 text-sky-700 border-sky-300">
+            <div class="flex flex-wrap items-center gap-2">
+              <button type="button" onclick="selectMission(0)" id="mis-btn-0" class="min-h-[44px] px-3.5 py-1.5 rounded-xl text-xs font-bold border transition bg-sky-50 text-sky-700 border-sky-300">
                 ภารกิจ A: กรีดตัดโมเดล
               </button>
-              <button onclick="selectMission(1)" id="mis-btn-1" class="px-3.5 py-1.5 rounded-xl text-xs font-bold border transition text-slate-600 border-slate-200 hover:bg-slate-50">
+              <button type="button" onclick="selectMission(1)" id="mis-btn-1" class="min-h-[44px] px-3.5 py-1.5 rounded-xl text-xs font-bold border transition text-slate-600 border-slate-200 hover:bg-slate-50">
                 ภารกิจ B: เลื่อยและตอกตะปู
               </button>
-              <button onclick="selectMission(2)" id="mis-btn-2" class="px-3.5 py-1.5 rounded-xl text-xs font-bold border transition text-slate-600 border-slate-200 hover:bg-slate-50">
+              <button type="button" onclick="selectMission(2)" id="mis-btn-2" class="min-h-[44px] px-3.5 py-1.5 rounded-xl text-xs font-bold border transition text-slate-600 border-slate-200 hover:bg-slate-50">
                 ภารกิจ C: งานปืนกาวร้อน
               </button>
             </div>
           </div>
 
           <!-- Mission Header Info -->
-          <div class="bg-gradient-to-r from-sky-500 to-indigo-600 rounded-2xl p-4 text-white flex items-center justify-between mb-6 shadow-sm">
-            <div class="flex items-center gap-3">
-              <div class="text-3xl" id="mis-icon">✂️</div>
-              <div>
+          <div class="bg-gradient-to-r from-sky-500 to-indigo-600 rounded-2xl p-4 text-white flex flex-wrap items-center justify-between gap-3 mb-6 shadow-sm">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="text-3xl shrink-0" id="mis-icon">✂️</div>
+              <div class="min-w-0">
                 <h3 id="mis-name" class="text-base font-bold">ภารกิจ A: การกรีดตัดโมเดลกระดาษแข็งและโฟม</h3>
                 <p id="mis-desc" class="text-xs text-sky-100">ต้องใช้คัตเตอร์และกรรไกร มีความเสี่ยงจากของมีคมบาดและการกระเด็นของเศษวัสดุ</p>
               </div>
             </div>
-            <span class="text-xs bg-white/20 px-3 py-1 rounded-full font-bold backdrop-blur-sm">ระดับชั้น ป.4–6</span>
+            <span class="text-xs bg-white/20 px-3 py-1 rounded-full font-bold backdrop-blur-sm shrink-0">ระดับชั้น ป.4–6</span>
           </div>
 
           <!-- PPE Items Grid -->
           <h4 class="text-xs font-bold text-slate-600 uppercase tracking-wider mb-3">เลือกอุปกรณ์ป้องกันที่ต้องใช้สำหรับภารกิจนี้:</h4>
-          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 mb-6" id="ppe-options-grid">
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-6" id="ppe-options-grid">
             <!-- Rendered via JS -->
           </div>
 
           <!-- Action & Result Feedback -->
-          <div class="flex items-center justify-between pt-2 border-t border-slate-100">
-            <button onclick="checkPpeScore()" class="px-6 py-2.5 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-sm font-bold shadow-sm transition flex items-center gap-2">
+          <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-100">
+            <button type="button" onclick="checkPpeScore()" class="min-h-[44px] px-6 py-2.5 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-sm font-bold shadow-sm transition flex items-center gap-2 shrink-0">
               <span>🚀</span> ตรวจสอบความปลอดภัย
             </button>
-            <div id="ppe-feedback-msg" class="text-sm font-bold text-slate-600">
+            <div id="ppe-feedback-msg" class="text-sm font-bold text-slate-600 flex-1 min-w-[200px]">
               แตะเลือกอุปกรณ์ที่จำเป็น แล้วกดตรวจสอบความปลอดภัย
             </div>
           </div>
@@ -354,116 +391,38 @@
 
     </section>
 
-    <!-- PRACTICE MODE (6 QUESTIONS QUIZ) -->
-    <section id="section-practice" class="space-y-6 hidden">
-      <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm max-w-3xl mx-auto">
-        
-        <!-- Quiz Header -->
-        <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
-          <div class="flex items-center gap-2.5">
-            <span class="text-2xl">📝</span>
-            <div>
-              <h2 class="text-base font-bold text-slate-900">แบบฝึกหัดคิดวิเคราะห์ความปลอดภัยในการทำงาน</h2>
-              <p class="text-xs text-slate-500">ตอบคำถามสถานการณ์จริง 6 ข้อ เพื่อประเมินความพร้อมก่อนลงมือปฏิบัติ</p>
-            </div>
-          </div>
-          <div class="text-right">
-            <span class="text-xs text-slate-400">ข้อที่</span>
-            <div class="text-lg font-black text-sky-600"><span id="quiz-curr-q">1</span> / 6</div>
-          </div>
-        </div>
-
-        <!-- Quiz Body Card -->
-        <div id="quiz-active-box" class="space-y-6">
-          <!-- Question Title -->
-          <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 flex items-start gap-3">
-            <div class="text-2xl mt-0.5">❓</div>
-            <div class="flex-1">
-              <div class="text-xs font-bold text-sky-600 uppercase mb-1" id="quiz-q-topic">สถานการณ์การทำงานช่าง</div>
-              <h3 id="quiz-q-title" class="text-base font-bold text-slate-800 leading-snug">
-                หากพบว่ากรรไกรมีน็อตตรงกลางหลวม โยกเยก และตัดกระดาษไม่เข้า ควรปฏิบัติอย่างไร?
-              </h3>
-            </div>
-            <button onclick="speakQuestion()" class="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-200 rounded-xl transition" title="ฟังเสียงโจทย์">
-              🔊
-            </button>
-          </div>
-
-          <!-- Choices -->
-          <div class="space-y-2.5" id="quiz-choices-container">
-            <!-- Rendered by JS -->
-          </div>
-
-          <!-- Explanation / Feedback Banner (Hidden by default) -->
-          <div id="quiz-feedback-box" class="hidden rounded-2xl p-4 border transition">
-            <div class="flex items-start gap-3">
-              <div class="text-2xl" id="quiz-fb-icon">💡</div>
-              <div>
-                <h4 class="text-sm font-bold" id="quiz-fb-title">คำอธิบายเหตุผล</h4>
-                <p class="text-xs mt-1 leading-relaxed" id="quiz-fb-desc"></p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Next Button -->
-          <div class="flex justify-end pt-2">
-            <button id="quiz-btn-next" onclick="nextQuestion()" disabled class="px-6 py-2.5 bg-slate-300 text-white rounded-xl text-sm font-bold transition flex items-center gap-2 cursor-not-allowed">
-              <span>ข้อถัดไป</span>
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-            </button>
-          </div>
-        </div>
-
-        <!-- Quiz Result Screen (Hidden until finished) -->
-        <div id="quiz-result-box" class="hidden py-8 text-center space-y-6">
-          <div class="w-24 h-24 mx-auto rounded-3xl bg-amber-100 flex items-center justify-center text-5xl shadow-inner border border-amber-200" id="res-medal-icon">
-            🏆
-          </div>
+    <!-- PRACTICE MODE: CLASSIFY BUCKET -->
+    <section id="section-practice" class="space-y-4 hidden max-w-2xl mx-auto">
+      <div class="bg-white rounded-2xl p-4 sm:p-6 border border-slate-200 shadow-sm space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100">
           <div>
-            <h3 class="text-2xl font-black text-slate-900 mb-1" id="res-grade-title">ยอดเยี่ยมมาก! ปลอดภัยระดับมืออาชีพ</h3>
-            <p class="text-sm text-slate-600 max-w-md mx-auto" id="res-grade-desc">
-              คุณมีความรู้ความเข้าใจในหลักความปลอดภัยและการใช้เครื่องมืออย่างถูกต้องพร้อมลงมือปฏิบัติจริง
-            </p>
+            <h2 class="text-base font-bold text-slate-900">✏️ ฝึกจำแนกหลักความปลอดภัยในการทำงาน</h2>
+            <p class="text-xs text-slate-600">แตะเลือกหมวดให้ตรงกับสถานการณ์ หรือกดปุ่มตัวเลข 1–4 (ไม่จับเวลา · ไม่เก็บคะแนน)</p>
           </div>
-
-          <div class="inline-flex items-center gap-6 bg-slate-50 px-8 py-4 rounded-2xl border border-slate-200 shadow-sm">
-            <div>
-              <div class="text-xs text-slate-400 font-semibold">คะแนนที่ได้</div>
-              <div class="text-3xl font-black text-sky-600"><span id="res-score">6</span> / 6</div>
-            </div>
-            <div class="h-8 w-px bg-slate-200"></div>
-            <div>
-              <div class="text-xs text-slate-400 font-semibold">ระดับความปลอดภัย</div>
-              <div class="text-base font-bold text-emerald-600" id="res-rank">A+ ยอดเยี่ยม</div>
-            </div>
-          </div>
-
-          <div class="pt-4 flex items-center justify-center gap-3">
-            <button onclick="restartQuiz()" class="px-6 py-2.5 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-sm font-bold shadow transition flex items-center gap-2">
-              <span>🔄</span> ทำแบบฝึกหัดอีกครั้ง
-            </button>
-            <button onclick="switchMode('learn')" class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-bold transition">
-              📖 กลับไปทบทวนบทเรียน
-            </button>
-          </div>
+          <button type="button" id="btnSpeakCurrent" onclick="speakCurrentItem()" class="min-h-[44px] px-3.5 py-2 rounded-xl border-2 border-sky-200 bg-sky-50 text-sky-800 text-sm font-bold hover:bg-sky-100 transition flex items-center gap-1.5">
+            🔊 ฟังเสียง
+          </button>
         </div>
-
+        <div class="speech-status" id="speechStatusPractice" role="status" aria-live="polite"></div>
+        <div id="classifyEngineRoot"></div>
       </div>
     </section>
 
   </main>
 
   <!-- Footer -->
-  <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
-    โรงเรียนคำไฮวิทยา · สื่อการสอนสุขศึกษาและการงานอาชีพ Classroom-first · เพื่อการเรียนรู้ที่ปลอดภัย
+  <footer class="bg-white border-t border-slate-200 py-4 px-4 text-center text-xs text-slate-500">
+    โรงเรียนคำไฮวิทยา · สื่อการสอนสุขศึกษาและการงานอาชีพ Classroom-first · คู่ใบงาน <a href="/games/career/workplace-safety-worksheet.html" class="text-sky-700 font-bold underline">workplace-safety</a>
   </footer>
 
   <!-- Sound & Interactive Logic -->
   <script>
     // State
     let currentMode = 'learn';
+    let currentSubTab = 'pillars';
     let soundEnabled = true;
     let audioCtx = null;
+    let classifySession = null;
 
     // Web Audio Synthesizer for feedback
     function getAudioCtx() {
@@ -487,9 +446,9 @@
         const now = ctx.currentTime;
         if (type === 'correct') {
           osc.type = 'triangle';
-          osc.frequency.setValueAtTime(523.25, now); // C5
-          osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
-          osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+          osc.frequency.setValueAtTime(523.25, now);
+          osc.frequency.setValueAtTime(659.25, now + 0.1);
+          osc.frequency.setValueAtTime(783.99, now + 0.2);
           gain.gain.setValueAtTime(0.2, now);
           gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
           osc.start(now);
@@ -530,27 +489,67 @@
       }
     }
 
-    // TTS
-    function speakText(text) {
+    function showSpeechStatus(statusId, show) {
+      const el = document.getElementById(statusId || 'speechStatusGlobal');
+      if (!el) return;
+      if (show) {
+        el.textContent = 'อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านข้อความต่อได้';
+        el.classList.add('show');
+      } else {
+        el.textContent = '';
+        el.classList.remove('show');
+      }
+    }
+
+    function speakText(text, statusId) {
       if (!soundEnabled) return;
-      if (!('speechSynthesis' in window)) return;
-      window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = 'th-TH';
-      u.rate = 1.0;
-      window.speechSynthesis.speak(u);
+      const clean = String(text || '').trim();
+      if (!clean) return;
+      const targetId = statusId || (currentMode === 'practice' ? 'speechStatusPractice' : 'speechStatusGlobal');
+      if (window.KampaiMediaLab && typeof window.KampaiMediaLab.speakSafe === 'function') {
+        const res = window.KampaiMediaLab.speakSafe(clean, { lang: 'th-TH', rate: 0.94 });
+        showSpeechStatus(targetId, Boolean(res && res.ok === false));
+        return;
+      }
+      try {
+        if (window.KAMPAI?.sound?.speak) {
+          KAMPAI.sound.speak(clean, 'th-TH', true);
+          showSpeechStatus(targetId, false);
+          return;
+        }
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const u = new SpeechSynthesisUtterance(clean);
+          u.lang = 'th-TH';
+          u.rate = 0.94;
+          window.speechSynthesis.speak(u);
+          showSpeechStatus(targetId, false);
+          return;
+        }
+      } catch (_) {}
+      showSpeechStatus(targetId, true);
+    }
+
+    function stopSpeech() {
+      if (window.KampaiMediaLab && typeof window.KampaiMediaLab.stopAllSpeech === 'function') {
+        window.KampaiMediaLab.stopAllSpeech();
+      } else {
+        try { window.KAMPAI?.sound?.stopSpeak?.(); } catch (_) {}
+        try { window.speechSynthesis?.cancel?.(); } catch (_) {}
+      }
     }
 
     function toggleSound() {
       soundEnabled = !soundEnabled;
       const btn = document.getElementById('btn-sound-toggle');
       btn.innerText = soundEnabled ? '🔊' : '🔇';
-      if (!soundEnabled && 'speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
+      if (!soundEnabled) {
+        stopSpeech();
       }
     }
 
     function goHome() {
+      stopSpeech();
       if (window.KAMPAI && typeof window.KAMPAI.goHome === 'function') {
         window.KAMPAI.goHome();
       } else {
@@ -558,31 +557,88 @@
       }
     }
 
+    // ClassifyBucket Setup
+    const SAFETY_BUCKETS = [
+      { id: 'ppe', label: 'อุปกรณ์ป้องกัน (PPE)', icon: '🥽' },
+      { id: 'tool_check', label: 'ตรวจและใช้เครื่องมือถูกวิธี', icon: '🔧' },
+      { id: 'workspace_5s', label: 'พื้นที่ปลอดภัย 5 ส.', icon: '🧹' },
+      { id: 'emergency', label: 'เหตุฉุกเฉินและแจ้งครู', icon: '🩹' }
+    ];
+
+    const SAFETY_ITEMS = [
+      { id: 'goggles', icon: '🥽', label: 'สวมแว่นตานิรภัยก่อนตอกหรือเลื่อยไม้', bucketId: 'ppe', reason: 'แว่นตานิรภัยช่วยป้องกันขี้เลื่อยและเศษตะปูกระเด็นเข้าตา' },
+      { id: 'gloves_apron', icon: '🧤', label: 'สวมถุงมือและผ้ากันเปื้อนงานไม้', bucketId: 'ppe', reason: 'ถุงมือและผ้ากันเปื้อนช่วยป้องกันเสี้ยนไม้ตำมือและสิ่งสกปรก' },
+      { id: 'cutting_mat', icon: '🟩', label: 'ใช้แผ่นรองตัดและไม้บรรทัดเหล็กกับคัตเตอร์', bucketId: 'ppe', reason: 'แผ่นรองตัดและไม้บรรทัดเหล็กเป็นอุปกรณ์ป้องกันการบาดและพื้นโต๊ะเสียหาย' },
+      { id: 'loose_scissors', icon: '✂️', label: 'พบกรรไกรน็อตหลวม จึงหยุดใช้และแจ้งครู', bucketId: 'tool_check', reason: 'เครื่องมือชำรุดห้ามฝืนใช้ ต้องหยุดทันทีและแจ้งคุณครู' },
+      { id: 'cutter_blade', icon: '🔪', label: 'ดันใบมีดคัตเตอร์ออกเพียง 1 ข้อและกรีดออกห่างตัว', bucketId: 'tool_check', reason: 'ใบมีดสั้นพอดีและกรีดออกห่างตัวช่วยป้องกันใบมีดหักหรือบาดมือ' },
+      { id: 'glue_gun_stand', icon: '🔥', label: 'วางปืนกาวร้อนบนขาตั้งโลหะและถอดปลั๊กเมื่อเสร็จ', bucketId: 'tool_check', reason: 'ปลายปืนกาวร้อนกว่า 150 องศา จึงต้องตั้งบนขาตั้งและถอดปลั๊กหลังใช้งาน' },
+      { id: 'wet_floor', icon: '⚠️', label: 'ตั้งป้ายเตือนพื้นเปียกและเช็ดให้แห้งทันที', bucketId: 'workspace_5s', reason: 'พื้นเปียกเสี่ยงลื่นล้มชนโต๊ะเครื่องมือ ต้องตั้งป้ายเตือนและเช็ดแห้ง' },
+      { id: 'cord_wall', icon: '🔌', label: 'จัดสายไฟชิดผนังไม่พาดขวางทางเดิน', bucketId: 'workspace_5s', reason: 'การจัดสายไฟชิดผนังป้องกันการสะดุดดึงเครื่องมือร้อนตกใส่' },
+      { id: 'sharp_waste', icon: '📦', label: 'แยกใบมีดหรือตะปูใส่กล่องแข็งก่อนทิ้ง', bucketId: 'workspace_5s', reason: 'ไม่ทิ้งของมีคมปนถุงขยะทั่วไป เพื่อความปลอดภัยของทุกคน' },
+      { id: 'finger_cut', icon: '🩹', label: 'โดนคัตเตอร์บาด รีบล้างน้ำสะอาด กดห้ามเลือด และแจ้งครู', bucketId: 'emergency', reason: 'เมื่อเกิดแผลบาดต้องล้างน้ำสะอาด กดห้ามเลือด และแจ้งครูทำแผลทันที' },
+      { id: 'glue_burn', icon: '💧', label: 'โดนกาวร้อนลวก รีบเปิดน้ำเย็นไหลผ่านและเรียกครู', bucketId: 'emergency', reason: 'ล้างน้ำเย็นไหลผ่าน 10 นาทีและแจ้งครู ห้ามแกะคราบกาวแห้งทันที' },
+      { id: 'never_hide', icon: '🚨', label: 'ไม่แอบซ่อนแผลเล็กน้อย แต่รีบบอกผู้ใหญ่ทันที', bucketId: 'emergency', reason: 'การแจ้งผู้ใหญ่ทันทีช่วยปฐมพยาบาลถูกวิธีและป้องกันการติดเชื้อ' }
+    ];
+
+    function mountClassifyPractice() {
+      if (!window.KampaiEngines || !window.KampaiEngines.ClassifyBucket) return;
+      classifySession = window.KampaiEngines.ClassifyBucket.mount('#classifyEngineRoot', {
+        items: SAFETY_ITEMS,
+        buckets: SAFETY_BUCKETS,
+        mode: 'media',
+        roundSize: 8,
+        onAnswer: function (res) {
+          if (window.KAMPAI && window.KAMPAI.sound) {
+            try {
+              if (res.isCorrect) KAMPAI.sound.correct();
+              else KAMPAI.sound.wrong();
+            } catch (_) {}
+          }
+          playSoundEffect(res.isCorrect ? 'correct' : 'wrong');
+        }
+      });
+    }
+
+    function speakCurrentItem() {
+      const item = classifySession?.currentItem?.();
+      if (item) {
+        speakText(item.label + ' จัดอยู่ในหมวดความปลอดภัยข้อใด', 'speechStatusPractice');
+      } else {
+        speakText('ฝึกจำแนกหลักความปลอดภัยครบแล้ว กดฝึกใหม่อีกครั้งได้', 'speechStatusPractice');
+      }
+    }
+
     // Mode Switcher
     function switchMode(mode) {
-      currentMode = mode;
+      stopSpeech();
+      currentMode = mode === 'practice' ? 'practice' : 'learn';
       playSoundEffect('click');
       const learnSec = document.getElementById('section-learn');
       const practiceSec = document.getElementById('section-practice');
       const btnLearn = document.getElementById('btn-mode-learn');
       const btnPractice = document.getElementById('btn-mode-practice');
 
-      if (mode === 'learn') {
+      if (currentMode === 'learn') {
         learnSec.classList.remove('hidden');
         practiceSec.classList.add('hidden');
-        btnLearn.className = 'tab-btn active px-3.5 py-1.5 rounded-lg border border-slate-200 text-sm font-semibold transition';
-        btnPractice.className = 'tab-btn px-3.5 py-1.5 rounded-lg border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-100 transition';
+        btnLearn.className = 'tab-btn active min-h-[44px] px-3.5 py-1.5 rounded-lg border border-slate-200 text-sm font-semibold transition';
+        btnPractice.className = 'tab-btn min-h-[44px] px-3.5 py-1.5 rounded-lg border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-100 transition';
+        if (window.KampaiEngines?.ClassifyBucket?.cleanup) {
+          window.KampaiEngines.ClassifyBucket.cleanup();
+        }
       } else {
         learnSec.classList.add('hidden');
         practiceSec.classList.remove('hidden');
-        btnPractice.className = 'tab-btn active px-3.5 py-1.5 rounded-lg border border-slate-200 text-sm font-semibold transition';
-        btnLearn.className = 'tab-btn px-3.5 py-1.5 rounded-lg border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-100 transition';
-        initQuiz();
+        btnPractice.className = 'tab-btn active min-h-[44px] px-3.5 py-1.5 rounded-lg border border-slate-200 text-sm font-semibold transition';
+        btnLearn.className = 'tab-btn min-h-[44px] px-3.5 py-1.5 rounded-lg border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-100 transition';
+        mountClassifyPractice();
       }
     }
 
     // Subtab Switcher
     function switchSubTab(sub) {
+      stopSpeech();
+      currentSubTab = sub;
       playSoundEffect('click');
       const tabs = ['pillars', 'hazards', 'ppe'];
       tabs.forEach(t => {
@@ -590,10 +646,10 @@
         const btn = document.getElementById('subtab-btn-' + t);
         if (t === sub) {
           el.classList.remove('hidden');
-          btn.className = 'px-4 py-2 rounded-xl text-sm font-bold bg-sky-50 text-sky-700 border border-sky-200 transition';
+          btn.className = 'min-h-[44px] px-3 sm:px-4 py-2 rounded-xl text-sm font-bold bg-sky-50 text-sky-700 border border-sky-200 transition';
         } else {
           el.classList.add('hidden');
-          btn.className = 'px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition';
+          btn.className = 'min-h-[44px] px-3 sm:px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition';
         }
       });
     }
@@ -608,7 +664,7 @@
 
     function speakPillar(idx) {
       playSoundEffect('click');
-      speakText(PILLARS_DATA[idx].body);
+      speakText(PILLARS_DATA[idx].body, 'speechStatusGlobal');
     }
 
     // ----------------------------------------------------
@@ -626,7 +682,7 @@
           desc: 'การกรีดกระดาษโดยดันใบมีดออกมาเกิน 1 ข้อ และไม่มีแผ่นรองตัด เสี่ยงใบมีดหักกระเด็นเข้าตาหรือบาดนิ้วลึก',
           risk: 'สูงมาก (เสี่ยงบาดเจ็บฉับพลัน)',
           consequence: 'ใบมีดคัตเตอร์หักดีดใส่ดวงตา หรือมีดแฉลบเข้าเนื้อนิ้วมือ เสียเลือดมากและติดเชื้อ',
-          solution: '1. ดันใบมีดออกเพียง 1 ข้อล็อกพอดี\\n2. วางแผ่นรองตัดใต้ชิ้นงานเสมอ\\n3. ใช้ไม้บรรทัดเหล็กและวางนิ้วมือให้อยู่ห่างจากแนวคมมีด',
+          solution: '1. ดันใบมีดออกเพียง 1 ข้อล็อกพอดี\n2. วางแผ่นรองตัดใต้ชิ้นงานเสมอ\n3. ใช้ไม้บรรทัดเหล็กและวางนิ้วมือให้อยู่ห่างจากแนวคมมีด',
           golden: 'มือกดไม้บรรทัดต้องอยู่หลังแนวใบมีดเสมอ และอย่าใช้มีดกรีดเข้าหาตัวเอง'
         },
         safe: {
@@ -650,7 +706,7 @@
           desc: 'ใช้ค้อนที่หัวคลอนหลวมในการตอกตะปู และไม่สวมแว่นตานิรภัย เสี่ยงหัวค้อนหลุดลอยใส่เพื่อนหรือเศษไม้กระเด็นเข้าตา',
           risk: 'วิกฤต (เสี่ยงกระแทกและบาดเจ็บรุนแรง)',
           consequence: 'หัวค้อนหลุดกระแทกศีรษะหรือใบหน้า เศษตะปูงอกระเด็นเข้าตาอาจทำให้ตาบอดได้',
-          solution: '1. เปลี่ยนใช้ค้อนที่ด้ามแน่นสมบูรณ์\\n2. สวมแว่นตานิรภัยทุกครั้งที่ตอกหรือเลื่อยไม้\\n3. ยึดจับชิ้นงานด้วยปากกาจับไม้ ไม่ใช้มือเปล่าจับใกล้ตะปู',
+          solution: '1. เปลี่ยนใช้ค้อนที่ด้ามแน่นสมบูรณ์\n2. สวมแว่นตานิรภัยทุกครั้งที่ตอกหรือเลื่อยไม้\n3. ยึดจับชิ้นงานด้วยปากกาจับไม้ ไม่ใช้มือเปล่าจับใกล้ตะปู',
           golden: 'ทุกครั้งที่จับค้อนหรือเลื่อย ต้องมีแว่นตานิรภัยอยู่บนใบหน้าเสมอ'
         },
         safe: {
@@ -674,7 +730,7 @@
           desc: 'วางปืนกาวร้อนแนบกับพื้นโต๊ะไม้โดยไม่มีขาตั้งรอง สายไฟตึงพาดขวางทางเดิน เสี่ยงมีคนสะดุดดึงปืนกาวร้อนตกใส่ขา',
           risk: 'สูง (เสี่ยงไฟลวกผิวหนังและไฟฟ้าลัดวงจร)',
           consequence: 'กาวร้อนอุณหภูมิกว่า 150 องศาเซลเซียสลวกผิวหนังเป็นตุ่มพอง หรือสายไฟขาดทำให้เกิดไฟดูด',
-          solution: '1. วางปืนกาวบนขาตั้งโลหะและมีถาดกระดาษรองกาวหยด\\n2. จัดสายไฟชิดผนัง ไม่พาดทางเดิน\\n3. ถอดปลั๊กออกทันทีเมื่อใช้งานเสร็จ',
+          solution: '1. วางปืนกาวบนขาตั้งโลหะและมีถาดกระดาษรองกาวหยด\n2. จัดสายไฟชิดผนัง ไม่พาดทางเดิน\n3. ถอดปลั๊กออกทันทีเมื่อใช้งานเสร็จ',
           golden: 'ห้ามสัมผัสปลายโลหะของปืนกาวด้วยมือเปล่าเด็ดขาด เพราะร้อนจัดเทียบเท่าน้ำเดือด'
         },
         safe: {
@@ -698,7 +754,7 @@
           desc: 'ถูพื้นเปียกแฉะแต่ไม่ตั้งป้ายเตือนระวังลื่น เครื่องมือของมีคมวางปนอยู่ในถังขยะหรือกองเศษผ้า เสี่ยงคนเหยียบหรือบาดมือ',
           risk: 'ปานกลางถึงสูง (เสี่ยงลื่นล้มและของมีคมทิ่มแทง)',
           consequence: 'ลื่นล้มศีรษะฟาดพื้น หรือหยิบกองผ้าแล้วโดนเศษใบมีดที่ซ่อนอยู่บาดฝ่ามือลึก',
-          solution: '1. ตั้งป้ายเตือนสีเหลือง \"ระวังพื้นลื่น\" ทันทีที่ทำความสะอาด\\n2. คัดแยกขยะมีคมใส่ขวดพลาสติกแข็งหรือห่อกระดาษก่อนทิ้ง\\n3. เช็ดพื้นให้แห้งสนิทก่อนเปิดให้เดินผ่าน',
+          solution: '1. ตั้งป้ายเตือนสีเหลือง "ระวังพื้นลื่น" ทันทีที่ทำความสะอาด\n2. คัดแยกขยะมีคมใส่ขวดพลาสติกแข็งหรือห่อกระดาษก่อนทิ้ง\n3. เช็ดพื้นให้แห้งสนิทก่อนเปิดให้เดินผ่าน',
           golden: 'เครื่องมือทุกชิ้นต้องมีบ้านของมัน และขยะมีคมห้ามทิ้งปนในถุงพลาสติกบาง'
         },
         safe: {
@@ -717,31 +773,33 @@
     let currentZoneState = 'danger';
 
     function selectZone(idx) {
+      stopSpeech();
       currentZoneIdx = idx;
       playSoundEffect('click');
       for (let i = 0; i < 4; i++) {
         const btn = document.getElementById('zone-btn-' + i);
         if (i === idx) {
-          btn.className = 'px-3 py-1.5 rounded-xl text-xs font-bold border transition bg-sky-50 text-sky-700 border-sky-300';
+          btn.className = 'min-h-[44px] px-3 py-1.5 rounded-xl text-xs font-bold border transition bg-sky-50 text-sky-700 border-sky-300';
         } else {
-          btn.className = 'px-3 py-1.5 rounded-xl text-xs font-bold border transition text-slate-600 border-slate-200 hover:bg-slate-50';
+          btn.className = 'min-h-[44px] px-3 py-1.5 rounded-xl text-xs font-bold border transition text-slate-600 border-slate-200 hover:bg-slate-50';
         }
       }
       renderZone();
     }
 
     function setZoneState(st) {
+      stopSpeech();
       currentZoneState = st;
       playSoundEffect(st === 'safe' ? 'correct' : 'wrong');
       const btnDanger = document.getElementById('btn-state-danger');
       const btnSafe = document.getElementById('btn-state-safe');
 
       if (st === 'danger') {
-        btnDanger.className = 'px-3 py-1 rounded-lg text-xs font-bold bg-rose-600 text-white shadow-sm transition';
-        btnSafe.className = 'px-3 py-1 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition';
+        btnDanger.className = 'min-h-[44px] px-3 py-1 rounded-lg text-xs font-bold bg-rose-600 text-white shadow-sm transition';
+        btnSafe.className = 'min-h-[44px] px-3 py-1 rounded-lg text-xs font-bold text-slate-300 hover:text-white transition';
       } else {
-        btnSafe.className = 'px-3 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white shadow-sm transition';
-        btnDanger.className = 'px-3 py-1 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition';
+        btnSafe.className = 'min-h-[44px] px-3 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white shadow-sm transition';
+        btnDanger.className = 'min-h-[44px] px-3 py-1 rounded-lg text-xs font-bold text-slate-300 hover:text-white transition';
       }
       renderZone();
     }
@@ -753,7 +811,7 @@
       document.getElementById('zone-watermark').innerText = z.watermark;
       document.getElementById('zone-icon').innerText = currentZoneState === 'danger' ? '⚠️' : '🛡️';
       document.getElementById('zone-badge').innerText = data.badge;
-      document.getElementById('zone-badge').className = currentZoneState === 'danger' 
+      document.getElementById('zone-badge').className = currentZoneState === 'danger'
         ? 'px-3 py-1 rounded-full text-xs font-bold bg-amber-500 text-slate-950 flex items-center gap-1'
         : 'px-3 py-1 rounded-full text-xs font-bold bg-emerald-400 text-slate-950 flex items-center gap-1';
 
@@ -780,7 +838,7 @@
     function speakCurrentZone() {
       const z = ZONES_DATA[currentZoneIdx];
       const data = currentZoneState === 'danger' ? z.danger : z.safe;
-      speakText(data.title + '. ' + data.desc + '. ข้อแนะนำ: ' + data.golden);
+      speakText(data.title + '. ' + data.desc + '. ข้อแนะนำ: ' + data.golden, 'speechStatusGlobal');
     }
 
     // ----------------------------------------------------
@@ -828,15 +886,16 @@
     let selectedPpeIds = new Set();
 
     function selectMission(idx) {
+      stopSpeech();
       currentMissionIdx = idx;
       selectedPpeIds.clear();
       playSoundEffect('click');
       for (let i = 0; i < 3; i++) {
         const btn = document.getElementById('mis-btn-' + i);
         if (i === idx) {
-          btn.className = 'px-3.5 py-1.5 rounded-xl text-xs font-bold border transition bg-sky-50 text-sky-700 border-sky-300';
+          btn.className = 'min-h-[44px] px-3.5 py-1.5 rounded-xl text-xs font-bold border transition bg-sky-50 text-sky-700 border-sky-300';
         } else {
-          btn.className = 'px-3.5 py-1.5 rounded-xl text-xs font-bold border transition text-slate-600 border-slate-200 hover:bg-slate-50';
+          btn.className = 'min-h-[44px] px-3.5 py-1.5 rounded-xl text-xs font-bold border transition text-slate-600 border-slate-200 hover:bg-slate-50';
         }
       }
       const mis = MISSIONS_DATA[idx];
@@ -844,7 +903,7 @@
       document.getElementById('mis-name').innerText = mis.name;
       document.getElementById('mis-desc').innerText = mis.desc;
       document.getElementById('ppe-feedback-msg').innerText = 'แตะเลือกอุปกรณ์ที่จำเป็น แล้วกดตรวจสอบความปลอดภัย';
-      document.getElementById('ppe-feedback-msg').className = 'text-sm font-bold text-slate-600';
+      document.getElementById('ppe-feedback-msg').className = 'text-sm font-bold text-slate-600 flex-1 min-w-[200px]';
       renderPpeGrid();
     }
 
@@ -863,15 +922,16 @@
       container.innerHTML = '';
       PPE_ITEMS.forEach(item => {
         const isSelected = selectedPpeIds.has(item.id);
-        const card = document.createElement('div');
+        const card = document.createElement('button');
+        card.type = 'button';
         card.onclick = () => togglePpe(item.id);
         card.className = isSelected
-          ? 'p-3 rounded-2xl border-2 border-sky-500 bg-sky-50 cursor-pointer text-center transition transform scale-105 shadow-sm'
-          : 'p-3 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-center transition';
+          ? 'min-h-[44px] p-3 rounded-2xl border-2 border-sky-500 bg-sky-50 cursor-pointer text-center transition shadow-sm'
+          : 'min-h-[44px] p-3 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-center transition';
         card.innerHTML = `
           <div class="text-3xl mb-1.5">${item.icon}</div>
           <div class="text-xs font-bold ${isSelected ? 'text-sky-700' : 'text-slate-700'}">${item.name}</div>
-          <div class="text-[10px] font-semibold mt-1 ${isSelected ? 'text-sky-600' : 'text-slate-400'}">${isSelected ? '✓ เลือกแล้ว' : '+ คลิกเลือก'}</div>
+          <div class="text-[11px] font-semibold mt-1 ${isSelected ? 'text-sky-600' : 'text-slate-500'}">${isSelected ? '✓ เลือกแล้ว' : '+ คลิกเลือก'}</div>
         `;
         container.appendChild(card);
       });
@@ -889,239 +949,42 @@
       if (allRequiredChosen && !hasRedundant) {
         playSoundEffect('fanfare');
         fb.innerHTML = '🎉 ถูกต้องครบถ้วน 100%! ' + mis.explanation;
-        fb.className = 'text-sm font-bold text-emerald-600';
-        speakText('ยอดเยี่ยมมาก คุณเลือกอุปกรณ์ความปลอดภัยได้ถูกต้องครบถ้วนสมบูรณ์');
+        fb.className = 'text-sm font-bold text-emerald-700 flex-1 min-w-[200px]';
+        speakText('ยอดเยี่ยมมาก คุณเลือกอุปกรณ์ความปลอดภัยได้ถูกต้องครบถ้วนสมบูรณ์', 'speechStatusGlobal');
       } else if (allRequiredChosen && hasRedundant) {
         playSoundEffect('correct');
         fb.innerHTML = '👍 อุปกรณ์จำเป็นครบแล้ว แต่เลือกอุปกรณ์ที่ไม่จำเป็นเกินมาเล็กน้อย: ' + mis.explanation;
-        fb.className = 'text-sm font-bold text-amber-600';
+        fb.className = 'text-sm font-bold text-amber-700 flex-1 min-w-[200px]';
       } else {
         playSoundEffect('wrong');
         const missingCount = required.filter(id => !selected.includes(id)).length;
         fb.innerHTML = '⚠️ ยังขาดอุปกรณ์จำเป็นอีก ' + missingCount + ' รายการ กรุณาตรวจสอบใหม่อีกครั้ง';
-        fb.className = 'text-sm font-bold text-rose-600';
+        fb.className = 'text-sm font-bold text-rose-700 flex-1 min-w-[200px]';
       }
     }
 
-    // ----------------------------------------------------
-    // PRACTICE MODE: 6 QUESTIONS QUIZ
-    // ----------------------------------------------------
-    const QUIZ_QUESTIONS = [
-      {
-        topic: 'การตรวจสภาพเครื่องมือ',
-        title: 'หากพบว่ากรรไกรมีน็อตตรงกลางหลวม โยกเยก และตัดกระดาษไม่เข้า ควรปฏิบัติอย่างไรจึงจะถูกต้องและปลอดภัยที่สุด?',
-        choices: [
-          { text: 'หยุดใช้งานทันทีและนำไปแจ้งคุณครูเพื่อซ่อมแซมหรือเปลี่ยนใหม่', correct: true },
-          { text: 'ออกแรงบีบตัดให้แน่นขึ้นเพื่อให้กระดาษขาดตามต้องการ', correct: false },
-          { text: 'นำก้อนหินหรือค้อนมาเคาะน็อตเองโดยไม่ถามใคร', correct: false },
-          { text: 'ซ่อนกรรไกรไว้ใต้โต๊ะแล้วหยิบของเพื่อนมาใช้แทนโดยไม่บอก', correct: false }
-        ],
-        explain: 'เครื่องมือชำรุดห้ามฝืนใช้งานเด็ดขาด เพราะอาจทำให้กระดาษแฉลบหรือบาดโดนนิ้วมือ ควรหยุดใช้และแจ้งคุณครูทันที'
-      },
-      {
-        topic: 'ความปลอดภัยจากของมีคม',
-        title: 'ในการใช้คัตเตอร์กรีดตัดกระดาษแข็งร่วมกับไม้บรรทัดเหล็ก กฎความปลอดภัยข้อใดสำคัญที่สุด?',
-        choices: [
-          { text: 'ดันใบมีดยื่นออกมายาว ๆ เพื่อให้กรีดขาดในครั้งเดียว', correct: false },
-          { text: 'วางนิ้วมือซ้ายที่กดไม้บรรทัดให้อยู่หลังแนวมีด และมีแผ่นรองตัดใต้กระดาษเสมอ', correct: true },
-          { text: 'ใช้มีดกรีดเข้าหาลำตัวเพื่อให้มีแรงดึงมากขึ้น', correct: false },
-          { text: 'ตัดบนโต๊ะไม้เปล่าๆ โดยไม่ต้องใช้แผ่นรองตัด', correct: false }
-        ],
-        explain: 'ต้องดันใบมีดเพียง 1 ข้อ วางแผ่นรองตัด และวางนิ้วมือกดไม้บรรทัดให้อยู่ห่างจากแนวใบมีดเสมอ เพื่อป้องกันมีดแฉลบเข้ามือ'
-      },
-      {
-        topic: 'ความปลอดภัยจากความร้อนและไฟฟ้า',
-        title: 'เมื่อใช้งานปืนกาวร้อนในห้องปฏิบัติการ ข้อควรระวังสูงสุดคือข้อใด?',
-        choices: [
-          { text: 'ห้ามใช้มือเปล่าสัมผัสปลายโลหะของปืนกาว และวางบนขาตั้งทุกครั้งที่วางมือ', correct: true },
-          { text: 'วางปืนกาวนอนราบไปกับหนังสือหรือกองเศษผ้า', correct: false },
-          { text: 'กระชากสายไฟแรง ๆ เมื่อต้องการถอดปลั๊กเพื่อความรวดเร็ว', correct: false },
-          { text: 'นำปืนกาวไปจุ่มน้ำเพื่อเร่งให้เย็นเร็วขึ้น', correct: false }
-        ],
-        explain: 'ปลายปืนกาวร้อนมีความร้อนสูงกว่า 150 องศาเซลเซียส สัมผัสอาจทำให้ผิวหนังพองได้ ต้องวางบนขาตั้งโลหะเสมอ และห้ามนำเครื่องใช้ไฟฟ้าไปจุ่มน้ำ'
-      },
-      {
-        topic: 'การจัดพื้นที่ทำงานและการป้องกันอุบัติเหตุ',
-        title: 'หากพบว่ามีเพื่อนทำน้ำหรือสารเคมีหกเลอะพื้นทางเดินในห้องงานช่าง ควรทำอย่างไรเป็นลำดับแรก?',
-        choices: [
-          { text: 'เดินข้ามไปโดยไม่สนใจ เพราะไม่ใช่เวรทำความสะอาดของเรา', correct: false },
-          { text: 'บอกเพื่อนให้ระวัง และรีบนำป้ายเตือนมาวางพร้อมเช็ดพื้นให้แห้งทันที', correct: true },
-          { text: 'รอจนหมดชั่วโมงเรียนค่อยทำความสะอาดพร้อมกัน', correct: false },
-          { text: 'นำกระดาษหนังสือพิมพ์แผ่นเดียวมาคลุมปิดทับไว้', correct: false }
-        ],
-        explain: 'พื้นเปียกเป็นสาเหตุหลักของการลื่นล้มและอาจชนโต๊ะเครื่องมือมีคม ควรรีบเตือนผู้อื่น ตั้งป้ายเตือน และเช็ดให้แห้งสนิททันที'
-      },
-      {
-        topic: 'การปฐมพยาบาลเบื้องต้น',
-        title: 'หากเกิดอุบัติเหตุโดนคัตเตอร์บาดปลายนิ้วมือเป็นแผลเล็กน้อยและมีเลือดไหล ควรทำอย่างไร?',
-        choices: [
-          { text: 'ล้างแผลด้วยน้ำสะอาด ใช้ผ้าสะอาดกดห้ามเลือด และรีบแจ้งคุณครูทันที', correct: true },
-          { text: 'แอบเอานิ้วอมไว้ในปากแล้วไม่บอกใครเพราะกลัวโดนดุ', correct: false },
-          { text: 'นำดินหรือขี้เลื่อยมาพอกปากแผลเพื่อให้เลือดหยุดไหล', correct: false },
-          { text: 'ปล่อยทิ้งไว้ให้แห้งเองแล้วทำงานต่อจนเสร็จชั่วโมง', correct: false }
-        ],
-        explain: 'ห้ามแอบซ่อนแผล ต้องล้างน้ำสะอาด กดห้ามเลือด และแจ้งคุณครูเพื่อใส่ยาและทำแผลอย่างถูกสุขอนามัย ป้องกันการติดเชื้อ'
-      },
-      {
-        topic: 'วินัยและการจัดเก็บหลังทำงาน',
-        title: 'เมื่อทำงานช่างหรือประดิษฐ์ชิ้นงานเสร็จเรียบร้อยแล้ว กิจวัตรความปลอดภัยที่สำคัญที่สุดคืออะไร?',
-        choices: [
-          { text: 'ปิดสวิตช์ ถอดปลั๊ก เช็ดทำความสะอาด แยกขยะมีคม และเก็บเครื่องมือเข้าที่เดิม', correct: true },
-          { text: 'วางเครื่องมือทิ้งไว้บนโต๊ะเพื่อให้ห้องอื่นมาใช้ต่อได้เลย', correct: false },
-          { text: 'โยนเศษใบมีดและตะปูลงในถุงขยะพลาสติกทั่วไปทันที', correct: false },
-          { text: 'รีบวิ่งออกจากห้องทันทีที่ได้ยินเสียงกริ่งหมดเวลา', correct: false }
-        ],
-        explain: 'การจัดเก็บเครื่องมือเข้าที่ ทำความสะอาดโต๊ะ และคัดแยกขยะมีคม เป็นหัวใจสำคัญของ 5 ส. ที่ทำให้ห้องปฏิบัติการปลอดภัยสำหรับทุกคน'
-      }
-    ];
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stopSpeech();
+    });
+    window.addEventListener('pagehide', stopSpeech);
 
-    let quizCurrentIdx = 0;
-    let quizScore = 0;
-    let quizAnswered = false;
-
-    function initQuiz() {
-      quizCurrentIdx = 0;
-      quizScore = 0;
-      quizAnswered = false;
-      document.getElementById('quiz-active-box').classList.remove('hidden');
-      document.getElementById('quiz-result-box').classList.add('hidden');
-      renderQuestion();
-    }
-
-    function renderQuestion() {
-      quizAnswered = false;
-      const q = QUIZ_QUESTIONS[quizCurrentIdx];
-      document.getElementById('quiz-curr-q').innerText = (quizCurrentIdx + 1);
-      document.getElementById('quiz-q-topic').innerText = q.topic;
-      document.getElementById('quiz-q-title').innerText = q.title;
-
-      const fbBox = document.getElementById('quiz-feedback-box');
-      fbBox.className = 'hidden rounded-2xl p-4 border transition';
-
-      const btnNext = document.getElementById('quiz-btn-next');
-      btnNext.disabled = true;
-      btnNext.className = 'px-6 py-2.5 bg-slate-300 text-white rounded-xl text-sm font-bold transition flex items-center gap-2 cursor-not-allowed';
-
-      const container = document.getElementById('quiz-choices-container');
-      container.innerHTML = '';
-      q.choices.forEach((c, idx) => {
-        const btn = document.createElement('button');
-        btn.className = 'w-full p-4 text-left rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 hover:border-sky-300 transition text-sm font-medium text-slate-800 flex items-center justify-between group shadow-sm';
-        btn.innerHTML = `
-          <div class="flex items-center gap-3">
-            <span class="w-7 h-7 rounded-xl bg-slate-100 group-hover:bg-sky-100 group-hover:text-sky-700 text-slate-500 font-bold text-xs flex items-center justify-center transition">${String.fromCharCode(65 + idx)}</span>
-            <span>${c.text}</span>
-          </div>
-          <span class="choice-icon text-lg hidden"></span>
-        `;
-        btn.onclick = () => selectQuizChoice(idx, btn);
-        container.appendChild(btn);
-      });
-    }
-
-    function selectQuizChoice(choiceIdx, btnEl) {
-      if (quizAnswered) return;
-      quizAnswered = true;
-
-      const q = QUIZ_QUESTIONS[quizCurrentIdx];
-      const isCorrect = q.choices[choiceIdx].correct;
-      const choicesBtns = document.getElementById('quiz-choices-container').children;
-
-      if (isCorrect) {
-        quizScore++;
-        playSoundEffect('correct');
-        btnEl.className = 'w-full p-4 text-left rounded-2xl border-2 border-emerald-500 bg-emerald-50 text-sm font-bold text-emerald-900 flex items-center justify-between shadow-sm';
-        btnEl.querySelector('.choice-icon').innerText = '✅';
-        btnEl.querySelector('.choice-icon').classList.remove('hidden');
-      } else {
-        playSoundEffect('wrong');
-        btnEl.className = 'w-full p-4 text-left rounded-2xl border-2 border-rose-500 bg-rose-50 text-sm font-bold text-rose-900 flex items-center justify-between shadow-sm';
-        btnEl.querySelector('.choice-icon').innerText = '❌';
-        btnEl.querySelector('.choice-icon').classList.remove('hidden');
-
-        q.choices.forEach((c, idx) => {
-          if (c.correct) {
-            choicesBtns[idx].className = 'w-full p-4 text-left rounded-2xl border-2 border-emerald-400 bg-emerald-50/70 text-sm font-bold text-emerald-800 flex items-center justify-between shadow-sm';
-            choicesBtns[idx].querySelector('.choice-icon').innerText = '✅';
-            choicesBtns[idx].querySelector('.choice-icon').classList.remove('hidden');
-          }
-        });
-      }
-
-      const fbBox = document.getElementById('quiz-feedback-box');
-      fbBox.classList.remove('hidden');
-      if (isCorrect) {
-        fbBox.className = 'rounded-2xl p-4 border border-emerald-200 bg-emerald-50 text-emerald-900 transition flex items-start gap-3';
-        document.getElementById('quiz-fb-icon').innerText = '🎉';
-        document.getElementById('quiz-fb-title').innerText = 'ตอบถูกต้อง!';
-      } else {
-        fbBox.className = 'rounded-2xl p-4 border border-rose-200 bg-rose-50 text-rose-900 transition flex items-start gap-3';
-        document.getElementById('quiz-fb-icon').innerText = '💡';
-        document.getElementById('quiz-fb-title').innerText = 'ข้อคิดความปลอดภัย:';
-      }
-      document.getElementById('quiz-fb-desc').innerText = q.explain;
-
-      const btnNext = document.getElementById('quiz-btn-next');
-      btnNext.disabled = false;
-      btnNext.className = 'px-6 py-2.5 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-sm font-bold shadow transition flex items-center gap-2 cursor-pointer';
-    }
-
-    function nextQuestion() {
-      if (quizCurrentIdx < QUIZ_QUESTIONS.length - 1) {
-        quizCurrentIdx++;
-        playSoundEffect('click');
-        renderQuestion();
-      } else {
-        showQuizResult();
-      }
-    }
-
-    function showQuizResult() {
-      playSoundEffect('fanfare');
-      document.getElementById('quiz-active-box').classList.add('hidden');
-      document.getElementById('quiz-result-box').classList.remove('hidden');
-
-      document.getElementById('res-score').innerText = quizScore;
-      const titleEl = document.getElementById('res-grade-title');
-      const descEl = document.getElementById('res-grade-desc');
-      const medalEl = document.getElementById('res-medal-icon');
-      const rankEl = document.getElementById('res-rank');
-
-      if (quizScore === 6) {
-        medalEl.innerText = '🥇';
-        rankEl.innerText = 'A+ ผู้เชี่ยวชาญความปลอดภัย';
-        rankEl.className = 'text-base font-bold text-emerald-600';
-        titleEl.innerText = 'ยอดเยี่ยมระดับมืออาชีพ! 100%';
-        descEl.innerText = 'คุณมีความเข้าใจในกฎความปลอดภัย การใช้เครื่องมือ และการจัดการเหตุฉุกเฉินอย่างสมบูรณ์แบบ';
-      } else if (quizScore >= 4) {
-        medalEl.innerText = '🥈';
-        rankEl.innerText = 'B+ มีความรอบคอบดีเยี่ยม';
-        rankEl.className = 'text-base font-bold text-sky-600';
-        titleEl.innerText = 'ผ่านเกณฑ์ความปลอดภัยดีมาก!';
-        descEl.innerText = 'คุณมีความรอบคอบและเข้าใจหลัก 5 ส. เป็นอย่างดี ปฏิบัติงานได้อย่างมั่นใจ';
-      } else {
-        medalEl.innerText = '🥉';
-        rankEl.innerText = 'C ควรทบทวนเพิ่มความระมัดระวัง';
-        rankEl.className = 'text-base font-bold text-amber-600';
-        titleEl.innerText = 'ควรทบทวนความปลอดภัยเพิ่มเติม';
-        descEl.innerText = 'ลองกลับไปศึกษา 4 เสาหลักและสำรวจจุดเสี่ยง 4 โซนอีกครั้ง เพื่อความปลอดภัยสูงสุดก่อนลงมือทำงานช่าง';
-      }
-    }
-
-    function restartQuiz() {
-      initQuiz();
-    }
-
-    function speakQuestion() {
-      const q = QUIZ_QUESTIONS[quizCurrentIdx];
-      speakText(q.topic + '. คำถาม: ' + q.title);
-    }
+    window.getState = () => Object.freeze({
+      slug: MEDIA_SLUG,
+      mode: currentMode,
+      subTab: currentSubTab,
+      soundEnabled: soundEnabled,
+      totalItems: SAFETY_ITEMS.length,
+      bucketsCount: SAFETY_BUCKETS.length,
+      classify: classifySession ? classifySession.getState() : null,
+      reducedMotion: typeof window.matchMedia === 'function'
+        ? Boolean(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+        : false
+    });
 
     // Init on Page Load
     window.addEventListener('DOMContentLoaded', () => {
       renderZone();
       selectMission(0);
-      initQuiz();
     });
   </script>
 </body>
