@@ -2,6 +2,7 @@ class_name ArenaEnemy
 extends CharacterBody2D
 
 signal defeated(enemy: ArenaEnemy)
+signal boss_attack_requested(boss: ArenaEnemy, target_pos: Vector2)
 
 const HIT_FLASH_SHADER: Shader = preload("res://shaders/hit_flash.gdshader")
 const ARCHETYPES: Dictionary = {
@@ -14,6 +15,7 @@ const ARCHETYPES: Dictionary = {
 
 var enemy_type: String = "slime"
 var display_name: String = "สไลม์ตัวเลข"
+var boss_act: int = 0
 var hp: float = 22.0
 var max_hp: float = 22.0
 var move_speed: float = 56.0
@@ -25,16 +27,19 @@ var burst_color: Color = Color("#38bdf8")
 var is_boss: bool = false
 var alive: bool = true
 var orb_cd: float = 0.0
+var slow_timer: float = 0.0
 var target_hero: Node2D
 
 var _anim: AnimatedSprite2D
 var _mat: ShaderMaterial
 var _hp_fill: ColorRect
 var _flash: float = 0.0
+var _boss_atk_cd: float = 3.8
 
 func setup(p_type: String, act_hp_mult: float, act_spd_mult: float, p_boss: bool = false, p_custom_name: String = "", p_act_idx: int = 0) -> void:
 	enemy_type = p_type
 	is_boss = p_boss
+	boss_act = p_act_idx
 	var def: Dictionary = ARCHETYPES.get(p_type, ARCHETYPES["slime"])
 	display_name = p_custom_name if not p_custom_name.is_empty() else str(def["name"])
 	max_hp = float(def["hp"]) * act_hp_mult * ((1.0 + float(p_act_idx) * 0.45) if p_boss else 1.0)
@@ -84,11 +89,21 @@ func _ready() -> void:
 		_hp_fill.size = Vector2(46, 3)
 		add_child(_hp_fill)
 
+func apply_slow(sec: float) -> void:
+	slow_timer = maxf(slow_timer, sec)
+
 func _physics_process(delta: float) -> void:
 	if not alive:
 		return
 	if orb_cd > 0.0:
 		orb_cd = maxf(0.0, orb_cd - delta)
+	if slow_timer > 0.0:
+		slow_timer = maxf(0.0, slow_timer - delta)
+		if _anim:
+			_anim.modulate = Color("#67e8f9")
+	elif _anim:
+		_anim.modulate = Color.WHITE
+
 	if _flash > 0.0:
 		_flash = maxf(0.0, _flash - delta * 7.5)
 		if _mat:
@@ -98,14 +113,21 @@ func _physics_process(delta: float) -> void:
 		return
 	var dir: Vector2 = target_hero.global_position - global_position
 	var dist: float = dir.length()
+	var eff_spd: float = move_speed * (0.6 if slow_timer > 0.0 else 1.0)
 	if dist > 1.0:
-		var v: Vector2 = (dir / dist) * move_speed
+		var v: Vector2 = (dir / dist) * eff_spd
 		velocity = v
 		if _anim:
 			_anim.flip_h = v.x < 0.0
 	else:
 		velocity = Vector2.ZERO
 	move_and_slide()
+
+	if is_boss:
+		_boss_atk_cd -= delta
+		if _boss_atk_cd <= 0.0 and dist < 340.0:
+			_boss_atk_cd = 4.4
+			boss_attack_requested.emit(self, target_hero.global_position)
 
 	if dist < hit_radius + 11.0 and target_hero is MathHero:
 		(target_hero as MathHero).trigger_hurt(contact_dmg, display_name)

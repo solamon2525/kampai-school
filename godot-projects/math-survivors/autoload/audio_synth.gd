@@ -5,16 +5,27 @@ const SAMPLE_RATE: int = 22050
 var sfx_enabled: bool = true:
 	set(val):
 		sfx_enabled = val
-		_apply_bus("SFX", sfx_enabled)
+		_apply_bus("SFX", sfx_enabled, sfx_volume)
 
 var bgm_enabled: bool = true:
 	set(val):
 		bgm_enabled = val
-		_apply_bus("Music", bgm_enabled)
+		_apply_bus("Music", bgm_enabled, bgm_volume)
+
+var sfx_volume: float = 1.0:
+	set(val):
+		sfx_volume = clampf(val, 0.0, 1.0)
+		_apply_bus("SFX", sfx_enabled, sfx_volume)
+
+var bgm_volume: float = 0.8:
+	set(val):
+		bgm_volume = clampf(val, 0.0, 1.0)
+		_apply_bus("Music", bgm_enabled, bgm_volume)
 
 var _sfx_player: AudioStreamPlayer
 var _bgm_player: AudioStreamPlayer
 var _streams: Dictionary = {}
+var _current_bgm: String = ""
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -31,33 +42,41 @@ func _ready() -> void:
 	_build_sfx()
 	_build_bgm("arena")
 
-func _apply_bus(bus_name: StringName, enabled: bool) -> void:
+func _apply_bus(bus_name: StringName, enabled: bool, linear_vol: float) -> void:
 	var idx: int = AudioServer.get_bus_index(bus_name)
-	if idx >= 0:
-		AudioServer.set_bus_mute(idx, not enabled)
+	if idx < 0:
+		return
+	var should_mute: bool = (not enabled) or linear_vol <= 0.001
+	AudioServer.set_bus_mute(idx, should_mute)
+	if not should_mute:
+		AudioServer.set_bus_volume_linear(idx, linear_vol)
 
 func play_sfx(key: String, pitch_var: float = 0.05) -> void:
-	if not sfx_enabled or not _streams.has(key):
+	if not sfx_enabled or sfx_volume <= 0.001 or not _streams.has(key):
 		return
 	_sfx_player.stream = _streams[key]
 	_sfx_player.pitch_scale = randf_range(1.0 - pitch_var, 1.0 + pitch_var)
 	_sfx_player.play()
 
 func play_gem(streak_cnt: int) -> void:
-	if not sfx_enabled or not _streams.has("gem"):
+	if not sfx_enabled or sfx_volume <= 0.001 or not _streams.has("gem"):
 		return
 	_sfx_player.stream = _streams["gem"]
 	_sfx_player.pitch_scale = minf(1.65, 1.0 + float(streak_cnt) * 0.06)
 	_sfx_player.play()
 
 func start_bgm(theme: String = "arena") -> void:
+	if _current_bgm == theme and _bgm_player.playing:
+		return
+	_current_bgm = theme
 	if not _streams.has("bgm_" + theme):
 		_build_bgm(theme)
 	_bgm_player.stream = _streams.get("bgm_" + theme, _streams.get("bgm_arena"))
-	if bgm_enabled and _bgm_player.stream:
+	if bgm_enabled and bgm_volume > 0.001 and _bgm_player.stream:
 		_bgm_player.play()
 
 func stop_bgm() -> void:
+	_current_bgm = ""
 	if _bgm_player.playing:
 		_bgm_player.stop()
 
@@ -65,20 +84,31 @@ func _build_sfx() -> void:
 	_streams["shoot"] = _synth_sweep(720.0, 340.0, 0.055, "triangle", 0.35)
 	_streams["hit"] = _synth_sweep(210.0, 105.0, 0.05, "square", 0.28)
 	_streams["lightning"] = _synth_sweep(1080.0, 260.0, 0.11, "sawtooth", 0.36)
+	_streams["dash"] = _synth_sweep(340.0, 960.0, 0.11, "sine", 0.42)
 	_streams["gem"] = _synth_sweep(587.33, 880.0, 0.065, "sine", 0.42)
 	_streams["hurt"] = _synth_sweep(170.0, 82.0, 0.16, "sawtooth", 0.50)
 	_streams["math_ok"] = _synth_notes([523.25, 659.25, 783.99, 1046.50], 0.085, "triangle", 0.55)
 	_streams["math_bad"] = _synth_notes([220.0, 155.56], 0.14, "sawtooth", 0.48)
 	_streams["levelup"] = _synth_notes([587.33, 739.99, 880.0, 1174.66], 0.095, "triangle", 0.55)
+	_streams["chest"] = _synth_notes([523.25, 659.25, 783.99, 987.77, 1318.51], 0.09, "triangle", 0.58)
 	_streams["boss"] = _synth_notes([220.0, 196.0, 220.0, 164.81], 0.14, "sawtooth", 0.52)
 
 func _build_bgm(theme: String) -> void:
 	var lead: Array[float] = [293.66, 349.23, 440.0, 523.25, 440.0, 392.0, 349.23, 392.0, 293.66, 349.23, 440.0, 587.33, 523.25, 440.0, 392.0, 329.63]
 	var bass: Array[float] = [146.83, 146.83, 174.61, 174.61, 130.81, 130.81, 196.00, 196.00]
-	if theme == "boss":
+	var step_sec: float = 0.17
+	if theme == "forest":
+		lead = [392.0, 493.88, 587.33, 659.25, 587.33, 493.88, 440.0, 493.88, 392.0, 493.88, 587.33, 783.99, 659.25, 587.33, 493.88, 440.0]
+		bass = [196.0, 196.0, 246.94, 246.94, 164.81, 164.81, 220.0, 220.0]
+		step_sec = 0.165
+	elif theme == "lava":
+		lead = [329.63, 392.0, 493.88, 466.16, 392.0, 329.63, 293.66, 329.63, 329.63, 392.0, 587.33, 493.88, 466.16, 392.0, 329.63, 246.94]
+		bass = [164.81, 164.81, 146.83, 146.83, 130.81, 130.81, 123.47, 146.83]
+		step_sec = 0.155
+	elif theme == "boss":
 		lead = [329.63, 440.0, 493.88, 523.25, 493.88, 440.0, 392.0, 329.63, 329.63, 440.0, 523.25, 659.25, 587.33, 523.25, 493.88, 392.0]
 		bass = [110.0, 110.0, 130.81, 130.81, 146.83, 146.83, 123.47, 123.47]
-	var step_sec: float = 0.17
+		step_sec = 0.145
 	var total_samples: int = int(float(SAMPLE_RATE) * step_sec * float(lead.size()))
 	var buf := PackedByteArray()
 	buf.resize(total_samples * 2)

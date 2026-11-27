@@ -40,102 +40,111 @@ static func _from_grid(grid: Array[String], pal: Dictionary, px_scale: int = 2) 
 					img.set_pixel(x * px_scale + dx, y * px_scale + dy, col)
 	return ImageTexture.create_from_image(img)
 
+static func _hero_pal(hero_id: String) -> Dictionary:
+	if hero_id == "knight":
+		return {"K": Color("#0f172a"), "B": Color("#059669"), "D": Color("#065f46"), "I": Color("#0d9488"), "Y": Color("#fde047"), "G": Color("#f59e0b"), "S": Color("#fed7aa"), "W": Color("#ffffff"), "C": Color("#5eead4")}
+	if hero_id == "inventor":
+		return {"K": Color("#0f172a"), "B": Color("#7c3aed"), "D": Color("#4c1d95"), "I": Color("#c026d3"), "Y": Color("#facc15"), "G": Color("#fb923c"), "S": Color("#fed7aa"), "W": Color("#ffffff"), "C": Color("#f472b6")}
+	return {"K": Color("#0f172a"), "B": Color("#2563eb"), "D": Color("#1e3a8a"), "I": Color("#4338ca"), "Y": Color("#facc15"), "G": Color("#f59e0b"), "S": Color("#fed7aa"), "W": Color("#ffffff"), "C": Color("#38bdf8")}
+
 static func _build(key: String) -> ImageTexture:
-	var wiz: Dictionary = {
-		"K": Color("#0f172a"),
-		"B": Color("#2563eb"),
-		"D": Color("#1e3a8a"),
-		"I": Color("#4338ca"),
-		"Y": Color("#facc15"),
-		"G": Color("#f59e0b"),
-		"S": Color("#fed7aa"),
-		"W": Color("#ffffff"),
-		"C": Color("#38bdf8"),
-	}
+	if key.begins_with("hero_"):
+		var parts: PackedStringArray = key.split("_")
+		# hero_idle_0 (mage) OR hero_knight_idle_0 / hero_inventor_run_1
+		var hid: String = "mage"
+		var pose: String = "idle_0"
+		if parts.size() >= 4:
+			hid = parts[1]
+			pose = parts[2] + "_" + parts[3]
+		elif parts.size() == 3:
+			pose = parts[1] + "_" + parts[2]
+		var pal: Dictionary = _hero_pal(hid)
+		match pose:
+			"idle_0":
+				return _from_grid([
+					".......KK.......",
+					"......KIIK......",
+					".....KIYYIK.....",
+					"....KIIIIIIK....",
+					"...KIIIIIIIIK...",
+					"..KYYYYYYYYYYK..",
+					".KKKKKSSSSKKKKK.",
+					"....KSSKKSSK....",
+					"....KSSSSSSK....",
+					"...KDBBBBBBDK...",
+					"..KDBBBYYBBBDK..",
+					"..KDBBBBBBBBDKYK",
+					"...KBBBBBBBBKGY.",
+					"...KDBBKKBBDK.K.",
+					"...KDDK..KDDK...",
+					"...KKK....KKK...",
+				], pal, 2)
+			"idle_1":
+				return _from_grid([
+					"................",
+					".......KK.......",
+					"......KIIK......",
+					".....KIYYIK.....",
+					"....KIIIIIIK....",
+					"...KIIIIIIIIK...",
+					"..KYYYYYYYYYYK..",
+					".KKKKKSSSSKKKKK.",
+					"....KSSKKSSK....",
+					"....KSSSSSSK....",
+					"...KDBBBBBBDK.YK",
+					"..KDBBBYYBBBDKGY",
+					"..KDBBBBBBBBDKK.",
+					"...KBBBBBBBBK...",
+					"...KDDK..KDDK...",
+					"...KKK....KKK...",
+				], pal, 2)
+			"run_0":
+				return _from_grid([
+					"......KK........",
+					".....KIIK.......",
+					"....KIYYIK......",
+					"...KIIIIIIK.....",
+					"..KIIIIIIIIK....",
+					".KYYYYYYYYYYK...",
+					"KKKKKSSSSKKKKK..",
+					"...KSSKKSSK.....",
+					"...KSSSSSSK.....",
+					"..KDBBBBBBDK....",
+					".KDBBBYYBBBDKYK.",
+					"..KBBBBBBBBKGY..",
+					"..KBBBK..KBBK...",
+					".KDDK......KDDK.",
+					".KKK........KKK.",
+					"................",
+				], pal, 2)
+			_:
+				return _from_grid([
+					".......KK.......",
+					"......KIIK......",
+					".....KIYYIK.....",
+					"....KIIIIIIK....",
+					"...KIIIIIIIIK...",
+					"..KYYYYYYYYYYK..",
+					".KKKKKSSSSKKKKK.",
+					"....KSSKKSSK....",
+					"....KSSSSSSK....",
+					"...KDBBBBBBDK...",
+					"..KDBBBYYBBBDKYK",
+					"...KBBBBBBBBKGY.",
+					"....KBBKKBBK.K..",
+					"....KDDKKDDK....",
+					"....KKK..KKK....",
+					"................",
+				], pal, 2)
+
 	match key:
-		"hero_idle_0":
-			return _from_grid([
-				".......KK.......",
-				"......KIIK......",
-				".....KIYYIK.....",
-				"....KIIIIIIK....",
-				"...KIIIIIIIIK...",
-				"..KYYYYYYYYYYK..",
-				".KKKKKSSSSKKKKK.",
-				"....KSSKKSSK....",
-				"....KSSSSSSK....",
-				"...KDBBBBBBDK...",
-				"..KDBBBYYBBBDK..",
-				"..KDBBBBBBBBDKYK",
-				"...KBBBBBBBBKGY.",
-				"...KDBBKKBBDK.K.",
-				"...KDDK..KDDK...",
-				"...KKK....KKK...",
-			], wiz, 2)
-		"hero_idle_1":
-			return _from_grid([
-				"................",
-				".......KK.......",
-				"......KIIK......",
-				".....KIYYIK.....",
-				"....KIIIIIIK....",
-				"...KIIIIIIIIK...",
-				"..KYYYYYYYYYYK..",
-				".KKKKKSSSSKKKKK.",
-				"....KSSKKSSK....",
-				"....KSSSSSSK....",
-				"...KDBBBBBBDK.YK",
-				"..KDBBBYYBBBDKGY",
-				"..KDBBBBBBBBDKK.",
-				"...KBBBBBBBBK...",
-				"...KDDK..KDDK...",
-				"...KKK....KKK...",
-			], wiz, 2)
-		"hero_run_0":
-			return _from_grid([
-				"......KK........",
-				".....KIIK.......",
-				"....KIYYIK......",
-				"...KIIIIIIK.....",
-				"..KIIIIIIIIK....",
-				".KYYYYYYYYYYK...",
-				"KKKKKSSSSKKKKK..",
-				"...KSSKKSSK.....",
-				"...KSSSSSSK.....",
-				"..KDBBBBBBDK....",
-				".KDBBBYYBBBDKYK.",
-				"..KBBBBBBBBKGY..",
-				"..KBBBK..KBBK...",
-				".KDDK......KDDK.",
-				".KKK........KKK.",
-				"................",
-			], wiz, 2)
-		"hero_run_1":
-			return _from_grid([
-				".......KK.......",
-				"......KIIK......",
-				".....KIYYIK.....",
-				"....KIIIIIIK....",
-				"...KIIIIIIIIK...",
-				"..KYYYYYYYYYYK..",
-				".KKKKKSSSSKKKKK.",
-				"....KSSKKSSK....",
-				"....KSSSSSSK....",
-				"...KDBBBBBBDK...",
-				"..KDBBBYYBBBDKYK",
-				"...KBBBBBBBBKGY.",
-				"....KBBKKBBK.K..",
-				"....KDDKKDDK....",
-				"....KKK..KKK....",
-				"................",
-			], wiz, 2)
 		"slime_0":
 			var p := {"K": Color("#0f172a"), "C": Color("#38bdf8"), "L": Color("#bae6fd"), "D": Color("#0284c7"), "W": Color("#ffffff")}
 			return _from_grid([
 				"....KKKKKK....",
 				"..KKCCCCCCKK..",
-				".KCLLCCCCCCCk.".replace("k","K"),
-				"KCLWWCCCCCCCCC".replace("C","C").substr(0,13) + "K",
+				".KCLLCCCCCCCK.",
+				"KCLWWCCCCCCCCK",
 				"KCCWKCCCCCCWKK",
 				"KCCCKCCCCCCCK.",
 				"KCCCCCCCCCCDK.",
@@ -271,88 +280,58 @@ static func _build(key: String) -> ImageTexture:
 				"..KDDKKKKDDK..",
 				"..KKK....KKK..",
 			], bsp2, 3)
+		"chest_0":
+			return _from_grid([
+				".KKKKKKKKKK.",
+				"KYYYYYYYYYYK",
+				"KYBBBBBBBBYK",
+				"KYBBYYYYBBYK",
+				"KYYYYWWYYYYK",
+				"KYBBYYYYBBYK",
+				"KYBBBBBBBBYK",
+				"KYYYYYYYYYYK",
+				".KKKKKKKKKK.",
+			], {"K": Color("#0f172a"), "Y": Color("#facc15"), "B": Color("#92400e"), "W": Color("#ffffff")}, 2)
+		"chest_1":
+			return _from_grid([
+				"....W..W....",
+				".KKKKKKKKKK.",
+				"KYYYYYYYYYYK",
+				"KYBBBBBBBBYK",
+				"KYYYYWWYYYYK",
+				"KYBBYYYYBBYK",
+				"KYBBBBBBBBYK",
+				"KYYYYYYYYYYK",
+				".KKKKKKKKKK.",
+			], {"K": Color("#0f172a"), "Y": Color("#fde047"), "B": Color("#b45309"), "W": Color("#ffffff")}, 2)
 		"wand_bolt":
-			return _from_grid([
-				"..WW..",
-				".WCCW.",
-				"WCYYCW",
-				"WCYYCW",
-				".WCCW.",
-				"..WW..",
-			], {"W": Color("#ffffff"), "C": Color("#38bdf8"), "Y": Color("#fde047")}, 2)
+			return _from_grid(["..WW..",".WCCW.","WCYYCW","WCYYCW",".WCCW.","..WW.."], {"W": Color("#ffffff"), "C": Color("#38bdf8"), "Y": Color("#fde047")}, 2)
+		"evo_bolt":
+			return _from_grid(["...WW...","..WPPW..",".WPYYPW.","WPYWWYPW","WPYWWYPW",".WPYYPW.","..WPPW..","...WW..."], {"W": Color("#ffffff"), "P": Color("#f472b6"), "Y": Color("#fde047")}, 2)
 		"pi_orb":
-			return _from_grid([
-				".KKKKK.",
-				"KYYYYYK",
-				"KYWWWYK",
-				"KYWKYWK",
-				"KYYYYYK",
-				".KKKKK.",
-			], {"K": Color("#0f172a"), "Y": Color("#facc15"), "W": Color("#ffffff")}, 2)
+			return _from_grid([".KKKKK.","KYYYYYK","KYWWWYK","KYWKYWK","KYYYYYK",".KKKKK."], {"K": Color("#0f172a"), "Y": Color("#facc15"), "W": Color("#ffffff")}, 2)
+		"evo_orb":
+			return _from_grid([".KKKKKK.","KOOOOOOK","KOYYYYOK","KOYWWYOK","KOYYYYOK","KOOOOOOK",".KKKKKK."], {"K": Color("#0f172a"), "O": Color("#fb923c"), "Y": Color("#fde047"), "W": Color("#ffffff")}, 2)
 		"boomerang":
-			return _from_grid([
-				"...KK...",
-				"..KPPK..",
-				".KPWWPK.",
-				"KPWYYWPK",
-				"KPWYYWPK",
-				".KPWWPK.",
-				"..KPPK..",
-				"...KK...",
-			], {"K": Color("#0f172a"), "P": Color("#c084fc"), "W": Color("#ffffff"), "Y": Color("#fde047")}, 2)
+			return _from_grid(["...KK...","..KPPK..",".KPWWPK.","KPWYYWPK","KPWYYWPK",".KPWWPK.","..KPPK..","...KK..."], {"K": Color("#0f172a"), "P": Color("#c084fc"), "W": Color("#ffffff"), "Y": Color("#fde047")}, 2)
+		"evo_disc":
+			return _from_grid(["...KK...","..KCCK..",".KCWWCK.","KCWYYWCK","KCWYYWCK",".KCWWCK.","..KCCK..","...KK..."], {"K": Color("#0f172a"), "C": Color("#22d3ee"), "W": Color("#ffffff"), "Y": Color("#fde047")}, 3)
+		"boss_shot":
+			return _from_grid([".KKKK.","KRRRRK","KRWWKR","KRRRRK",".KKKK."], {"K": Color("#0f172a"), "R": Color("#ef4444"), "W": Color("#fef08a")}, 2)
 		"xp_gem_small":
-			return _from_grid([
-				"..KK..",
-				".KCCK.",
-				"KCWWCK",
-				"KCCCCK",
-				".KDDK.",
-				"..KK..",
-			], {"K": Color("#0f172a"), "C": Color("#38bdf8"), "W": Color("#ffffff"), "D": Color("#0284c7")}, 2)
+			return _from_grid(["..KK..",".KCCK.","KCWWCK","KCCCCK",".KDDK.","..KK.."], {"K": Color("#0f172a"), "C": Color("#38bdf8"), "W": Color("#ffffff"), "D": Color("#0284c7")}, 2)
 		"xp_gem_big":
-			return _from_grid([
-				"..KK..",
-				".KYYK.",
-				"KYWWYK",
-				"KYYYYK",
-				".KGGK.",
-				"..KK..",
-			], {"K": Color("#0f172a"), "Y": Color("#facc15"), "W": Color("#ffffff"), "G": Color("#d97706")}, 3)
+			return _from_grid(["..KK..",".KYYK.","KYWWYK","KYYYYK",".KGGK.","..KK.."], {"K": Color("#0f172a"), "Y": Color("#facc15"), "W": Color("#ffffff"), "G": Color("#d97706")}, 3)
 		"torch_0":
-			return _from_grid([
-				"...Y...",
-				"..YYO..",
-				".YOOOY.",
-				".OOROO.",
-				"..KKK..",
-				"..KDK..",
-				"..KDK..",
-				"..KKK..",
-			], {"Y": Color("#fef08a"), "O": Color("#fb923c"), "R": Color("#ef4444"), "K": Color("#1e293b"), "D": Color("#64748b")}, 2)
+			return _from_grid(["...Y...","..YYO..",".YOOOY.",".OOROO.","..KKK..","..KDK..","..KDK..","..KKK.."], {"Y": Color("#fef08a"), "O": Color("#fb923c"), "R": Color("#ef4444"), "K": Color("#1e293b"), "D": Color("#64748b")}, 2)
 		"torch_1":
-			return _from_grid([
-				"..Y....",
-				".YYY...",
-				".OYYYO.",
-				".OOROO.",
-				"..KKK..",
-				"..KDK..",
-				"..KDK..",
-				"..KKK..",
-			], {"Y": Color("#fef08a"), "O": Color("#fb923c"), "R": Color("#ef4444"), "K": Color("#1e293b"), "D": Color("#64748b")}, 2)
+			return _from_grid(["..Y....",".YYY...",".OYYYO.",".OOROO.","..KKK..","..KDK..","..KDK..","..KKK.."], {"Y": Color("#fef08a"), "O": Color("#fb923c"), "R": Color("#ef4444"), "K": Color("#1e293b"), "D": Color("#64748b")}, 2)
 		"pillar":
-			return _from_grid([
-				"KKKKKKKK",
-				"KLLLLLLK",
-				"KCCCCCCK",
-				".KDDDDK.",
-				".KDYYDK.",
-				".KDDDDK.",
-				".KDCCDK.",
-				".KDDDDK.",
-				"KLLLLLLK",
-				"KKKKKKKK",
-			], {"K": Color("#0f172a"), "L": Color("#64748b"), "C": Color("#475569"), "D": Color("#334155"), "Y": Color("#38bdf8")}, 2)
+			return _from_grid(["KKKKKKKK","KLLLLLLK","KCCCCCCK",".KDDDDK.",".KDYYDK.",".KDDDDK.",".KDCCDK.",".KDDDDK.","KLLLLLLK","KKKKKKKK"], {"K": Color("#0f172a"), "L": Color("#64748b"), "C": Color("#475569"), "D": Color("#334155"), "Y": Color("#38bdf8")}, 2)
+		"crystal_pillar":
+			return _from_grid(["...KK...","..KCCK..",".KCLCCK.","KCLWWCCK","KCLCCCDK",".KCCDDK.",".KDDDDK.","..KKKK.."], {"K": Color("#0f172a"), "C": Color("#2dd4bf"), "L": Color("#99f6e4"), "W": Color("#ffffff"), "D": Color("#0f766e")}, 2)
+		"lava_pillar":
+			return _from_grid(["KKKKKKKK","KRRRRRRK","KDDDDDDK",".KDOODK.",".KDYYDK.",".KDOODK.",".KDDDDK.","KRRRRRRK","KKKKKKKK"], {"K": Color("#0f172a"), "R": Color("#991b1b"), "D": Color("#450a0a"), "O": Color("#f97316"), "Y": Color("#fde047")}, 2)
 		"orb_frame":
 			var img := Image.create_empty(48, 48, false, Image.FORMAT_RGBA8)
 			img.fill(Color(0, 0, 0, 0))

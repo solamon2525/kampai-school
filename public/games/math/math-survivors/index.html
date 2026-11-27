@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Math Survivors (Godot 4.4) — อารีนาคณิตศาสตร์ ป.4–ป.6</title>
+<title>Math Survivors v2.2 (Godot 4.4) — อารีนาคณิตศาสตร์ ป.4–ป.6</title>
 <link rel="stylesheet" href="style.css">
 <style>
 button:focus-visible, [role="button"]:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid #facc15; outline-offset: 3px; }
@@ -25,14 +25,14 @@ button:focus-visible, [role="button"]:focus-visible, a:focus-visible, input:focu
   </div>
 </div>
 
-<!-- Top HUD Bar (ยึดใน 100vw ไม่ล้นขวาทุกขนาดหน้าจอ) -->
+<!-- Top HUD Bar (ตรึงใน 100vw ไม่ล้นขวา) -->
 <header id="hud-bar">
   <div class="hud-left">
     <div id="score-container" class="hud-pill" aria-label="คะแนน">⭐ <span id="score-value">0</span></div>
     <div id="timer-container" class="hud-pill" aria-label="เวลา">⏱️ <span id="timer-value">03:00</span></div>
   </div>
   <div id="hud-center">
-    <div id="act-label">องก์ 1 · ป.4</div>
+    <div id="act-label">วิหารรูนโบราณ · องก์ 1</div>
     <div id="xp-wrap" aria-label="แถบ EXP">
       <div id="xp-fill"></div>
       <span id="xp-text">Lv.1</span>
@@ -40,37 +40,97 @@ button:focus-visible, [role="button"]:focus-visible, a:focus-visible, input:focu
   </div>
   <div class="hud-right">
     <div id="hp-pill" class="hud-pill hud-hp" aria-label="พลังชีวิต">❤️ <span id="hp-text">100/100</span></div>
+    <button id="pause-btn" type="button" class="hud-icon-btn" aria-label="หยุดเกมและตั้งค่า" onclick="togglePause()">⏸️</button>
   </div>
 </header>
 
 <div id="player-chip"></div>
 
-<!-- โจทย์คณิตเป้าหมายแบบเรียลไทม์ + ป้ายเฉลย -->
+<!-- Boss HP Bar -->
+<div id="boss-bar" class="hidden" aria-live="polite">
+  <div class="boss-title" id="boss-name">👑 บอสสมการ</div>
+  <div class="boss-track"><div id="boss-fill"></div></div>
+</div>
+
+<!-- โจทย์คณิตเป้าหมายแบบเรียลไทม์ -->
 <div id="math-banner" class="hidden" aria-live="polite">
   <span class="mb-grade" id="mb-grade">ป.4</span>
   <span class="mb-q" id="mb-q">24 × 5 = ?</span>
   <span class="mb-hint" id="mb-hint">ชนลูกแก้วคำตอบ!</span>
 </div>
 
+<!-- Streak Fever Indicator -->
+<div id="fever-badge" class="hidden" aria-live="polite">🔥 FEVER! ยิงไว +25% · ดูดเพชรทั้งจอ</div>
+
+<!-- Compact Minimap Radar -->
+<div id="minimap-box" class="hidden" aria-hidden="true">
+  <canvas id="minimap-canvas" width="76" height="76"></canvas>
+</div>
+
+<!-- Quick Dash Button (Desktop Space/Shift + Mobile Tap) -->
+<button id="dash-btn" type="button" class="hidden" aria-label="พุ่งหลบอมตะ" onclick="triggerDash()">
+  <span class="dash-fill" id="dash-fill"></span>
+  <span class="dash-label">⚡ พุ่ง</span>
+</button>
+
 <div id="weapon-dock" aria-label="อาวุธและสกิลที่ติดตั้ง"></div>
 <div id="toast" class="hidden" role="status" aria-live="polite"></div>
 
-<!-- หน้าแรก (Title / Roguelite Prep) -->
+<!-- หน้าแรก (Title + Map Picker + Hero Picker) -->
 <div id="blocker">
   <div class="menu-panel">
-    <div class="menu-badge">⚔️ GODOT 4.4 ROGUELITE · คณิตศาสตร์ ป.4–ป.6</div>
+    <div class="menu-badge">⚔️ GODOT 4.4 ROGUELITE v2.2 · คณิต ป.4→ป.6 ไต่ระดับอัตโนมัติ</div>
     <h1>✨ Math Survivors</h1>
-    <p class="subtitle">อารีนาคณิตศาสตร์ ป.4–ป.6 · บวก ลบ คูณ หาร เอาชีวิตรอด 3 องก์ (Pixel Art + Shader)</p>
+    <p class="subtitle">เลือกแผนที่ &amp; จอมเวท แล้วเอาชีวิตรอด 3 องก์ด้วยพลัง บวก ลบ คูณ หาร + วิวัฒนาการอาวุธ!</p>
 
     <div id="my-stats">
       <div class="ms-cell"><div class="ms-val" id="ms-best">0</div><div class="ms-label">สถิติสูงสุด</div></div>
       <div class="ms-cell"><div class="ms-val" id="ms-plays">0</div><div class="ms-label">เล่นแล้ว</div></div>
+      <div class="ms-cell"><div class="ms-val" id="ms-solved">0</div><div class="ms-label">ตอบถูกสะสม</div></div>
       <div class="ms-cell"><div class="ms-val" id="ms-unlocks">0/4</div><div class="ms-label">ตราความสำเร็จ</div></div>
     </div>
 
+    <!-- Map Selector (3 Maps) -->
+    <section class="selector-section">
+      <h3>🗺️ เลือกแผนที่อารีนา</h3>
+      <div class="card-grid-3" id="map-picker">
+        <button type="button" class="sel-card active" data-map="arcane_temple" onclick="selectMap('arcane_temple')">
+          <div class="sel-top">🏛️ วิหารรูนโบราณ <span class="mult-tag">×1.0</span></div>
+          <div class="sel-desc">ลานกว้าง เสาหินหลบทาง เหมาะเริ่มเล่น</div>
+        </button>
+        <button type="button" class="sel-card" data-map="crystal_forest" onclick="selectMap('crystal_forest')">
+          <div class="sel-top">💎 ป่าคริสตัลคณิต <span class="mult-tag">×1.1</span></div>
+          <div class="sel-desc">มีแท่นเร่งความเร็ว +45% ไล่ชนลูกแก้วไว!</div>
+        </button>
+        <button type="button" class="sel-card" data-map="lava_citadel" onclick="selectMap('lava_citadel')">
+          <div class="sel-top">🌋 ปราสาทลาวาสมการ <span class="mult-tag">×1.25</span></div>
+          <div class="sel-desc">มีวงเตือนลาวาปะทุ ท้าทาย โบนัสคะแนนสูง</div>
+        </button>
+      </div>
+    </section>
+
+    <!-- Hero Selector (3 Heroes) -->
+    <section class="selector-section">
+      <h3>🧙 เลือกจอมเวท</h3>
+      <div class="card-grid-3" id="hero-picker">
+        <button type="button" class="sel-card active" data-hero="mage" onclick="selectHero('mage')">
+          <div class="sel-top">✨ จอมเวทดาวฤกษ์</div>
+          <div class="sel-desc">เริ่มด้วย คทาประกายดาว · สมดุลทุกด้าน</div>
+        </button>
+        <button type="button" class="sel-card" data-hero="knight" id="hero-card-knight" onclick="selectHero('knight')">
+          <div class="sel-top">🛡️ อัศวินพาย</div>
+          <div class="sel-desc" id="hero-desc-knight">เริ่มด้วย วงแหวนพาย · HP +25</div>
+        </button>
+        <button type="button" class="sel-card" data-hero="inventor" id="hero-card-inventor" onclick="selectHero('inventor')">
+          <div class="sel-top">⚡ นักประดิษฐ์สายฟ้า</div>
+          <div class="sel-desc" id="hero-desc-inventor">เริ่มด้วย สายฟ้าสมการ · วิ่งไว +12%</div>
+        </button>
+      </div>
+    </section>
+
     <div class="menu-grid">
       <section class="menu-box">
-        <h3>📖 วิธีเล่น &amp; กติกา</h3>
+        <h3>📖 กติกา &amp; Seed</h3>
         <ul class="tips-list" id="tips-list"></ul>
         <div class="seed-row">
           <button type="button" class="chip-btn active" id="btn-seed-random" onclick="setSeedMode('random')">🎲 สุ่มอารีนาใหม่</button>
@@ -93,7 +153,35 @@ button:focus-visible, [role="button"]:focus-visible, a:focus-visible, input:focu
   </div>
 </div>
 
-<!-- จอเลือกอัปเกรดเมื่อ Level Up (Roguelite 3-Card Draft) -->
+<!-- Pause & Accessibility Settings Modal -->
+<div id="pause-modal" class="hidden" role="dialog" aria-modal="true" aria-labelledby="pause-title">
+  <div class="lu-panel pause-panel">
+    <div class="lu-badge">⏸️ หยุดเกมชั่วคราว</div>
+    <h2 id="pause-title">ตั้งค่า &amp; อุปกรณ์ปัจจุบัน</h2>
+    <div id="pause-build" class="pause-build"></div>
+    <div class="settings-box">
+      <label class="setting-row">
+        <span>🎵 ระดับเสียงเพลง (BGM)</span>
+        <input type="range" id="vol-bgm" min="0" max="100" value="80" oninput="onVolumeChange()">
+      </label>
+      <label class="setting-row">
+        <span>🔊 ระดับเสียงเอฟเฟกต์ (SFX)</span>
+        <input type="range" id="vol-sfx" min="0" max="100" value="100" oninput="onVolumeChange()">
+      </label>
+      <label class="setting-row">
+        <span>🛡️ ลดการสั่นหน้าจอ (Reduce Shake)</span>
+        <input type="checkbox" id="chk-reduce-shake" onchange="onSettingsChange()">
+      </label>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" type="button" onclick="togglePause(false)">▶ เล่นต่อ</button>
+      <button class="btn btn-orange" type="button" onclick="restartGame()">🔄 เริ่มใหม่</button>
+      <button class="btn btn-blue" type="button" onclick="KAMPAI.goHome()">🏠 กลับหน้าหลัก</button>
+    </div>
+  </div>
+</div>
+
+<!-- จอเลือกอัปเกรดเมื่อ Level Up (รองรับ Weapon Evolution Lv.6) -->
 <div id="levelup-modal" class="hidden" role="dialog" aria-modal="true" aria-labelledby="lu-title">
   <div class="lu-panel">
     <div class="lu-badge">✨ LEVEL UP! อัปเกรดพลังเวท</div>
@@ -103,7 +191,18 @@ button:focus-visible, [role="button"]:focus-visible, a:focus-visible, input:focu
   </div>
 </div>
 
-<!-- หน้าจบเกม (Death / Victory Summary + Seed & Cause) -->
+<!-- จอหีบสมบัติบอส (Boss Math Chest) -->
+<div id="chest-modal" class="hidden" role="dialog" aria-modal="true" aria-labelledby="chest-title">
+  <div class="lu-panel chest-panel">
+    <div class="lu-badge">🎁 หีบสมบัติบอส · ไขรหัสปลดผนึก!</div>
+    <h2 id="chest-title">ตอบถูกเพื่อรับ Evolution หรืออัปเกรด ×2 ทันที!</h2>
+    <div class="chest-q" id="chest-q">25 × 12 = ?</div>
+    <div class="chest-choices" id="chest-choices"></div>
+    <p class="lu-sub">กดปุ่มตัวเลข 1 / 2 / 3 หรือแตะคำตอบที่ถูกต้อง</p>
+  </div>
+</div>
+
+<!-- หน้าจบเกม (Death / Victory Summary) -->
 <div id="gameover-screen" class="hidden">
   <div class="menu-panel">
     <div class="menu-badge" id="go-badge">สรุปผลอารีนา</div>
@@ -121,6 +220,7 @@ button:focus-visible, [role="button"]:focus-visible, a:focus-visible, input:focu
 
     <div class="btn-row">
       <button class="btn btn-primary" type="button" data-kampai-action="restart" onclick="restartGame()">🔄 เล่นใหม่</button>
+      <button class="btn btn-orange" type="button" onclick="backToMenu()">🗺️ เปลี่ยนแมพ/ฮีโร่</button>
       <button class="btn btn-blue" type="button" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
       <button type="button" data-kampai-action="finish-test" onclick="finishForTest()" hidden>จบเกมสำหรับทดสอบ</button>
     </div>

@@ -290,6 +290,28 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v2.8.41',
+        date: '27 พ.ย. 2569',
+        title: 'Math Survivors v2.2 (เฟส 1+2): เลือกได้ 3 แผนที่, 3 จอมเวท, Dash, 5 Evolutions, บอส & Pause/Minimap',
+        description:
+            'ขยายระบบเกม Math Survivors (/play/math-survivors) บน Godot 4.4.1 ครบทั้งเฟส 1 และเฟส 2 เพิ่ม 3 แผนที่เลือกเล่นได้พร้อมลูกเล่นเฉพาะฉาก (วิหารรูนโบราณ, ป่าคริสตัลแท่นเร่งความเร็ว, ปราสาทลาวาวงเตือนปะทุ), 3 ตัวละครจอมเวทปลดล็อกได้, ท่าพุ่งหลบ Dash + Afterimage, โหมด Streak Fever, 5 อาวุธ Evolution Lv.6, ท่าบอสแบบมีสัญญาณเตือน + หีบสมบัติบอส และยกระดับ UX/UI ด้วย Minimap, Boss HP Bar และเมนู Pause/ตั้งค่าเสียง-ลดจอสั่น',
+        type: 'feature',
+        author: 'ครูณัฐพงศ์ สิงห์ชมภู',
+        tags: [
+            'Godot 4.4',
+            'Math Survivors',
+            'Multi-Map',
+            'Weapon Evolution',
+            'Game UX/UI',
+        ],
+        badge: 'bg-primary',
+        items: [
+            '3 แผนที่ & 3 จอมเวท: Multi-biome TileSet 3 ฉากพร้อมเพลง Chiptune แยกธีม, แท่นเร่งความเร็ว, วงเตือนลาวา และจอมเวท 3 สายพร้อมเงื่อนไขปลดล็อก (ลองฟรีได้ในโหมดฝึกซ้อม)',
+            'Combat & Roguelite Depth: ท่า Dash หลบอมตะ + เงาติดตา, Streak Fever ยิงไว/ดูดเพชรทั้งจอ, 5 Weapon Evolutions Lv.6, ท่าบอสมีวงเตือน + หีบสมบัติบอสไขโจทย์',
+            'UX/UI & Verification: เพิ่มเมนู Pause (ปรับเสียง BGM/SFX + ลดจอสั่น), Boss HP Bar, Minimap, ปุ่ม Dash มือถือ (Godot Tests 18/18, Playwright 3 แมพ 0 error, Migration 599 game_docs v2.2.0)',
+        ],
+    },
+    {
         version: 'v2.8.40',
         date: '27 พ.ย. 2569',
         title: 'ยกระดับ Math Survivors ด้วย Godot 4.4.1 (Pixel Art, TileMapLayer, Shaders & AudioServer)',
