@@ -290,6 +290,28 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v2.8.38',
+        date: '27 พ.ย. 2569',
+        title: 'เกมคณิตศาสตร์ใหม่: Math Survivors อารีนาคณิตศาสตร์ ป.4–ป.6 (Roguelite Survivors)',
+        description:
+            'เปิดตัวเกม Roguelite แนว Vampire Survivors วิชาคณิตศาสตร์ ป.4–ป.6 (/play/math-survivors) ผสมผสานการเอาชีวิตรอดจากฝูงมอนสเตอร์ 3 องก์ด้วยอาวุธเวทยิงอัตโนมัติ 5 ชนิด (คทาประกายดาว, วงแหวนพาย, สายฟ้าสมการ, จักรเศษส่วน, คลื่นระเบิดคูณสิบ) การอัปเลเวลเลือกการ์ด 3 ใบ และแมคคานิกชนลูกแก้วคำตอบ บวก-ลบ-คูณ-หาร แบบเรียลไทม์ พร้อมซินธิไซเซอร์ Chiptune 8-bit ปก 16:9 และระบบแข่งขัน KampaiVersus',
+        type: 'feature',
+        author: 'ครูณัฐพงศ์ สิงห์ชมภู',
+        tags: [
+            'Math Game',
+            'Roguelite',
+            'Vampire Survivors',
+            'ป.4-ป.6',
+            'KampaiVersus',
+        ],
+        badge: 'bg-primary',
+        items: [
+            'Vampire Survivors + Math Orbs: เอาชีวิตรอด 180 วินาทีข้าม 3 องก์ (ป.4 บวกลบคูณหารพื้นฐาน / ป.5 ระคนวงเล็บ / ป.6 สมการและร้อยละ) พร้อมบอสประจำองก์ 3 ตัว',
+            'Roguelite Build & Daily Seed: อาวุธอัปเกรดได้ 5 ชนิด + พาสซีฟ 4 ชนิด, ระบบ Seed ประจำวัน/สุ่มใหม่, แยก Run State และ Profile Achievements ชัดเจน (ผ่านทดสอบความเที่ยงตรง 1,800 seeds 0 reject)',
+            'Production Integration: ปก 16:9 1280×720 ปลอดภัยใน Safe Zone, Migration 597 + game_docs v1.0.0, รองรับ 360×800 / 768×1024 / 1280×720 และผ่าน pnpm verify:game:all',
+        ],
+    },
+    {
         version: 'v2.8.37',
         date: '27 พ.ย. 2569',
         title: 'สร้างเกมมาริโอตะลุยคำไทยใหม่ด้วย Godot 4.4.1 GDScript (WebAssembly) + แก้ HUD ล้นขอบ',

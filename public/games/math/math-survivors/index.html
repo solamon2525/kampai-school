@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Math Survivors — อารีนาคณิตศาสตร์ ป.4–ป.6</title>
+<link rel="stylesheet" href="style.css">
+<style>
+button:focus-visible, [role="button"]:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid #facc15; outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="game-canvas" aria-label="สนามอารีนาคณิตศาสตร์"></canvas>
+
+<!-- Top HUD Bar (ยึดใน 100vw ไม่ล้นขวาทุกขนาดหน้าจอ) -->
+<header id="hud-bar">
+  <div class="hud-left">
+    <div id="score-container" class="hud-pill" aria-label="คะแนน">⭐ <span id="score-value">0</span></div>
+    <div id="timer-container" class="hud-pill" aria-label="เวลา">⏱️ <span id="timer-value">03:00</span></div>
+  </div>
+  <div id="hud-center">
+    <div id="act-label">องก์ 1 · ป.4</div>
+    <div id="xp-wrap" aria-label="แถบ EXP">
+      <div id="xp-fill"></div>
+      <span id="xp-text">Lv.1</span>
+    </div>
+  </div>
+  <div class="hud-right">
+    <div id="hp-pill" class="hud-pill hud-hp" aria-label="พลังชีวิต">❤️ <span id="hp-text">100/100</span></div>
+  </div>
+</header>
+
+<div id="player-chip"></div>
+
+<!-- โจทย์คณิตเป้าหมายแบบเรียลไทม์ + ป้ายเฉลย -->
+<div id="math-banner" class="hidden" aria-live="polite">
+  <span class="mb-grade" id="mb-grade">ป.4</span>
+  <span class="mb-q" id="mb-q">24 × 5 = ?</span>
+  <span class="mb-hint" id="mb-hint">ชนลูกแก้วคำตอบ!</span>
+</div>
+
+<div id="weapon-dock" aria-label="อาวุธและสกิลที่ติดตั้ง"></div>
+<div id="toast" class="hidden" role="status" aria-live="polite"></div>
+
+<!-- หน้าแรก (Title / Roguelite Prep) -->
+<div id="blocker">
+  <div class="menu-panel">
+    <div class="menu-badge">⚔️ ROGUELITE SURVIVORS · คณิตศาสตร์ ป.4–ป.6</div>
+    <h1>✨ Math Survivors</h1>
+    <p class="subtitle">อารีนาคณิตศาสตร์ ป.4–ป.6 · บวก ลบ คูณ หาร เอาชีวิตรอด 3 องก์</p>
+
+    <div id="my-stats">
+      <div class="ms-cell"><div class="ms-val" id="ms-best">0</div><div class="ms-label">สถิติสูงสุด</div></div>
+      <div class="ms-cell"><div class="ms-val" id="ms-plays">0</div><div class="ms-label">เล่นแล้ว</div></div>
+      <div class="ms-cell"><div class="ms-val" id="ms-unlocks">0/4</div><div class="ms-label">ตราความสำเร็จ</div></div>
+    </div>
+
+    <div class="menu-grid">
+      <section class="menu-box">
+        <h3>📖 วิธีเล่น &amp; กติกา</h3>
+        <ul class="tips-list" id="tips-list"></ul>
+        <div class="seed-row">
+          <button type="button" class="chip-btn active" id="btn-seed-random" onclick="setSeedMode('random')">🎲 สุ่มอารีนาใหม่</button>
+          <button type="button" class="chip-btn" id="btn-seed-daily" onclick="setSeedMode('daily')">📅 ภารกิจประจำวัน</button>
+        </div>
+      </section>
+
+      <section class="menu-box">
+        <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+        <ul id="score-list" class="leaderboard-list"><li class="lb-loading">กำลังโหลด...</li></ul>
+      </section>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" type="button" data-kampai-action="start" onclick="startGame('normal')">▶ เริ่มอารีนา</button>
+      <button class="btn btn-practice" type="button" data-kampai-action="practice" onclick="startGame('practice')">🛡️ ฝึกซ้อม (ไม่บันทึกคะแนน)</button>
+      <button class="btn btn-orange" type="button" id="online-btn" onclick="openVersus()">🏁 แข่ง 2 คน</button>
+      <button class="btn btn-blue" type="button" onclick="KAMPAI.goHome()">🏠 กลับ</button>
+    </div>
+  </div>
+</div>
+
+<!-- จอเลือกอัปเกรดเมื่อ Level Up (Roguelite 3-Card Draft) -->
+<div id="levelup-modal" class="hidden" role="dialog" aria-modal="true" aria-labelledby="lu-title">
+  <div class="lu-panel">
+    <div class="lu-badge">✨ LEVEL UP! อัปเกรดพลังเวท</div>
+    <h2 id="lu-title">เลือกการ์ดพลัง 1 ใบ</h2>
+    <div id="lu-cards" class="lu-cards"></div>
+    <p class="lu-sub">กดปุ่มตัวเลข 1 / 2 / 3 หรือแตะการ์ดเพื่อเลือก</p>
+  </div>
+</div>
+
+<!-- หน้าจบเกม (Death / Victory Summary + Seed & Cause) -->
+<div id="gameover-screen" class="hidden">
+  <div class="menu-panel">
+    <div class="menu-badge" id="go-badge">สรุปผลอารีนา</div>
+    <h1 id="go-title">จบการผจญภัย!</h1>
+    <div id="go-stars">☆☆☆</div>
+    <div id="final-score">0</div>
+    <p id="go-summary" class="go-summary"></p>
+    <div id="go-meta" class="go-meta"></div>
+    <div id="kampai-result"></div>
+
+    <div class="leaderboard-box">
+      <h3 class="lb-title">🏆 อันดับนักเรียน</h3>
+      <ul id="score-list-gameover" class="leaderboard-list"><li class="lb-loading">—</li></ul>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" type="button" data-kampai-action="restart" onclick="restartGame()">🔄 เล่นใหม่</button>
+      <button class="btn btn-blue" type="button" onclick="KAMPAI.goHome()">🎮 เลือกเกมใหม่</button>
+      <button type="button" data-kampai-action="finish-test" onclick="finishForTest()" hidden>จบเกมสำหรับทดสอบ</button>
+    </div>
+  </div>
+</div>
+
+<!-- KAMPAI SDK + Framework -->
+<script src="/games/kampai-sdk.js"></script>
+<script src="/games/kampai-match.js"></script>
+<script src="/games/kampai-versus.js"></script>
+<script>
+window.KAMPAI = window.KAMPAI || { isEmbed:false, isTouch:false, ready:true, student:null, stats:null, leaderboard:[], input:{up:false,down:false,left:false,right:false,a:false,b:false}, onReady:function(cb){cb(this);}, setSlug:function(){return this;}, beginRound:function(){return this;}, submitScore:function(){return false;}, goHome:function(){location.href='/h/nattapong';}, exit:function(){location.href='/h/nattapong';}, controls:{mount:function(){return this;}}, sound:{correct:function(){},wrong:function(){},timeUp:function(){},gameOver:function(){},speak:function(){},stopSpeak:function(){},fxFlash:function(){},mountToggles:function(){},defaultBgm:function(){},bgmStart:function(){},bgmStop:function(){},unlock:function(){}} };
+window.KampaiMatch = window.KampaiMatch || { create:function(){return{available:false,openMenu:function(){},report:function(){},finish:function(){return false;},leave:function(){}};} };
+window.KampaiVersus = window.KampaiVersus || { create:function(o){var m=window.KampaiMatch&&window.KampaiMatch.create?window.KampaiMatch.create(o):null;return{available:false,openMenu:function(){if(m)m.openMenu();},report:function(s,i){if(m)m.report(s,i);},finish:function(s,i){if(m&&m.finish(s,i))return true;return false;},leave:function(){}};} };
+</script>
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="audio.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
