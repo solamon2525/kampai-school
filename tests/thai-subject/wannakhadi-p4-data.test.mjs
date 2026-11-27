@@ -66,4 +66,21 @@ test('Task 1: wannakhadi-data.js exists and exports window.WANNAKHADI_P4_DATA wi
       assert.ok(q.explanation && q.explanation.length > 5, 'Quiz must have educational explanation');
     });
   });
+
+  // Expanded authentic poetry checks
+  assert.ok(data[0].stanzas.length >= 5, 'Chapter 1 must include both catching Ma Nil Mangkon and main recitation');
+  assert.ok(data[1].stanzas.length >= 4, 'Chapter 2 must include full sequence of Nam Phueng Yot Diao');
+  assert.ok(data[2].stanzas.length >= 4, 'Chapter 3 must include authentic Bot Hae Klom Jab Rabam');
+  assert.ok(data[3].stanzas.length >= 4, 'Chapter 4 must include expanded Ngao Pa verses');
+  assert.ok(data[4].stanzas.length >= 4, 'Chapter 5 must include expanded Nirat Duean verses');
+  assert.ok(data[5].stanzas.length >= 5, 'Chapter 6 must include Phruesapha Kason + 4 stanzas of Pak Pen Ek');
+  assert.ok(data[6].stanzas.length >= 4, 'Chapter 7 must include Sayamanussati + Thai Ruam Kamlang Tang Man');
+
+  const ch6Text = data[5].stanzas.map((s) => s.lines.map((l) => l.text).join(' ')).join(' ');
+  assert.ok(ch6Text.includes('ปากเป็นเอก') && ch6Text.includes('เลขเป็นโท') && ch6Text.includes('หนังสือเป็นตรี') && ch6Text.includes('ชั่วดีเป็นตรา'),
+    'Chapter 6 must contain all 4 parts of Pak Pen Ek');
+
+  const ch7Text = data[6].stanzas.map((s) => s.lines.map((l) => l.text).join(' ')).join(' ');
+  assert.ok(ch7Text.includes('ใครรานใครรุกด้าว') && ch7Text.includes('ไทยรวมกำลังตั้งมั่น'),
+    'Chapter 7 must contain both Sayamanussati and Thai Ruam Kamlang Tang Man');
 });

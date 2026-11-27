@@ -1125,6 +1125,51 @@
     }
   }
 
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function highlightVocabSegment(seg, vocabList) {
+    if (!vocabList || vocabList.length === 0) return escapeHtml(seg);
+    const sortedWords = [...vocabList]
+      .map(v => v.word)
+      .filter(Boolean)
+      .sort((a, b) => b.length - a.length);
+    if (sortedWords.length === 0) return escapeHtml(seg);
+    const escapedWords = sortedWords.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    const re = new RegExp(`(${escapedWords.join('|')})`, 'g');
+    const parts = seg.split(re);
+    const wordSet = new Set(sortedWords);
+    return parts.map(part => {
+      if (wordSet.has(part)) {
+        const safeWord = escapeHtml(part);
+        return `<span class="clickable-vocab" onclick="openVocabModal('${safeWord}')" title="แตะดูความหมาย">${safeWord}</span>`;
+      }
+      return escapeHtml(part);
+    }).join('');
+  }
+
+  function speakSummary() {
+    const ch = dataset[currentChapterIndex];
+    if (ch) speakText(ch.title + ' ' + ch.summary);
+  }
+
+  function speakStanza(stanzaIdx, kind) {
+    const ch = dataset[currentChapterIndex];
+    if (!ch || !ch.stanzas[stanzaIdx]) return;
+    const st = ch.stanzas[stanzaIdx];
+    if (kind === 'trans') {
+      speakText(st.translation);
+    } else {
+      speakText(st.lines.map(l => l.text).join(' '));
+    }
+  }
+
   // Render Learn View for Current Chapter
   function renderChapter() {
     const ch = dataset[currentChapterIndex];
@@ -1137,18 +1182,18 @@
       <section class="chap-hero">
         <div class="hero-meta">
           <span class="badge badge-gold">บทที่ ${ch.chapterNum}</span>
-          <span class="badge" style="background:var(--navy);">${ch.category}</span>
-          <span class="hero-source">จาก: ${ch.sourceWork} (ผู้แต่ง: ${ch.author})</span>
+          <span class="badge" style="background:var(--navy);">${escapeHtml(ch.category)}</span>
+          <span class="hero-source">จาก: ${escapeHtml(ch.sourceWork)} (ผู้แต่ง: ${escapeHtml(ch.author)})</span>
         </div>
-        <h2 class="hero-title">${ch.title}</h2>
+        <h2 class="hero-title">${escapeHtml(ch.title)}</h2>
         <div class="hero-summary">
-          <strong>สรุปเนื้อหา:</strong> ${ch.summary}
+          <strong>สรุปเนื้อหา:</strong> ${escapeHtml(ch.summary)}
           <div style="margin-top:6px; color:var(--gold-deep); font-weight:700;">
-            💡 <strong>คติสอนใจ:</strong> ${ch.moralLesson}
+            💡 <strong>คติสอนใจ:</strong> ${escapeHtml(ch.moralLesson)}
           </div>
         </div>
         <div class="hero-actions">
-          <button type="button" class="btn btn-tts" onclick="speakText('${ch.title} ${ch.summary}')">
+          <button type="button" class="btn btn-tts" onclick="speakSummary()">
             🔊 ฟังเรื่องย่อ
           </button>
         </div>
@@ -1156,16 +1201,16 @@
     `;
 
     // Render Stanzas
-    ch.stanzas.forEach(st => {
-      const allLinesText = st.lines.map(l => l.text).join(' ');
+    ch.stanzas.forEach((st, idx) => {
+      const sectionLabel = st.sectionTitle ? ` · ${escapeHtml(st.sectionTitle)}` : '';
 
       html += `
         <article class="stanza-card">
           <div class="stanza-header">
             <span class="stanza-badge">
-              <span>📜</span> บทที่ ${st.stanzaIndex} · ฉันทลักษณ์: ${st.meter}
+              <span>📜</span> บทที่ ${st.stanzaIndex} · ฉันทลักษณ์: ${escapeHtml(st.meter)}${sectionLabel}
             </span>
-            <button type="button" class="btn btn-ghost" style="min-height:44px; padding:6px 12px; font-size:0.85rem;" onclick="speakText('${allLinesText}')">
+            <button type="button" class="btn btn-ghost" style="min-height:44px; padding:6px 12px; font-size:0.85rem;" onclick="speakStanza(${idx}, 'poem')">
               🔊 ฟังทั้งบท
             </button>
           </div>
@@ -1175,20 +1220,13 @@
       `;
 
       st.lines.forEach(l => {
-        let lineMarkup = '';
-        l.segments.forEach(seg => {
-          let segText = seg;
-          ch.vocabularies.forEach(v => {
-            if (segText.includes(v.word)) {
-              segText = segText.split(v.word).join(`<span class="clickable-vocab" onclick="openVocabModal('${v.word}')" title="แตะดูความหมาย">${v.word}</span>`);
-            }
-          });
-          lineMarkup += `<span class="verse-segment">${segText}</span>`;
-        });
+        const lineMarkup = l.segments
+          .map(seg => `<span class="verse-segment">${highlightVocabSegment(seg, ch.vocabularies)}</span>`)
+          .join('');
 
         html += `
           <div class="verse-line">
-            <span class="verse-role">${l.role}</span>
+            <span class="verse-role">${escapeHtml(l.role)}</span>
             ${lineMarkup}
           </div>
         `;
@@ -1201,9 +1239,9 @@
               <div class="trans-header">
                 <span>✨</span> ถอดความภาษาง่าย (ความหมาย)
               </div>
-              <p class="trans-text">${st.translation}</p>
+              <p class="trans-text">${escapeHtml(st.translation)}</p>
               <div class="trans-actions">
-                <button type="button" class="btn btn-ghost" style="min-height:44px; padding:6px 12px; font-size:0.85rem;" onclick="speakText('${st.translation}')">
+                <button type="button" class="btn btn-ghost" style="min-height:44px; padding:6px 12px; font-size:0.85rem;" onclick="speakStanza(${idx}, 'trans')">
                   🎧 ฟังคำแปล
                 </button>
               </div>
