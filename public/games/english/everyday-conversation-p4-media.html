@@ -559,8 +559,9 @@
       const finalScore=typeof scoreVal==='number'?scoreVal:100;
       const options=Object.assign({mode:state.mode||'practice',correct:currentLesson().lines.length},opts||{});
       if(vs&&vs.finish&&vs.finish(finalScore,options))return;
-      if(window.KAMPAI?.submitScore){
-        KAMPAI.submitScore(finalScore,options);
+      const resultSlot=$('kampai-result');
+      if(resultSlot){
+        resultSlot.innerHTML='<div style="padding:8px 12px;background:var(--white);border-radius:10px;color:var(--navy);font-weight:700;">ฝึกสนทนาครบทั้ง '+options.correct+' ประโยคแล้ว · เยี่ยมมาก! 🎉</div>';
       }
     }
 
