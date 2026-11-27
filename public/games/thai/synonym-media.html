@@ -2,76 +2,319 @@
 <html lang="th">
 <head>
   <script src="/games/kampai-sdk.js?v=1.181.0"></script>
+  <script src="/games/media-lab-runtime.js?v=2.0.0"></script>
+  <script src="/games/engine/vocab-quiz-engine.js?v=2.0.0"></script>
+  <script src="/games/engine/connect-match-engine.js?v=2.0.0"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ไวพจน์ / คำพ้องความหมาย — สื่อการสอน — บ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root { --deep: #1e40af; --line: #93c5fd; --muted: #64748b; --ok: #16a34a; --bad: #dc2626; --cream: #eff6ff; }
-    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(160deg, #dbeafe, #bfdbfe); min-height: 100%; padding: 12px; color: #0f172a; }
-    .shell { max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 1.5rem; box-shadow: 0 20px 50px rgba(15,23,42,.12); overflow: hidden; min-height: calc(100vh - 24px); display: flex; flex-direction: column; }
-    header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(90deg, #1e3a8a, #2563eb); color: #fff; }
+    :root {
+      --deep: #1e40af;
+      --deep-dark: #1e3a8a;
+      --line: #93c5fd;
+      --muted: #475569;
+      --ink: #0f172a;
+      --border: #cbd5e1;
+      --ok: #15803d;
+      --bad: #b91c1c;
+      --cream: #eff6ff;
+    }
+    html, body { max-width: 100%; overflow-x: hidden; }
+    body {
+      font-family: 'Sarabun', sans-serif;
+      background: linear-gradient(160deg, #dbeafe, #bfdbfe);
+      min-height: 100vh;
+      padding: 12px;
+      color: var(--ink);
+    }
+    .shell {
+      max-width: 1100px;
+      width: 100%;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 1.5rem;
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.12);
+      overflow: hidden;
+      min-height: calc(100vh - 24px);
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      background: linear-gradient(90deg, #1e3a8a, #2563eb);
+      color: #ffffff;
+    }
     header h1 { font-size: 1.1rem; font-weight: 800; flex: 1; min-width: 140px; }
-    .badge { font-size: .75rem; background: rgba(255,255,255,.2); padding: 4px 10px; border-radius: 999px; font-weight: 700; }
-    .btn { font-family: inherit; font-weight: 700; border: none; border-radius: 12px; padding: 10px 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
-    .btn:active { transform: scale(.97); }
-    .btn-back { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.35); padding: 8px 12px; font-size: .85rem; }
-    .btn-primary { background: var(--deep); color: #fff; }
+    .badge {
+      font-size: 0.78rem;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .btn {
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 0.92rem;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 14px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 44px;
+      min-width: 44px;
+      transition: transform 0.15s, background 0.15s;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn:focus-visible, .seg button:focus-visible, .grp-btn:focus-visible, .w-card:focus-visible,
+    .ke-option:focus-visible, .ke-btn:focus-visible,
+    .ke-match-card:focus-visible, .ke-memory-card:focus-visible {
+      outline: 3px solid #f59e0b;
+      outline-offset: 2px;
+    }
+    .btn-back {
+      background: rgba(255, 255, 255, 0.16);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      padding: 8px 12px;
+      font-size: 0.85rem;
+    }
+    .btn-primary { background: var(--deep); color: #ffffff; }
+    .btn-primary:hover { background: var(--deep-dark); }
     .btn-accent { background: #fbbf24; color: #78350f; }
-    .btn-ghost { background: #fff; color: var(--deep); border: 2px solid var(--line); }
-    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 16px; background: var(--cream); border-bottom: 1px solid var(--line); align-items: center; }
-    .seg { display: inline-flex; flex-wrap: wrap; border-radius: 12px; overflow: hidden; border: 2px solid #60a5fa; }
-    .seg button { font-family: inherit; font-weight: 800; border: none; background: #fff; color: var(--deep); padding: 8px 12px; cursor: pointer; font-size: .82rem; }
-    .seg button.on { background: var(--deep); color: #fff; }
-    .hint { font-size: .85rem; color: #1e40af; font-weight: 600; flex: 1; min-width: 120px; }
+    .btn-ghost { background: #ffffff; color: var(--deep); border: 2px solid var(--line); }
+    .btn-ghost:hover { background: var(--cream); }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 10px 16px;
+      background: var(--cream);
+      border-bottom: 1px solid var(--line);
+      align-items: center;
+    }
+    .seg {
+      display: inline-flex;
+      flex-wrap: wrap;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px solid #3b82f6;
+      background: #ffffff;
+    }
+    .seg button {
+      font-family: inherit;
+      font-weight: 800;
+      border: none;
+      background: #ffffff;
+      color: var(--deep);
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      min-height: 44px;
+      min-width: 44px;
+    }
+    .seg button.on { background: var(--deep); color: #ffffff; }
+    .hint { font-size: 0.85rem; color: var(--deep-dark); font-weight: 600; flex: 1; min-width: 120px; }
     .stage { flex: 1; padding: 16px; overflow: auto; }
-    .panel { display: none; flex-direction: column; gap: 14px; max-width: 960px; margin: 0 auto; }
+    .panel { display: none; flex-direction: column; gap: 14px; max-width: 960px; margin: 0 auto; width: 100%; }
     .panel.on { display: flex; }
     .grp-list { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
-    .grp-btn { font-family: inherit; font-weight: 800; border: 2px solid var(--line); background: #fff; color: var(--deep); border-radius: 999px; padding: 8px 14px; cursor: pointer; }
-    .grp-btn.on { background: var(--deep); color: #fff; border-color: var(--deep); }
+    .grp-btn {
+      font-family: inherit;
+      font-weight: 800;
+      border: 2px solid var(--line);
+      background: #ffffff;
+      color: var(--deep);
+      border-radius: 999px;
+      padding: 8px 14px;
+      cursor: pointer;
+      min-height: 44px;
+      min-width: 44px;
+    }
+    .grp-btn.on { background: var(--deep); color: #ffffff; border-color: var(--deep); }
     .word-grid { display: grid; gap: 10px; }
     @media (min-width: 700px) { .word-grid { grid-template-columns: repeat(3, 1fr); } }
-    .w-card { border: 2px solid var(--line); border-radius: 14px; padding: 12px; background: #fff; cursor: pointer; text-align: left; font-family: inherit; }
+    .w-card {
+      border: 2px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #ffffff;
+      cursor: pointer;
+      text-align: left;
+      font-family: inherit;
+      min-height: 44px;
+    }
     .w-card.on { border-color: var(--deep); background: var(--cream); }
     .w-card .w { font-size: 1.25rem; font-weight: 800; color: var(--deep); }
-    .w-card .r { font-size: .8rem; font-weight: 700; color: var(--muted); }
-    .w-card .reg { display: inline-block; margin-top: 6px; font-size: .7rem; font-weight: 800; background: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 999px; }
+    .w-card .r { font-size: 0.82rem; font-weight: 700; color: var(--muted); }
+    .w-card .reg {
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      background: #dbeafe;
+      color: #1e40af;
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
     .detail { background: var(--cream); border: 2px solid var(--line); border-radius: 16px; padding: 14px; }
     .detail h3 { color: var(--deep); font-weight: 800; margin-bottom: 6px; }
     .detail p { font-weight: 600; line-height: 1.5; margin-bottom: 4px; }
-    .tip { background: #fff; border: 2px dashed var(--line); border-radius: 12px; padding: 10px; font-weight: 700; color: #1e40af; }
-    .flash { max-width: 420px; margin: 0 auto; width: 100%; perspective: 800px; }
-    .flash-inner { min-height: 220px; border-radius: 20px; border: 3px solid var(--line); background: linear-gradient(160deg, #eff6ff, #fff); padding: 24px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; box-shadow: 0 8px 24px rgba(30,64,175,.12); }
+    .tip { background: #ffffff; border: 2px dashed var(--line); border-radius: 12px; padding: 10px; font-weight: 700; color: #1e40af; }
+    .flash { max-width: 440px; margin: 0 auto; width: 100%; perspective: 800px; }
+    .flash-inner {
+      min-height: 220px;
+      width: 100%;
+      border-radius: 20px;
+      border: 3px solid var(--line);
+      background: linear-gradient(160deg, #eff6ff, #ffffff);
+      padding: 24px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      text-align: center;
+      box-shadow: 0 8px 24px rgba(30, 64, 175, 0.12);
+      font-family: inherit;
+    }
     .flash-inner .big { font-size: 2.2rem; font-weight: 800; color: var(--deep); }
     .flash-inner .sub { font-weight: 700; color: #334155; line-height: 1.45; }
-    .q-box { text-align: center; max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; align-items: center; }
-    .q-text { font-weight: 800; font-size: 1.15rem; color: var(--deep); }
-    .opts { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 420px; }
-    .opt { font-family: inherit; font-weight: 700; padding: 12px; border: 2px solid var(--line); border-radius: 12px; background: #fff; cursor: pointer; text-align: left; }
-    .opt.ok { background: #dcfce7; border-color: #86efac; }
-    .opt.no { background: #fee2e2; border-color: #fca5a5; }
-    .match-layout { display: grid; gap: 14px; }
-    @media (min-width: 800px) { .match-layout { grid-template-columns: 1fr 1fr; } }
-    .boxes { display: flex; flex-direction: column; gap: 10px; }
-    .box { border: 2px dashed var(--line); border-radius: 14px; padding: 10px; min-height: 72px; background: var(--cream); }
-    .box.on { border-color: var(--deep); border-style: solid; }
-    .box h4 { font-size: .9rem; font-weight: 800; color: var(--deep); margin-bottom: 6px; }
-    .box .chips { display: flex; flex-wrap: wrap; gap: 6px; }
-    .chip { background: #fff; border: 2px solid var(--line); border-radius: 999px; padding: 4px 10px; font-weight: 800; font-size: .8rem; }
-    .chip.ok { border-color: #86efac; background: #dcfce7; }
-    .chip.no { border-color: #fca5a5; background: #fee2e2; }
-    .pool { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-content: flex-start; }
-    .pool .f-btn { font-family: inherit; border: 2px solid var(--line); background: #fff; border-radius: 12px; padding: 10px 12px; cursor: pointer; font-weight: 800; color: var(--deep); }
-    .pool .f-btn.sel { box-shadow: 0 0 0 3px var(--deep); }
-    .pool .f-btn.used { opacity: .35; pointer-events: none; }
-    .fb { text-align: center; font-weight: 800; min-height: 24px; }
-    .fb.ok { color: var(--ok); }
-    .fb.no { color: var(--bad); }
     .actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
-    .footer { padding: 10px 16px; font-size: .8rem; color: var(--muted); text-align: center; border-top: 1px solid var(--line); }
+    .speech-status {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #78350f;
+      background: #fef3c7;
+      border: 1px solid #f59e0b;
+      border-radius: 10px;
+      padding: 8px 12px;
+      display: none;
+      max-width: 960px;
+      margin: 0 auto 12px;
+      width: 100%;
+    }
+    .speech-status.show { display: block; }
+    .engine-card {
+      background: #f8fafc;
+      border: 2px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .engine-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+    .engine-mode-group { display: inline-flex; flex-wrap: wrap; gap: 8px; }
+    .ke-quiz-card, .ke-quiz-summary { display: flex; flex-direction: column; gap: 14px; }
+    .ke-quiz-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; font-weight: 800; }
+    .ke-badge { padding: 4px 10px; border-radius: 999px; background: #dbeafe; color: var(--deep-dark); font-size: 0.85rem; }
+    .ke-progress { color: var(--muted); font-size: 0.92rem; }
+    .ke-prompt { font-size: 1.18rem; font-weight: 800; color: var(--ink); line-height: 1.5; overflow-wrap: anywhere; }
+    .ke-audio-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .ke-options { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    @media (min-width: 640px) { .ke-options { grid-template-columns: 1fr 1fr; } }
+    .ke-option, .ke-btn {
+      min-height: 46px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      background: #ffffff;
+      color: var(--ink);
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: left;
+      overflow-wrap: anywhere;
+    }
+    .ke-option:hover { background: var(--cream); border-color: var(--deep); }
+    .ke-btn {
+      background: var(--deep);
+      color: #ffffff;
+      border-color: var(--deep);
+      text-align: center;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .ke-option.is-correct { background: #dcfce7; border-color: var(--ok); color: #14532d; }
+    .ke-option.is-wrong { background: #fee2e2; border-color: var(--bad); color: #7f1d1d; }
+    .ke-clue { padding: 10px 12px; border-radius: 10px; background: #fef3c7; color: #78350f; font-weight: 700; }
+    .ke-feedback, .ke-match-feedback {
+      min-height: 24px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-weight: 700;
+      background: #e2e8f0;
+      color: var(--ink);
+      line-height: 1.45;
+    }
+    .ke-feedback.is-good { background: #dcfce7; color: #14532d; border: 1.5px solid var(--ok); }
+    .ke-feedback.is-learn { background: #fef3c7; color: #78350f; border: 1.5px solid #d97706; }
+    .ke-match-wrap { position: relative; display: flex; flex-direction: column; gap: 12px; width: 100%; }
+    .ke-match-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+    .ke-match-grid {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+    .ke-match-col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+    .ke-match-card, .ke-memory-card {
+      width: 100%;
+      min-height: 48px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      background: #ffffff;
+      color: var(--ink);
+      font-family: inherit;
+      font-size: 0.96rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      overflow-wrap: anywhere;
+    }
+    .ke-match-card:hover, .ke-memory-card:hover { border-color: var(--deep); background: var(--cream); }
+    .ke-match-card.active { border-color: var(--deep); background: #dbeafe; box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.2); }
+    .ke-match-card.matched, .ke-memory-card.matched { background: #dcfce7; border-color: var(--ok); color: #14532d; cursor: default; }
+    .ke-match-card.error, .ke-memory-card.error { background: #fee2e2; border-color: var(--bad); color: #7f1d1d; }
+    .ke-memory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(115px, 1fr)); gap: 10px; }
+    .ke-memory-card.flipped { background: var(--cream); border-color: var(--deep); }
+    .footer { padding: 10px 16px; font-size: 0.8rem; color: var(--muted); text-align: center; border-top: 1px solid var(--line); }
     .footer a { color: var(--deep); font-weight: 700; text-decoration: none; }
+    @media (max-width: 600px) {
+      body { padding: 0; }
+      .shell { border-radius: 0; min-height: 100vh; }
+      .ke-match-grid { gap: 10px; }
+      .ke-match-card { font-size: 0.88rem; padding: 8px 6px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+      }
+      .btn:active { transform: none; }
+    }
   </style>
 </head>
 <body>
@@ -86,22 +329,50 @@
         <button type="button" data-mode="learn" class="on">📖 เรียนรู้</button>
         <button type="button" data-mode="flash">🃏 แฟลชการ์ด</button>
         <button type="button" data-mode="practice">✏️ ฝึกสั้น</button>
-        <button type="button" data-mode="match">🔗 จับคู่กลุ่ม</button>
+        <button type="button" data-mode="match">🔗 จับคู่</button>
       </span>
       <p class="hint" id="hintText">เลือกกลุ่ม → แตะคำเพื่อดูโทนการใช้และตัวอย่าง</p>
-      <button type="button" class="btn btn-ghost" id="btnFs">⛶</button>
+      <button type="button" class="btn btn-ghost" id="btnFs" aria-label="ขยายเต็มจอ">⛶</button>
     </div>
     <div class="stage">
+      <div class="speech-status" id="speechStatus" role="status" aria-live="polite"></div>
       <div class="panel on" id="p-learn"></div>
       <div class="panel" id="p-flash"></div>
-      <div class="panel" id="p-practice"></div>
-      <div class="panel" id="p-match"></div>
+      <div class="panel" id="p-practice">
+        <div class="engine-card">
+          <div class="engine-toolbar">
+            <div class="engine-mode-group">
+              <button type="button" class="btn btn-primary" id="btnQuizChoice">📝 ทายความหมาย / เติมคำ</button>
+              <button type="button" class="btn btn-ghost" id="btnQuizListen">🔊 ฟังเสียงเลือกคำ</button>
+            </div>
+            <button type="button" class="btn btn-ghost" id="btnQuizNew">🔄 ชุดใหม่</button>
+          </div>
+          <div id="quizEngineRoot"></div>
+        </div>
+      </div>
+      <div class="panel" id="p-match">
+        <div class="engine-card">
+          <div class="engine-toolbar">
+            <div class="engine-mode-group">
+              <button type="button" class="btn btn-primary" id="btnMatchConnect">🔗 โยงคู่คำไวพจน์</button>
+              <button type="button" class="btn btn-ghost" id="btnMatchMemory">🃏 เปิดป้ายจำคู่</button>
+            </div>
+            <button type="button" class="btn btn-ghost" id="btnMatchNew">🔄 ชุดใหม่</button>
+          </div>
+          <div id="matchEngineRoot"></div>
+        </div>
+      </div>
     </div>
     <footer class="footer">ตัวชี้วัด <strong>ท 1.1 ป.4/2</strong> · คู่เกม <a href="/play/waipot">ไวพจน์</a> · ฝึกคลังเพิ่ม <a href="/play/thai-vocab-hub">thai-vocab-hub</a></footer>
   </div>
   <script>
     const MEDIA_SLUG = 'synonym-media';
-    if (window.KAMPAI) KAMPAI.setSlug('synonym-media');
+    if (window.KAMPAI) {
+      KAMPAI.setSlug('synonym-media');
+      if (KAMPAI.sound && typeof KAMPAI.sound.mountToggles === 'function') {
+        try { KAMPAI.sound.mountToggles(); } catch (_) {}
+      }
+    }
 
     const GROUPS = [
       {
@@ -239,7 +510,7 @@
         tip: 'ก้าวเน้นทีละก้าว ย่างพบในกวี',
         quizWrong: ['บิน', 'ว่ายน้ำ', 'กลิ้ง'],
         words: [
-          { word: 'เดิน', reading: 'เนิน', register: 'พูด', nuance: 'เคลื่อนที่ด้วยเท้าทั่วไป', example: 'เดินไปโรงเรียนทุกเช้า' },
+          { word: 'เดิน', reading: 'เดิน', register: 'พูด', nuance: 'เคลื่อนที่ด้วยเท้าทั่วไป', example: 'เดินไปโรงเรียนทุกเช้า' },
           { word: 'ก้าว', reading: 'ก้าว', register: 'พูด', nuance: 'เน้นการยกเท้าทีละก้าว', example: 'ก้าวให้มั่นคง อย่ารีบ' },
           { word: 'ย่าง', reading: 'ย่าง', register: 'กวี', nuance: 'โทนกวี/โบราณ', example: 'ย่างเท้าเข้าสู่วิหารอันสงบ' },
         ],
@@ -330,8 +601,8 @@
         quizWrong: ['ขัดขวาง', 'ทำร้าย', 'เพิกเฉย'],
         words: [
           { word: 'ช่วย', reading: 'ช่วย', register: 'พูด', nuance: 'คำพื้นฐาน', example: 'ช่วยถือของให้หน่อยได้ไหม' },
-          { word: 'สนับสนุน', reading: 'สัม-บัป-สะ-หนุน', register: 'เขียน', nuance: 'หนุนหลัง โครงการ/ความคิด', example: 'โรงเรียนสนับสนุนโครงการจิตอาสา' },
-          { word: 'อุปการะ', reading: 'อุ-บะ-กา-ระ', register: 'เขียน', nuance: 'ช่วยเหลือด้วยน้ำใจ/ทรัพย์', example: 'ผู้มีจิตศรัทธาอุปการะทุนการศึกษา' },
+          { word: 'สนับสนุน', reading: 'สะ-หนับ-สะ-หนุน', register: 'เขียน', nuance: 'หนุนหลัง โครงการ/ความคิด', example: 'โรงเรียนสนับสนุนโครงการจิตอาสา' },
+          { word: 'อุปการะ', reading: 'อุ-ปะ-กา-ระ', register: 'เขียน', nuance: 'ช่วยเหลือด้วยน้ำใจ/ทรัพย์', example: 'ผู้มีจิตศรัทธาอุปการะทุนการศึกษา' },
         ],
       },
       {
@@ -346,51 +617,106 @@
       },
     ];
 
+    const ENGINE_POOL = GROUPS.flatMap((g) =>
+      g.words.map((w) => ({
+        id: g.id + ':' + w.word,
+        term: w.word,
+        left: w.word,
+        right: g.emoji + ' ' + g.theme,
+        reading: w.reading,
+        meaning: g.emoji + ' หมายถึง "' + g.theme + '"',
+        example: w.example,
+        explain: 'กลุ่ม「' + g.theme + '」(' + w.register + '): ' + w.nuance + ' · ' + g.tip,
+        synonym_group: g.id,
+        locale: 'th-TH',
+      }))
+    );
+
     function groupById(id) { return GROUPS.find((g) => g.id === id); }
-    function shuffle(a) {
-      a = a.slice();
-      for (let i = a.length - 1; i > 0; i--) {
-        const j = (Math.random() * (i + 1)) | 0;
-        [a[i], a[j]] = [a[j], a[i]];
-      }
-      return a;
-    }
-    function speak(t) {
-      if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.speak) KAMPAI.sound.speak(t, 'th-TH');
-      else if (window.speechSynthesis) {
-        const u = new SpeechSynthesisUtterance(t);
-        u.lang = 'th-TH';
-        speechSynthesis.speak(u);
+
+    function stopSpeech() {
+      if (window.KampaiMediaLab && typeof window.KampaiMediaLab.stopAllSpeech === 'function') {
+        window.KampaiMediaLab.stopAllSpeech();
+      } else {
+        try { window.KAMPAI?.sound?.stopSpeak?.(); } catch (_) {}
+        try { window.speechSynthesis?.cancel?.(); } catch (_) {}
       }
     }
 
-    let mode = 'learn', selGroup = 'syn-sun', selWordIdx = 0;
-    let flashIdx = 0, flashBack = false;
-    let pickQ = null, pickAnswered = false;
-    let matchThemes = [], matchWords = [], matchPlaces = {}, matchSelWord = null, matchChecked = false;
+    function speakText(text) {
+      const clean = String(text || '').trim();
+      if (!clean) return;
+      const statusEl = document.getElementById('speechStatus');
+      if (window.KampaiMediaLab && typeof window.KampaiMediaLab.speakSafe === 'function') {
+        const res = window.KampaiMediaLab.speakSafe(clean, { lang: 'th-TH', rate: 0.9 });
+        if (statusEl) {
+          if (res && res.ok === false) {
+            statusEl.textContent = 'อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านข้อความต่อได้';
+            statusEl.classList.add('show');
+          } else {
+            statusEl.textContent = '';
+            statusEl.classList.remove('show');
+          }
+        }
+        return;
+      }
+      try {
+        if (window.KAMPAI?.sound?.speak) {
+          KAMPAI.sound.speak(clean, 'th-TH', true);
+          return;
+        }
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const u = new SpeechSynthesisUtterance(clean);
+          u.lang = 'th-TH';
+          u.rate = 0.9;
+          window.speechSynthesis.speak(u);
+          return;
+        }
+      } catch (_) {}
+      if (statusEl) {
+        statusEl.textContent = 'อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านข้อความต่อได้';
+        statusEl.classList.add('show');
+      }
+    }
+
+    let mode = 'learn';
+    let selGroup = 'syn-sun';
+    let selWordIdx = 0;
+    let flashIdx = 0;
+    let flashBack = false;
+    let quizQuestionType = 'choice';
+    let matchSubMode = 'connect';
+    let quizSession = null;
+    let matchSession = null;
 
     const hints = {
       learn: 'เลือกกลุ่ม → แตะคำเพื่อดูโทนการใช้และตัวอย่าง',
       flash: 'แตะการ์ดเพื่อพลิกหน้า/หลัง · หน้า=คำ หลัง=กลุ่ม+คำคู่',
-      practice: 'ฝึกสั้น: เลือกคำที่พ้องความหมายกับคำที่กำหนด',
-      match: 'แตะคำแล้วแตะกล่องธีม — หรือแตะกล่องก่อนแล้วเลือกคำ',
+      practice: 'ฝึกสั้น: เลือกความหมายหรือเติมคำไวพจน์ในประโยค (ไม่เก็บคะแนน)',
+      match: 'จับคู่คำไวพจน์กับความหมายของกลุ่มคำ (ไม่จับเวลา · ไม่เก็บคะแนน)',
     };
 
     function setMode(m) {
-      mode = m;
-      document.querySelectorAll('#modeSeg button').forEach((b) => b.classList.toggle('on', b.dataset.mode === m));
+      stopSpeech();
+      mode = (m === 'flash' || m === 'practice' || m === 'match') ? m : 'learn';
+      document.querySelectorAll('#modeSeg button').forEach((b) => {
+        const active = b.dataset.mode === mode;
+        b.classList.toggle('on', active);
+        b.setAttribute('aria-pressed', String(active));
+      });
       document.querySelectorAll('.panel').forEach((p) => p.classList.remove('on'));
-      document.getElementById('p-' + m).classList.add('on');
-      document.getElementById('hintText').textContent = hints[m];
-      if (m === 'learn') renderLearn();
-      if (m === 'flash') { flashBack = false; renderFlash(); }
-      if (m === 'practice') { if (!pickQ) nextPick(); else renderPick(); }
-      if (m === 'match') { if (!matchThemes.length) resetMatch(); else renderMatch(); }
+      document.getElementById('p-' + mode).classList.add('on');
+      document.getElementById('hintText').textContent = hints[mode];
+      if (mode === 'learn') renderLearn();
+      if (mode === 'flash') { flashBack = false; renderFlash(); }
+      if (mode === 'practice' && !quizSession) mountQuiz();
+      if (mode === 'match') mountMatch();
     }
 
     function renderLearn() {
       const el = document.getElementById('p-learn');
-      const g = groupById(selGroup);
+      const g = groupById(selGroup) || GROUPS[0];
       const w = g.words[selWordIdx] || g.words[0];
       el.innerHTML =
         '<div class="grp-list">' +
@@ -417,13 +743,13 @@
         '</div>' +
         '<div class="tip">💡 ' + g.tip + '</div>';
       el.querySelectorAll('[data-gid]').forEach((b) => {
-        b.onclick = () => { selGroup = b.dataset.gid; selWordIdx = 0; renderLearn(); };
+        b.onclick = () => { stopSpeech(); selGroup = b.dataset.gid; selWordIdx = 0; renderLearn(); };
       });
       el.querySelectorAll('[data-wi]').forEach((b) => {
-        b.onclick = () => { selWordIdx = +b.dataset.wi; renderLearn(); };
+        b.onclick = () => { stopSpeech(); selWordIdx = +b.dataset.wi; renderLearn(); };
       });
-      document.getElementById('btnSpeakW').onclick = () => speak(w.word);
-      document.getElementById('btnSpeakEx').onclick = () => speak(w.example);
+      document.getElementById('btnSpeakW').onclick = () => speakText(w.word);
+      document.getElementById('btnSpeakEx').onclick = () => speakText(w.example);
     }
 
     function renderFlash() {
@@ -432,182 +758,154 @@
       const w = g.words[0];
       const others = g.words.map((x) => x.word).join(' · ');
       el.innerHTML =
-        '<div class="flash"><div class="flash-inner" id="flashCard">' +
+        '<div class="flash"><button type="button" class="flash-inner" id="flashCard">' +
         (flashBack
           ? '<div class="sub">กลุ่ม' + g.emoji + ' <strong>' + g.theme + '</strong></div>' +
             '<div class="big" style="font-size:1.4rem">' + others + '</div>' +
-            '<div class="sub">' + g.tip + '</div><small style="font-weight:700;color:#64748b">แตะเพื่อกลับหน้า</small>'
+            '<div class="sub">' + g.tip + '</div><small style="font-weight:700;color:#475569">แตะเพื่อกลับหน้า</small>'
           : '<div class="big">' + w.word + '</div>' +
             '<div class="sub">อ่าน: ' + w.reading + ' · ' + w.register + '</div>' +
-            '<small style="font-weight:700;color:#64748b">แตะเพื่อพลิกหลัง</small>') +
-        '</div></div>' +
+            '<small style="font-weight:700;color:#475569">แตะเพื่อพลิกหลัง</small>') +
+        '</button></div>' +
         '<div class="actions">' +
         '<button type="button" class="btn btn-ghost" id="btnPrevF">← ก่อนหน้า</button>' +
         '<button type="button" class="btn btn-primary" id="btnNextF">ถัดไป →</button>' +
-        '<button type="button" class="btn btn-accent" id="btnSpeakF">🔊</button></div>' +
+        '<button type="button" class="btn btn-accent" id="btnSpeakF" aria-label="ฟังเสียงอ่าน">🔊 ฟังเสียง</button></div>' +
         '<p style="text-align:center;font-weight:700;color:var(--muted)">' + ((flashIdx % GROUPS.length) + 1) + ' / ' + GROUPS.length + '</p>';
       document.getElementById('flashCard').onclick = () => { flashBack = !flashBack; renderFlash(); };
       document.getElementById('btnPrevF').onclick = () => {
+        stopSpeech();
         flashIdx = (flashIdx - 1 + GROUPS.length) % GROUPS.length;
         flashBack = false;
         renderFlash();
       };
       document.getElementById('btnNextF').onclick = () => {
+        stopSpeech();
         flashIdx = (flashIdx + 1) % GROUPS.length;
         flashBack = false;
         renderFlash();
       };
-      document.getElementById('btnSpeakF').onclick = () => speak(flashBack ? g.theme : w.word);
+      document.getElementById('btnSpeakF').onclick = () => speakText(flashBack ? (g.theme + ': ' + others) : w.word);
     }
 
-    function nextPick() {
-      const g = GROUPS[(Math.random() * GROUPS.length) | 0];
-      const target = g.words[(Math.random() * g.words.length) | 0];
-      const correct = g.words.find((w) => w.word !== target.word) || g.words[0];
-      const wrongPool = g.quizWrong.slice();
-      while (wrongPool.length < 3) {
-        const og = GROUPS[(Math.random() * GROUPS.length) | 0];
-        if (og.id === g.id) continue;
-        const ow = og.words[0].word;
-        if (!wrongPool.includes(ow) && ow !== correct.word) wrongPool.push(ow);
-      }
-      const opts = shuffle([correct.word].concat(wrongPool.slice(0, 3)));
-      pickQ = {
-        prompt: 'คำไหนพ้องความหมายกับ「' + target.word + '」?',
-        group: g,
-        target,
-        answer: correct.word,
-        opts,
-        explain: 'กลุ่ม「' + g.theme + '」: ' + g.words.map((w) => w.word).join(' · ') + ' — ' + g.tip,
+    function updateQuizButtons() {
+      const cBtn = document.getElementById('btnQuizChoice');
+      const lBtn = document.getElementById('btnQuizListen');
+      if (cBtn) cBtn.className = 'btn ' + (quizQuestionType === 'choice' ? 'btn-primary' : 'btn-ghost');
+      if (lBtn) lBtn.className = 'btn ' + (quizQuestionType === 'listen' ? 'btn-primary' : 'btn-ghost');
+    }
+
+    function mountQuiz() {
+      if (!window.KampaiEngines || !window.KampaiEngines.Quiz) return;
+      updateQuizButtons();
+      const opts = {
+        items: ENGINE_POOL,
+        mode: 'media',
+        categorySlug: 'synonyms',
+        roundSize: 8,
+        locale: 'th-TH',
+        speak: (text) => speakText(text),
+        onAnswer: (res) => {
+          if (window.KAMPAI && window.KAMPAI.sound) {
+            try {
+              if (res.isCorrect) KAMPAI.sound.correct();
+              else KAMPAI.sound.wrong();
+            } catch (_) {}
+          }
+        },
       };
-      pickAnswered = false;
-      renderPick();
+      quizSession = quizQuestionType === 'listen'
+        ? window.KampaiEngines.Quiz.mountListen('#quizEngineRoot', opts)
+        : window.KampaiEngines.Quiz.mountChoice('#quizEngineRoot', opts);
     }
 
-    function renderPick() {
-      const el = document.getElementById('p-practice');
-      if (!pickQ) return;
-      el.innerHTML =
-        '<div class="q-box">' +
-        '<div style="font-size:2.5rem">' + pickQ.group.emoji + '</div>' +
-        '<p class="q-text">' + pickQ.prompt + '</p>' +
-        '<p style="font-weight:700;color:#64748b">ระดับชั้น ' + pickQ.group.grade + '</p>' +
-        '<div class="opts">' +
-        pickQ.opts.map((o) => '<button type="button" class="opt" data-v="' + o + '">' + o + '</button>').join('') +
-        '</div>' +
-        '<p class="fb" id="pickFb"></p>' +
-        '<div class="actions"><button type="button" class="btn btn-primary" id="btnNextP">ข้อถัดไป</button></div>' +
-        '</div>';
-      el.querySelectorAll('.opt').forEach((b) => {
-        b.onclick = () => {
-          if (pickAnswered) return;
-          pickAnswered = true;
-          const v = b.dataset.v;
-          const ok = v === pickQ.answer;
-          el.querySelectorAll('.opt').forEach((o) => {
-            if (o.dataset.v === pickQ.answer) o.classList.add('ok');
-            else if (o === b) o.classList.add('no');
-          });
-          document.getElementById('pickFb').className = 'fb ' + (ok ? 'ok' : 'no');
-          document.getElementById('pickFb').textContent = (ok ? '✅ ถูกต้อง! ' : '❌ คำตอบคือ「' + pickQ.answer + '」— ') + pickQ.explain;
-        };
-      });
-      document.getElementById('btnNextP').onclick = nextPick;
+    function updateMatchButtons() {
+      const cBtn = document.getElementById('btnMatchConnect');
+      const mBtn = document.getElementById('btnMatchMemory');
+      if (cBtn) cBtn.className = 'btn ' + (matchSubMode === 'connect' ? 'btn-primary' : 'btn-ghost');
+      if (mBtn) mBtn.className = 'btn ' + (matchSubMode === 'memory' ? 'btn-primary' : 'btn-ghost');
     }
 
-    function resetMatch() {
-      matchThemes = shuffle(GROUPS).slice(0, 3);
-      matchWords = shuffle(matchThemes.flatMap((g) =>
-        g.words.map((w) => ({ word: w.word, groupId: g.id }))
-      ));
-      matchPlaces = {};
-      matchThemes.forEach((g) => { matchPlaces[g.id] = []; });
-      matchSelWord = null;
-      matchChecked = false;
-      renderMatch();
-    }
-
-    function renderMatch() {
-      const el = document.getElementById('p-match');
-      const used = new Set(Object.values(matchPlaces).flat());
-      const allPlaced = matchWords.every((w) => used.has(w.word));
-      el.innerHTML =
-        '<div class="match-layout">' +
-        '<div class="boxes">' +
-        matchThemes.map((g) =>
-          '<button type="button" class="box' + (matchSelWord ? ' on' : '') + '" data-box="' + g.id + '" style="text-align:left;width:100%;cursor:pointer;font-family:inherit">' +
-          '<h4>' + g.emoji + ' ' + g.theme + '</h4>' +
-          '<div class="chips">' +
-          (matchPlaces[g.id] || []).map((word) => {
-            let cls = 'chip';
-            if (matchChecked) {
-              const item = matchWords.find((x) => x.word === word);
-              cls += item && item.groupId === g.id ? ' ok' : ' no';
-            }
-            return '<span class="' + cls + '">' + word + '</span>';
-          }).join('') +
-          '</div></button>'
-        ).join('') +
-        '</div>' +
-        '<div>' +
-        '<p style="font-weight:800;color:var(--deep);margin-bottom:8px;text-align:center">แตะคำ แล้วแตะกล่องธีม</p>' +
-        '<div class="pool">' +
-        matchWords.map((w) =>
-          '<button type="button" class="f-btn' + (used.has(w.word) ? ' used' : '') +
-          (matchSelWord === w.word ? ' sel' : '') + '" data-word="' + w.word + '">' + w.word + '</button>'
-        ).join('') +
-        '</div></div></div>' +
-        '<p class="fb" id="matchFb">' + (allPlaced && !matchChecked ? 'วางครบแล้ว — กดตรวจคำตอบ' : '') + '</p>' +
-        '<div class="actions">' +
-        '<button type="button" class="btn btn-accent" id="btnCheckM"' + (allPlaced ? '' : ' disabled') + '>ตรวจคำตอบ</button>' +
-        '<button type="button" class="btn btn-primary" id="btnNewM">สุ่มชุดใหม่</button></div>';
-      el.querySelectorAll('[data-word]').forEach((b) => {
-        b.onclick = () => {
-          if (used.has(b.dataset.word) || matchChecked) return;
-          matchSelWord = matchSelWord === b.dataset.word ? null : b.dataset.word;
-          renderMatch();
-        };
+    function mountMatch() {
+      if (!window.KampaiEngines || !window.KampaiEngines.ConnectMatch) return;
+      updateMatchButtons();
+      matchSession = window.KampaiEngines.ConnectMatch.mount('#matchEngineRoot', {
+        items: ENGINE_POOL,
+        pairCount: 6,
+        mode: 'media',
+        subMode: matchSubMode,
+        locale: 'th-TH',
+        onMatch: (pair) => {
+          if (window.KAMPAI && window.KAMPAI.sound) {
+            try { KAMPAI.sound.correct(); } catch (_) {}
+          }
+          if (pair && pair.leftText) speakText(pair.leftText);
+        },
       });
-      el.querySelectorAll('[data-box]').forEach((b) => {
-        b.onclick = () => {
-          if (!matchSelWord || matchChecked) return;
-          const gid = b.dataset.box;
-          Object.keys(matchPlaces).forEach((k) => {
-            matchPlaces[k] = matchPlaces[k].filter((w) => w !== matchSelWord);
-          });
-          matchPlaces[gid].push(matchSelWord);
-          matchSelWord = null;
-          renderMatch();
-        };
-      });
-      document.getElementById('btnNewM').onclick = resetMatch;
-      const chk = document.getElementById('btnCheckM');
-      chk.onclick = () => {
-        if (!allPlaced) return;
-        matchChecked = true;
-        let ok = 0, total = matchWords.length;
-        matchWords.forEach((w) => {
-          const box = Object.keys(matchPlaces).find((k) => matchPlaces[k].includes(w.word));
-          if (box === w.groupId) ok++;
-        });
-        renderMatch();
-        const fb = document.getElementById('matchFb');
-        fb.className = 'fb ' + (ok === total ? 'ok' : 'no');
-        fb.textContent = ok === total
-          ? '✅ จับคู่ถูกทั้ง ' + total + ' คำ!'
-          : 'ได้ ' + ok + '/' + total + ' — สีเขียวถูก สีแดงลองใหม่';
-      };
     }
 
     document.getElementById('modeSeg').onclick = (e) => {
       const b = e.target.closest('button[data-mode]');
       if (b) setMode(b.dataset.mode);
     };
+    document.getElementById('btnQuizChoice').addEventListener('click', () => {
+      stopSpeech();
+      quizQuestionType = 'choice';
+      mountQuiz();
+    });
+    document.getElementById('btnQuizListen').addEventListener('click', () => {
+      stopSpeech();
+      quizQuestionType = 'listen';
+      mountQuiz();
+    });
+    document.getElementById('btnQuizNew').addEventListener('click', () => {
+      stopSpeech();
+      mountQuiz();
+    });
+    document.getElementById('btnMatchConnect').addEventListener('click', () => {
+      stopSpeech();
+      matchSubMode = 'connect';
+      mountMatch();
+    });
+    document.getElementById('btnMatchMemory').addEventListener('click', () => {
+      stopSpeech();
+      matchSubMode = 'memory';
+      mountMatch();
+    });
+    document.getElementById('btnMatchNew').addEventListener('click', () => {
+      stopSpeech();
+      mountMatch();
+    });
     document.getElementById('btnFs').onclick = () => {
-      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.().catch(() => {});
       else document.exitFullscreen?.();
     };
 
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stopSpeech();
+    });
+    window.addEventListener('pagehide', stopSpeech);
+
+    window.getState = () => Object.freeze({
+      slug: MEDIA_SLUG,
+      mode: mode,
+      selectedGroup: selGroup,
+      selectedWordIndex: selWordIdx,
+      flashIndex: flashIdx,
+      flashBack: flashBack,
+      groupCount: GROUPS.length,
+      wordCount: ENGINE_POOL.length,
+      quizQuestionType: quizQuestionType,
+      matchSubMode: matchSubMode,
+      quizState: quizSession ? quizSession.getState() : null,
+      matchState: matchSession ? matchSession.getState() : null,
+      reducedMotion: typeof window.matchMedia === 'function'
+        ? Boolean(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+        : false,
+    });
+
+    mountQuiz();
+    mountMatch();
     setMode('learn');
   </script>
 </body>

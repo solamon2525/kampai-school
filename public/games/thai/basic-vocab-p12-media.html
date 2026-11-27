@@ -1,42 +1,347 @@
 <!DOCTYPE html>
-<html lang="th"><head>
+<html lang="th">
+<head>
   <script src="/games/kampai-sdk.js?v=1.181.0"></script>
-  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>คำพื้นฐาน ป.ต้น — บ้านคำไผ่</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet"/>
+  <script src="/games/media-lab-runtime.js?v=2.0.0"></script>
+  <script src="/games/engine/vocab-quiz-engine.js?v=2.0.0"></script>
+  <script src="/games/engine/connect-match-engine.js?v=2.0.0"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>คำพื้นฐาน ป.ต้น — สื่อการสอน — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
   <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{--deep:#a16207;--line:#fde68a;--muted:#64748b}
-    body{font-family:'Sarabun',sans-serif;background:linear-gradient(145deg,#fde68a,#a1620722);min-height:100%;padding:12px;color:#0f172a}
-    .shell{max-width:1100px;margin:0 auto;background:#fff;border-radius:1.5rem;box-shadow:0 20px 50px rgba(15,23,42,.12);overflow:hidden;min-height:calc(100vh - 24px);display:flex;flex-direction:column}
-    header{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 16px;background:linear-gradient(90deg,var(--deep),#a16207);color:#fff}
-    header h1{font-size:1.15rem;font-weight:800;flex:1;min-width:160px}
-    .badge{font-size:.75rem;background:rgba(255,255,255,.2);padding:4px 10px;border-radius:999px;font-weight:700}
-    .btn{font-family:inherit;font-weight:700;border:none;border-radius:12px;padding:10px 14px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
-    .btn:active{transform:scale(.97)}
-    .btn-back{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);padding:8px 12px;font-size:.85rem}
-    .btn-primary{background:var(--deep);color:#fff}
-    .btn-ghost{background:#fff;color:var(--deep);border:2px solid var(--line)}
-    .toolbar{display:flex;flex-wrap:wrap;gap:8px;padding:12px 16px;background:#f8fafc;border-bottom:1px solid var(--line);align-items:center}
-    .seg{display:inline-flex;border-radius:12px;overflow:hidden;border:2px solid var(--line)}
-    .seg button{font-family:inherit;font-weight:800;border:none;background:#fff;color:var(--deep);padding:8px 14px;cursor:pointer}
-    .seg button.on{background:var(--deep);color:#fff}
-    .hint{font-size:.9rem;color:var(--deep);font-weight:700;flex:1;min-width:140px}
-    .stage{flex:1;padding:16px;overflow:auto}
-    .footer{padding:10px;font-size:.8rem;color:var(--muted);text-align:center;border-top:1px solid var(--line)}
-    .practice{display:none;flex-direction:column;gap:12px;max-width:520px;margin:0 auto}
-    .shell.mode-practice .learn{display:none}.shell.mode-practice .practice{display:flex}
-    .choice{font-family:inherit;font-weight:800;font-size:1.05rem;padding:14px;border:2px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;text-align:left}
-    .choice.ok{background:#dcfce7}.choice.no{background:#fee2e2}
-    .pick{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
-     .pick button{font-family:inherit;font-weight:800;font-size:1rem;padding:12px 14px;border:2px solid var(--line);border-radius:14px;background:#fff;cursor:pointer;color:var(--deep)}
-     .pick button.on{background:var(--deep);color:#fff}
-     .box{background:#f8fafc;border:2px solid var(--line);border-radius:16px;padding:18px;font-weight:700;line-height:1.7;font-size:1.1rem}
-     .box h2{color:var(--deep);margin-bottom:8px;font-size:1.5rem}
-     .emo{font-size:3.2rem;margin-bottom:8px}
-     .trace{margin-top:12px;padding:12px;border:2px dashed var(--line);border-radius:12px;font-size:2rem;letter-spacing:.12em;color:#94a3b8;font-weight:800}
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --deep: #92400e;
+      --deep-dark: #78350f;
+      --accent: #b45309;
+      --line: #fde68a;
+      --soft: #fffbeb;
+      --muted: #475569;
+      --ink: #0f172a;
+      --border: #e2e8f0;
+      --ok: #15803d;
+      --bad: #b91c1c;
+    }
+    html, body { max-width: 100%; overflow-x: hidden; }
+    body {
+      font-family: 'Sarabun', sans-serif;
+      background: linear-gradient(145deg, #fef3c7, #fde68a 55%, #fffbeb);
+      min-height: 100vh;
+      padding: 12px;
+      color: var(--ink);
+    }
+    .shell {
+      max-width: 1100px;
+      width: 100%;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 1.5rem;
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.12);
+      overflow: hidden;
+      min-height: calc(100vh - 24px);
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      background: linear-gradient(90deg, var(--deep-dark), var(--accent));
+      color: #ffffff;
+    }
+    header h1 { font-size: 1.15rem; font-weight: 800; flex: 1; min-width: 160px; }
+    .badge {
+      font-size: 0.78rem;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .btn {
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 0.92rem;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 14px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 44px;
+      min-width: 44px;
+      transition: transform 0.15s, background 0.15s;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn:focus-visible, .seg button:focus-visible, .pick button:focus-visible,
+    .word-chip:focus-visible, .ke-option:focus-visible, .ke-btn:focus-visible,
+    .ke-match-card:focus-visible, .ke-memory-card:focus-visible {
+      outline: 3px solid #f59e0b;
+      outline-offset: 2px;
+    }
+    .btn-back {
+      background: rgba(255, 255, 255, 0.16);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      padding: 8px 12px;
+      font-size: 0.85rem;
+    }
+    .btn-primary { background: var(--deep); color: #ffffff; }
+    .btn-primary:hover { background: var(--deep-dark); }
+    .btn-ghost { background: #ffffff; color: var(--deep-dark); border: 2px solid var(--line); }
+    .btn-ghost:hover { background: var(--soft); }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 12px 16px;
+      background: var(--soft);
+      border-bottom: 1px solid var(--line);
+      align-items: center;
+    }
+    .seg {
+      display: inline-flex;
+      flex-wrap: wrap;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px solid #f59e0b;
+      background: #ffffff;
+    }
+    .seg button {
+      font-family: inherit;
+      font-weight: 800;
+      border: none;
+      background: #ffffff;
+      color: var(--deep-dark);
+      padding: 8px 14px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      min-height: 44px;
+      min-width: 44px;
+    }
+    .seg button.on { background: var(--deep); color: #ffffff; }
+    .hint { font-size: 0.88rem; color: var(--deep-dark); font-weight: 700; flex: 1; min-width: 140px; }
+    .stage { flex: 1; padding: 16px; overflow: auto; }
+    .panel { display: none; flex-direction: column; gap: 14px; max-width: 880px; margin: 0 auto; width: 100%; }
+    .panel.on { display: flex; }
+    .pick { display: flex; flex-wrap: wrap; gap: 8px; }
+    .pick button {
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 1rem;
+      padding: 10px 14px;
+      border: 2px solid var(--line);
+      border-radius: 14px;
+      background: #ffffff;
+      cursor: pointer;
+      color: var(--deep-dark);
+      min-height: 44px;
+      min-width: 44px;
+    }
+    .pick button.on { background: var(--deep); color: #ffffff; border-color: var(--deep); }
+    .box {
+      background: #fffdf7;
+      border: 2px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      font-weight: 700;
+      line-height: 1.7;
+      font-size: 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .box h2 { color: var(--deep-dark); font-size: 1.5rem; }
+    .emo { font-size: 3.2rem; line-height: 1.1; }
+    .word-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+    .word-chip {
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 1.05rem;
+      min-height: 44px;
+      min-width: 44px;
+      padding: 8px 14px;
+      border-radius: 12px;
+      border: 2px solid #f59e0b;
+      background: #ffffff;
+      color: var(--deep-dark);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .word-chip:hover { background: #fef3c7; }
+    .tip-line { color: var(--muted); font-size: 1rem; font-weight: 700; }
+    .trace {
+      margin-top: 4px;
+      padding: 12px;
+      border: 2px dashed var(--line);
+      border-radius: 12px;
+      font-size: 1.8rem;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      font-weight: 800;
+    }
+    .speech-status {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #78350f;
+      background: #fef3c7;
+      border: 1px solid #f59e0b;
+      border-radius: 10px;
+      padding: 8px 12px;
+      display: none;
+      max-width: 880px;
+      margin: 0 auto 12px;
+      width: 100%;
+    }
+    .speech-status.show { display: block; }
+    .engine-card {
+      background: #fffdf7;
+      border: 2px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .engine-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .engine-mode-group { display: inline-flex; flex-wrap: wrap; gap: 8px; }
+    .ke-quiz-card, .ke-quiz-summary { display: flex; flex-direction: column; gap: 14px; }
+    .ke-quiz-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-weight: 800;
+    }
+    .ke-badge {
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #fef3c7;
+      color: var(--deep-dark);
+      font-size: 0.85rem;
+    }
+    .ke-progress { color: var(--muted); font-size: 0.92rem; }
+    .ke-prompt { font-size: 1.2rem; font-weight: 800; color: var(--ink); line-height: 1.5; overflow-wrap: anywhere; }
+    .ke-audio-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .ke-options { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    @media (min-width: 640px) { .ke-options { grid-template-columns: 1fr 1fr; } }
+    .ke-option, .ke-btn {
+      min-height: 46px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      background: #ffffff;
+      color: var(--ink);
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: left;
+      overflow-wrap: anywhere;
+    }
+    .ke-option:hover { background: var(--soft); border-color: #f59e0b; }
+    .ke-btn {
+      background: var(--deep);
+      color: #ffffff;
+      border-color: var(--deep);
+      text-align: center;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .ke-option.is-correct { background: #dcfce7; border-color: var(--ok); color: #14532d; }
+    .ke-option.is-wrong { background: #fee2e2; border-color: var(--bad); color: #7f1d1d; }
+    .ke-clue {
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: #fef3c7;
+      color: #78350f;
+      font-weight: 700;
+    }
+    .ke-feedback, .ke-match-feedback {
+      min-height: 24px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-weight: 700;
+      background: #f1f5f9;
+      color: var(--ink);
+      line-height: 1.45;
+    }
+    .ke-feedback.is-good { background: #dcfce7; color: #14532d; border: 1.5px solid var(--ok); }
+    .ke-feedback.is-learn { background: #fef3c7; color: #78350f; border: 1.5px solid #d97706; }
+    .ke-match-wrap { position: relative; display: flex; flex-direction: column; gap: 12px; width: 100%; }
+    .ke-match-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+    .ke-match-grid {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+    .ke-match-col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+    .ke-match-card, .ke-memory-card {
+      width: 100%;
+      min-height: 48px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      background: #ffffff;
+      color: var(--ink);
+      font-family: inherit;
+      font-size: 0.96rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      overflow-wrap: anywhere;
+    }
+    .ke-match-card:hover, .ke-memory-card:hover { border-color: var(--deep); background: var(--soft); }
+    .ke-match-card.active { border-color: var(--deep); background: #fef3c7; box-shadow: 0 0 0 3px rgba(146, 64, 14, 0.2); }
+    .ke-match-card.matched, .ke-memory-card.matched { background: #dcfce7; border-color: var(--ok); color: #14532d; cursor: default; }
+    .ke-match-card.error, .ke-memory-card.error { background: #fee2e2; border-color: var(--bad); color: #7f1d1d; }
+    .ke-memory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(115px, 1fr)); gap: 10px; }
+    .ke-memory-card.flipped { background: var(--soft); border-color: var(--deep); }
+    .footer {
+      padding: 10px 16px;
+      font-size: 0.82rem;
+      color: var(--muted);
+      text-align: center;
+      border-top: 1px solid var(--line);
+    }
+    @media (max-width: 600px) {
+      body { padding: 0; }
+      .shell { border-radius: 0; min-height: 100vh; }
+      .ke-match-grid { gap: 10px; }
+      .ke-match-card { font-size: 0.88rem; padding: 8px 6px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+      }
+      .btn:active { transform: none; }
+    }
   </style>
-</head><body>
+</head>
+<body>
 <div class="shell" id="shell">
   <header>
     <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back()">← กลับคลังสื่อ</button>
@@ -46,37 +351,318 @@
   <div class="toolbar">
     <span class="seg" id="modeSeg">
       <button type="button" data-mode="learn" class="on">📖 เรียนรู้</button>
-      <button type="button" data-mode="practice">✏️ ฝึก</button>
+      <button type="button" data-mode="practice">✏️ ฝึกทายคำ</button>
+      <button type="button" data-mode="match">🔗 จับคู่คำ</button>
     </span>
-    <p class="hint" id="hintText">สื่อ ป.ต้น — ไม่เก็บคะแนน</p>
+    <p class="hint" id="hintText">เลือกหมวดคำศัพท์ แล้วแตะคำเพื่อฟังเสียงอ่าน</p>
     <button type="button" class="btn btn-ghost" id="btnFs">⛶ เต็มจอ</button>
     <a class="btn btn-ghost" href="/games/thai/basic-vocab-p12-worksheet.html" target="_blank" rel="noopener">📝 เปิดใบงาน</a>
   </div>
-  <div class="stage" id="stage"><div class="learn"><div class="pick" id="pick"></div><div class="box" id="box"></div></div>
-     <div class="practice"><p style="font-weight:800;font-size:1.15rem;color:var(--deep)" id="prQ"></p><div id="prChoices" style="display:grid;gap:8px"></div><p id="prFb" style="font-weight:800;min-height:24px"></p><button type="button" class="btn btn-primary" id="btnNext">ข้อถัดไป</button></div></div>
-  <div class="footer">โรงเรียนบ้านคำไผ่ · สื่อ ป.ต้น · Phase 12 · ไม่เก็บคะแนน</div>
+  <div class="stage" id="stage">
+    <div class="speech-status" id="speechStatus" role="status" aria-live="polite"></div>
+
+    <section class="panel on" id="panel-learn">
+      <div class="learn" id="learn">
+        <div class="pick" id="pick"></div>
+        <div class="box" id="box" style="margin-top:12px;"></div>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-practice">
+      <div class="engine-card" id="practice">
+        <div class="engine-toolbar">
+          <div class="engine-mode-group">
+            <button type="button" class="btn btn-primary" id="btnQuizChoice">📝 เติมคำ / ทายความหมาย</button>
+            <button type="button" class="btn btn-ghost" id="btnQuizListen">🔊 ฟังเสียงเลือกคำ</button>
+          </div>
+          <button type="button" class="btn btn-ghost" id="btnQuizNew">🔄 ชุดใหม่</button>
+        </div>
+        <div id="quizEngineRoot"></div>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-match">
+      <div class="engine-card">
+        <div class="engine-toolbar">
+          <div class="engine-mode-group">
+            <button type="button" class="btn btn-primary" id="btnMatchConnect">🔗 โยงคู่คำศัพท์</button>
+            <button type="button" class="btn btn-ghost" id="btnMatchMemory">🃏 เปิดป้ายจำคู่</button>
+          </div>
+          <button type="button" class="btn btn-ghost" id="btnMatchNew">🔄 ชุดใหม่</button>
+        </div>
+        <div id="matchEngineRoot"></div>
+      </div>
+    </section>
+  </div>
+  <div class="footer">โรงเรียนบ้านคำไผ่ · สื่อ ป.ต้น · ไม่เก็บคะแนน · ไม่จับเวลา</div>
 </div>
 <script>
-const MEDIA_SLUG='basic-vocab-p12-media';
-if(window.KAMPAI){KAMPAI.setSlug(MEDIA_SLUG);if(KAMPAI.sound&&KAMPAI.sound.mountToggles)KAMPAI.sound.mountToggles();}
-const ITEMS=[{"emoji":"👤","name":"คนในบ้าน","body":"พ่อ แม่ พี่ น้อง ครู","tip":"ชี้รูปแล้วพูดคำ","q":"ใครสอนที่โรงเรียน?","a":"ครู"},{"emoji":"🏠","name":"สิ่งของบ้าน","body":"โต๊ะ เก้าอี้ ประตู หน้าต่าง","tip":"เดินชี้ของจริง","q":"นั่งบนอะไร?","a":"เก้าอี้"},{"emoji":"🍎","name":"อาหาร","body":"ข้าว น้ำ ผลไม้ ขนม","tip":"พูดชื่อของในกล่องอาหาร","q":"ดื่มอะไรเมื่อกระหาย?","a":"น้ำ"},{"emoji":"🐶","name":"สัตว์","body":"หมา แมว นก ปลา","tip":"เลียนเสียงสัตว์สนุก ๆ","q":"สัตว์ที่เห่าคือ?","a":"หมา"},{"emoji":"🚌","name":"การเดินทาง","body":"รถ เรือ เดิน วิ่ง","tip":"เล่าว่ามาโรงเรียนอย่างไร","q":"มาโรงเรียนอย่างไรได้บ้าง?","a":"รถ / เดิน ฯลฯ"},{"emoji":"🌤️","name":"ธรรมชาติ","body":"แดด ฝน ลม ต้นไม้","tip":"มองนอกหน้าต่างแล้วบอก","q":"มีเมฆดำมักเกิดอะไร?","a":"ฝน"}];
-let cur=ITEMS[0];
-function setMode(m){document.getElementById('shell').classList.toggle('mode-practice',m==='practice');document.getElementById('hintText').textContent=m==='learn'?'เลือกหัวข้อ · ตัวใหญ่ชัด':'ตอบคำถาม';if(m==='practice')nextPr();}
-function render(){
-  document.getElementById('pick').innerHTML=ITEMS.map((x,i)=>'<button type="button" data-i="'+i+'" class="'+(x===cur?'on':'')+'">'+(x.emoji?x.emoji+' ':'')+x.name+'</button>').join('');
-  document.getElementById('box').innerHTML=(cur.emoji?'<div class="emo">'+cur.emoji+'</div>':'')+'<h2>'+cur.name+'</h2><p>'+cur.body+'</p>'+(cur.tip?'<p style="margin-top:10px;color:var(--muted);font-size:1rem">💡 '+cur.tip+'</p>':'')+(cur.trace?'<div class="trace">'+cur.trace+'</div>':'');
+const MEDIA_SLUG = 'basic-vocab-p12-media';
+if (window.KAMPAI) {
+  KAMPAI.setSlug('basic-vocab-p12-media');
+  if (KAMPAI.sound && KAMPAI.sound.mountToggles) {
+    try { KAMPAI.sound.mountToggles(); } catch (_) {}
+  }
 }
-document.getElementById('pick').onclick=e=>{const b=e.target.closest('[data-i]');if(!b)return;cur=ITEMS[+b.dataset.i];render();};
-function nextPr(){const a=ITEMS[Math.floor(Math.random()*ITEMS.length)];document.getElementById('prQ').textContent=a.q;document.getElementById('prFb').textContent='';
-  const opts=new Set([a.a]);while(opts.size<4)opts.add(ITEMS[Math.floor(Math.random()*ITEMS.length)].a);
-  const box=document.getElementById('prChoices');box.innerHTML=[...opts].sort(()=>Math.random()-0.5).map(o=>'<button type="button" class="choice">'+o+'</button>').join('');
-  box.onclick=e=>{const b=e.target.closest('.choice');if(!b)return;const ok=b.textContent===a.a;b.classList.add(ok?'ok':'no');document.getElementById('prFb').textContent=ok?'✅ เก่งมาก!':'เฉลย: '+a.a;if(KAMPAI&&KAMPAI.sound)(ok?KAMPAI.sound.correct:KAMPAI.sound.wrong)();};}
-document.getElementById('btnNext').onclick=nextPr;render();setMode('learn');
-document.getElementById('modeSeg').onclick=e=>{
-  const b=e.target.closest('button[data-mode]');if(!b)return;
-  [...document.querySelectorAll('#modeSeg button')].forEach(x=>x.classList.toggle('on',x===b));
-  setMode(b.dataset.mode);
-};
-document.getElementById('btnFs').onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.();};
+
+const ITEMS = [
+  { emoji: '👤', name: 'คนในบ้าน', body: 'พ่อ แม่ พี่ น้อง ครู', tip: 'ชี้รูปแล้วพูดคำ', q: 'ใครสอนที่โรงเรียน?', a: 'ครู' },
+  { emoji: '🏠', name: 'สิ่งของบ้าน', body: 'โต๊ะ เก้าอี้ ประตู หน้าต่าง', tip: 'เดินชี้ของจริง', q: 'นั่งบนอะไร?', a: 'เก้าอี้' },
+  { emoji: '🍎', name: 'อาหาร', body: 'ข้าว น้ำ ผลไม้ ขนม', tip: 'พูดชื่อของในกล่องอาหาร', q: 'ดื่มอะไรเมื่อกระหาย?', a: 'น้ำ' },
+  { emoji: '🐶', name: 'สัตว์', body: 'หมา แมว นก ปลา', tip: 'เลียนเสียงสัตว์สนุก ๆ', q: 'สัตว์ที่เห่าคือ?', a: 'หมา' },
+  { emoji: '🚌', name: 'การเดินทาง', body: 'รถ เรือ เดิน วิ่ง', tip: 'เล่าว่ามาโรงเรียนอย่างไร', q: 'มาโรงเรียนอย่างไรได้บ้าง?', a: 'รถ / เดิน ฯลฯ' },
+  { emoji: '🌤️', name: 'ธรรมชาติ', body: 'แดด ฝน ลม ต้นไม้', tip: 'มองนอกหน้าต่างแล้วบอก', q: 'มีเมฆดำมักเกิดอะไร?', a: 'ฝน' }
+];
+
+const VOCAB_POOL = [
+  { id: 'ครู', term: 'ครู', reading: 'คนในบ้าน/โรงเรียน', meaning: 'ผู้สอนหนังสือที่โรงเรียน', example: 'ใครสอนที่โรงเรียน? คำตอบคือ ครู', explain: 'ครู คือผู้สอนหนังสือและดูแลนักเรียนที่โรงเรียน', locale: 'th-TH' },
+  { id: 'พ่อ', term: 'พ่อ', reading: 'คนในบ้าน', meaning: 'ผู้ปกครองชายในครอบครัว', example: 'พ่อช่วยดูแลลูก ๆ ที่บ้าน', explain: 'พ่อ เป็นคนสำคัญในครอบครัว', locale: 'th-TH' },
+  { id: 'เก้าอี้', term: 'เก้าอี้', reading: 'สิ่งของบ้าน', meaning: 'สิ่งของในบ้านสำหรับใช้นั่ง', example: 'เรานั่งพักบน เก้าอี้ ที่บ้าน', explain: 'เก้าอี้ เป็นสิ่งของในบ้านสำหรับใช้นั่ง', locale: 'th-TH' },
+  { id: 'ประตู', term: 'ประตู', reading: 'สิ่งของบ้าน', meaning: 'ช่องทางเปิดปิดเข้าออกบ้าน', example: 'หนูช่วยเปิด ประตู รับคุณแม่', explain: 'ประตู ใช้เปิดปิดทางเข้าออกบ้าน', locale: 'th-TH' },
+  { id: 'น้ำ', term: 'น้ำ', reading: 'อาหารและเครื่องดื่ม', meaning: 'เครื่องดื่มใสสำหรับดื่มเมื่อกระหาย', example: 'ดื่ม น้ำ สะอาดเมื่อรู้สึกกระหาย', explain: 'น้ำ เป็นสิ่งที่เราดื่มเมื่อกระหาย', locale: 'th-TH' },
+  { id: 'ข้าว', term: 'ข้าว', reading: 'อาหาร', meaning: 'อาหารหลักที่กินทุกวัน', example: 'ตอนเช้าหนูกิน ข้าว กับไข่เจียว', explain: 'ข้าว เป็นอาหารหลักในชีวิตประจำวัน', locale: 'th-TH' },
+  { id: 'หมา', term: 'หมา', reading: 'สัตว์', meaning: 'สัตว์เลี้ยงสี่ขาที่ส่งเสียงเห่า', example: 'สัตว์ที่เห่าเสียงดังคือ หมา', explain: 'หมา เป็นสัตว์ที่ส่งเสียงเห่า', locale: 'th-TH' },
+  { id: 'นก', term: 'นก', reading: 'สัตว์', meaning: 'สัตว์มีปีกที่บินได้บนท้องฟ้า', example: 'นก บินเกาะบนกิ่งไม้หน้าบ้าน', explain: 'นก เป็นสัตว์มีปีกที่บินได้', locale: 'th-TH' },
+  { id: 'รถ', term: 'รถ', reading: 'การเดินทาง', meaning: 'ยานพาหนะทางบกสำหรับเดินทาง', example: 'ตอนเช้านักเรียนนั่ง รถ มาโรงเรียน', explain: 'รถ ใช้เดินทางมาโรงเรียนทางถนน', locale: 'th-TH' },
+  { id: 'เรือ', term: 'เรือ', reading: 'การเดินทาง', meaning: 'ยานพาหนะสำหรับเดินทางทางน้ำ', example: 'ชาวบ้านพาย เรือ ข้ามแม่น้ำ', explain: 'เรือ ใช้เดินทางในแม่น้ำหรือคลอง', locale: 'th-TH' },
+  { id: 'ฝน', term: 'ฝน', reading: 'ธรรมชาติ', meaning: 'หยดน้ำที่ตกลงมาจากเมฆดำ', example: 'เมื่อมีเมฆดำมักเกิด ฝน ตกลงมา', explain: 'มีเมฆดำครึ้มมักเกิดฝนตก', locale: 'th-TH' },
+  { id: 'ต้นไม้', term: 'ต้นไม้', reading: 'ธรรมชาติ', meaning: 'พืชใหญ่ในธรรมชาติที่ให้ร่มเงา', example: 'ต้นไม้ ใหญ่ช่วยให้บ้านร่มรื่น', explain: 'ต้นไม้ เป็นส่วนหนึ่งของธรรมชาติที่ให้ร่มเงา', locale: 'th-TH' }
+];
+
+let mode = 'learn';
+let curIdx = 0;
+let quizQuestionType = 'choice';
+let matchSubMode = 'connect';
+let quizSession = null;
+let matchSession = null;
+
+function stopSpeech() {
+  if (window.KampaiMediaLab && typeof window.KampaiMediaLab.stopAllSpeech === 'function') {
+    window.KampaiMediaLab.stopAllSpeech();
+  } else {
+    try { window.KAMPAI?.sound?.stopSpeak?.(); } catch (_) {}
+    try { window.speechSynthesis?.cancel?.(); } catch (_) {}
+  }
+}
+
+function speakText(text) {
+  const clean = String(text || '').trim();
+  if (!clean) return;
+  const statusEl = document.getElementById('speechStatus');
+  if (window.KampaiMediaLab && typeof window.KampaiMediaLab.speakSafe === 'function') {
+    const res = window.KampaiMediaLab.speakSafe(clean, { lang: 'th-TH', rate: 0.9 });
+    if (statusEl) {
+      if (res && res.ok === false) {
+        statusEl.textContent = 'อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านข้อความต่อได้';
+        statusEl.classList.add('show');
+      } else {
+        statusEl.textContent = '';
+        statusEl.classList.remove('show');
+      }
+    }
+    return;
+  }
+  try {
+    if (window.KAMPAI?.sound?.speak) {
+      KAMPAI.sound.speak(clean, 'th-TH', true);
+      return;
+    }
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(clean);
+      u.lang = 'th-TH';
+      u.rate = 0.9;
+      window.speechSynthesis.speak(u);
+      return;
+    }
+  } catch (_) {}
+  if (statusEl) {
+    statusEl.textContent = 'อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านข้อความต่อได้';
+    statusEl.classList.add('show');
+  }
+}
+
+function renderLearn() {
+  const cur = ITEMS[curIdx] || ITEMS[0];
+  document.getElementById('pick').innerHTML = ITEMS.map((x, i) =>
+    '<button type="button" data-i="' + i + '" class="' + (i === curIdx ? 'on' : '') + '">' +
+    (x.emoji ? x.emoji + ' ' : '') + x.name + '</button>'
+  ).join('');
+
+  const words = cur.body.split(/\s+/).filter(Boolean);
+  document.getElementById('box').innerHTML =
+    (cur.emoji ? '<div class="emo">' + cur.emoji + '</div>' : '') +
+    '<h2>' + cur.name + '</h2>' +
+    '<p>' + cur.body + '</p>' +
+    '<div class="word-chips">' +
+    words.map((w) => '<button type="button" class="word-chip" data-say="' + w + '">🔊 ' + w + '</button>').join('') +
+    '</div>' +
+    (cur.tip ? '<p class="tip-line">💡 ' + cur.tip + '</p>' : '') +
+    (cur.trace ? '<div class="trace">' + cur.trace + '</div>' : '') +
+    '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;">' +
+    '<button type="button" class="btn btn-primary" id="btnSpeakCat">🔊 ฟังคำทั้งหมดในหมวดนี้</button>' +
+    '</div>';
+
+  document.getElementById('btnSpeakCat').onclick = () => speakText(cur.name + ': ' + words.join(', '));
+}
+
+function updateQuizButtons() {
+  const cBtn = document.getElementById('btnQuizChoice');
+  const lBtn = document.getElementById('btnQuizListen');
+  if (cBtn) cBtn.className = 'btn ' + (quizQuestionType === 'choice' ? 'btn-primary' : 'btn-ghost');
+  if (lBtn) lBtn.className = 'btn ' + (quizQuestionType === 'listen' ? 'btn-primary' : 'btn-ghost');
+}
+
+function mountQuiz() {
+  if (!window.KampaiEngines || !window.KampaiEngines.Quiz) return;
+  updateQuizButtons();
+  const opts = {
+    items: VOCAB_POOL,
+    mode: 'media',
+    roundSize: 6,
+    locale: 'th-TH',
+    speak: (text) => speakText(text),
+    onAnswer: (res) => {
+      if (window.KAMPAI && window.KAMPAI.sound) {
+        try {
+          if (res.isCorrect) KAMPAI.sound.correct();
+          else KAMPAI.sound.wrong();
+        } catch (_) {}
+      }
+    }
+  };
+  quizSession = quizQuestionType === 'listen'
+    ? window.KampaiEngines.Quiz.mountListen('#quizEngineRoot', opts)
+    : window.KampaiEngines.Quiz.mountChoice('#quizEngineRoot', opts);
+}
+
+function updateMatchButtons() {
+  const cBtn = document.getElementById('btnMatchConnect');
+  const mBtn = document.getElementById('btnMatchMemory');
+  if (cBtn) cBtn.className = 'btn ' + (matchSubMode === 'connect' ? 'btn-primary' : 'btn-ghost');
+  if (mBtn) mBtn.className = 'btn ' + (matchSubMode === 'memory' ? 'btn-primary' : 'btn-ghost');
+}
+
+function mountMatch() {
+  if (!window.KampaiEngines || !window.KampaiEngines.ConnectMatch) return;
+  updateMatchButtons();
+  matchSession = window.KampaiEngines.ConnectMatch.mount('#matchEngineRoot', {
+    items: VOCAB_POOL,
+    pairCount: 6,
+    mode: 'media',
+    subMode: matchSubMode,
+    locale: 'th-TH',
+    onMatch: (pair) => {
+      if (window.KAMPAI && window.KAMPAI.sound) {
+        try { KAMPAI.sound.correct(); } catch (_) {}
+      }
+      if (pair && pair.leftText) speakText(pair.leftText);
+    }
+  });
+}
+
+function setMode(nextMode) {
+  stopSpeech();
+  mode = (nextMode === 'practice' || nextMode === 'match') ? nextMode : 'learn';
+  document.getElementById('shell').classList.toggle('mode-practice', mode === 'practice');
+  document.querySelectorAll('#modeSeg button').forEach((x) => {
+    const active = x.dataset.mode === mode;
+    x.classList.toggle('on', active);
+    x.setAttribute('aria-pressed', String(active));
+  });
+  document.getElementById('panel-learn').classList.toggle('on', mode === 'learn');
+  document.getElementById('panel-practice').classList.toggle('on', mode === 'practice');
+  document.getElementById('panel-match').classList.toggle('on', mode === 'match');
+
+  const hints = {
+    learn: 'เลือกหมวดคำศัพท์ แล้วแตะคำเพื่อฟังเสียงอ่าน',
+    practice: 'ฝึกทายคำศัพท์และเติมคำในประโยค (ไม่เก็บคะแนน)',
+    match: 'จับคู่คำพื้นฐานกับความหมาย (ไม่จับเวลา · ไม่เก็บคะแนน)'
+  };
+  document.getElementById('hintText').textContent = hints[mode];
+
+  if (mode === 'practice' && !quizSession) mountQuiz();
+  if (mode === 'match') mountMatch();
+}
+
+document.getElementById('pick').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-i]');
+  if (!b) return;
+  stopSpeech();
+  curIdx = Number(b.dataset.i);
+  renderLearn();
+});
+
+document.getElementById('box').addEventListener('click', (e) => {
+  const chip = e.target.closest('[data-say]');
+  if (chip) speakText(chip.dataset.say);
+});
+
+document.getElementById('modeSeg').addEventListener('click', (e) => {
+  const b = e.target.closest('button[data-mode]');
+  if (b) setMode(b.dataset.mode);
+});
+
+document.getElementById('btnQuizChoice').addEventListener('click', () => {
+  stopSpeech();
+  quizQuestionType = 'choice';
+  mountQuiz();
+});
+document.getElementById('btnQuizListen').addEventListener('click', () => {
+  stopSpeech();
+  quizQuestionType = 'listen';
+  mountQuiz();
+});
+document.getElementById('btnQuizNew').addEventListener('click', () => {
+  stopSpeech();
+  mountQuiz();
+});
+
+document.getElementById('btnMatchConnect').addEventListener('click', () => {
+  stopSpeech();
+  matchSubMode = 'connect';
+  mountMatch();
+});
+document.getElementById('btnMatchMemory').addEventListener('click', () => {
+  stopSpeech();
+  matchSubMode = 'memory';
+  mountMatch();
+});
+document.getElementById('btnMatchNew').addEventListener('click', () => {
+  stopSpeech();
+  mountMatch();
+});
+
+document.getElementById('btnFs').addEventListener('click', () => {
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen?.().catch(() => {});
+  else document.exitFullscreen?.();
+});
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) stopSpeech();
+});
+window.addEventListener('pagehide', stopSpeech);
+
+window.getState = () => Object.freeze({
+  slug: MEDIA_SLUG,
+  mode: mode,
+  categoryIndex: curIdx,
+  categoryName: ITEMS[curIdx]?.name || '',
+  itemCount: ITEMS.length,
+  vocabPoolCount: VOCAB_POOL.length,
+  quizQuestionType: quizQuestionType,
+  matchSubMode: matchSubMode,
+  quizState: quizSession ? quizSession.getState() : null,
+  matchState: matchSession ? matchSession.getState() : null,
+  reducedMotion: typeof window.matchMedia === 'function'
+    ? Boolean(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+    : false
+});
+
+renderLearn();
+mountQuiz();
+mountMatch();
+setMode('learn');
 </script>
-</body></html>
+</body>
+</html>

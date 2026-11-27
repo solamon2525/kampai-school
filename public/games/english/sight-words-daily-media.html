@@ -1,42 +1,302 @@
 <!DOCTYPE html>
-<html lang="th"><head>
+<html lang="th">
+<head>
   <script src="/games/kampai-sdk.js?v=1.181.0"></script>
-  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <script src="/games/media-lab-runtime.js?v=2.0.0"></script>
+  <script src="/games/engine/vocab-quiz-engine.js?v=2.0.0"></script>
+  <script src="/games/engine/connect-match-engine.js?v=2.0.0"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sight Words Daily — บ้านคำไผ่</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
   <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{--deep:#4f46e5;--line:#c7d2fe;--muted:#64748b}
-    body{font-family:'Sarabun',sans-serif;background:linear-gradient(145deg,#c7d2fe,#4f46e522);min-height:100%;padding:12px;color:#0f172a}
-    .shell{max-width:1100px;margin:0 auto;background:#fff;border-radius:1.5rem;box-shadow:0 20px 50px rgba(15,23,42,.12);overflow:hidden;min-height:calc(100vh - 24px);display:flex;flex-direction:column}
-    header{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 16px;background:linear-gradient(90deg,var(--deep),#4f46e5);color:#fff}
-    header h1{font-size:1.15rem;font-weight:800;flex:1;min-width:160px}
-    .badge{font-size:.75rem;background:rgba(255,255,255,.2);padding:4px 10px;border-radius:999px;font-weight:700}
-    .btn{font-family:inherit;font-weight:700;border:none;border-radius:12px;padding:10px 14px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
-    .btn:active{transform:scale(.97)}
-    .btn-back{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);padding:8px 12px;font-size:.85rem}
-    .btn-primary{background:var(--deep);color:#fff}
-    .btn-ghost{background:#fff;color:var(--deep);border:2px solid var(--line)}
-    .toolbar{display:flex;flex-wrap:wrap;gap:8px;padding:12px 16px;background:#f8fafc;border-bottom:1px solid var(--line);align-items:center}
-    .seg{display:inline-flex;border-radius:12px;overflow:hidden;border:2px solid var(--line)}
-    .seg button{font-family:inherit;font-weight:800;border:none;background:#fff;color:var(--deep);padding:8px 14px;cursor:pointer}
-    .seg button.on{background:var(--deep);color:#fff}
-    .hint{font-size:.9rem;color:var(--deep);font-weight:700;flex:1;min-width:140px}
-    .stage{flex:1;padding:16px;overflow:auto}
-    .footer{padding:10px;font-size:.8rem;color:var(--muted);text-align:center;border-top:1px solid var(--line)}
-    .practice{display:none;flex-direction:column;gap:12px;max-width:520px;margin:0 auto}
-    .shell.mode-practice .learn{display:none}.shell.mode-practice .practice{display:flex}
-    .choice{font-family:inherit;font-weight:800;font-size:1.05rem;padding:14px;border:2px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;text-align:left}
-    .choice.ok{background:#dcfce7}.choice.no{background:#fee2e2}
-    .pick{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
-     .pick button{font-family:inherit;font-weight:800;font-size:1rem;padding:12px 14px;border:2px solid var(--line);border-radius:14px;background:#fff;cursor:pointer;color:var(--deep)}
-     .pick button.on{background:var(--deep);color:#fff}
-     .box{background:#f8fafc;border:2px solid var(--line);border-radius:16px;padding:18px;font-weight:700;line-height:1.7;font-size:1.1rem}
-     .box h2{color:var(--deep);margin-bottom:8px;font-size:1.5rem}
-     .emo{font-size:3.2rem;margin-bottom:8px}
-     .trace{margin-top:12px;padding:12px;border:2px dashed var(--line);border-radius:12px;font-size:2rem;letter-spacing:.12em;color:#94a3b8;font-weight:800}
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --deep: #4f46e5;
+      --deep-dark: #3730a3;
+      --line: #c7d2fe;
+      --soft: #eef2ff;
+      --muted: #64748b;
+      --navy: #0f172a;
+      --ok: #059669;
+      --bad: #e11d48;
+      --gold: #f59e0b;
+    }
+    html, body {
+      max-width: 100%;
+      overflow-x: hidden;
+      font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(145deg, #c7d2fe, #e0e7ff 50%, #fef9c3 100%);
+      min-height: 100vh;
+      color: var(--navy);
+      -webkit-tap-highlight-color: transparent;
+    }
+    body { padding: 12px; }
+    .shell {
+      max-width: 1100px;
+      width: 100%;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 1.5rem;
+      box-shadow: 0 20px 50px rgba(15, 23, 42, .12);
+      overflow-x: hidden;
+      min-height: calc(100vh - 24px);
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      background: linear-gradient(90deg, var(--deep), #4338ca);
+      color: #ffffff;
+    }
+    header h1 { font-size: 1.15rem; font-weight: 800; flex: 1; min-width: 160px; }
+    .badge {
+      font-size: .78rem;
+      background: rgba(255, 255, 255, .2);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .btn {
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 0.95rem;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 14px;
+      min-height: 44px;
+      min-width: 44px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+    .btn:active { transform: scale(.97); }
+    .btn-back { background: rgba(255, 255, 255, .15); color: #ffffff; border: 1px solid rgba(255, 255, 255, .35); padding: 8px 12px; font-size: .88rem; }
+    .btn-back:hover { background: rgba(255, 255, 255, .25); }
+    .btn-primary { background: var(--deep); color: #ffffff; }
+    .btn-primary:hover { background: var(--deep-dark); }
+    .btn-ghost { background: #ffffff; color: var(--deep); border: 2px solid var(--line); }
+    .btn-ghost:hover { background: var(--soft); }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 12px 16px;
+      background: #f8fafc;
+      border-bottom: 1px solid var(--line);
+      align-items: center;
+    }
+    .seg {
+      display: inline-flex;
+      flex-wrap: wrap;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px solid var(--line);
+      background: #ffffff;
+    }
+    .seg button {
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 0.95rem;
+      border: none;
+      background: #ffffff;
+      color: var(--deep);
+      padding: 10px 14px;
+      min-height: 44px;
+      min-width: 44px;
+      cursor: pointer;
+    }
+    .seg button.on { background: var(--deep); color: #ffffff; }
+    .hint { font-size: .92rem; color: var(--deep); font-weight: 700; flex: 1; min-width: 140px; }
+    .speech-status {
+      margin: 12px 16px 0;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #78350f;
+      background: #fef3c7;
+      border: 1.5px solid var(--gold);
+      border-radius: 10px;
+      padding: 8px 12px;
+      display: none;
+    }
+    .speech-status.show { display: block; }
+    .stage { flex: 1; padding: 16px; overflow-x: hidden; }
+    .footer { padding: 12px 16px; font-size: .85rem; color: var(--muted); text-align: center; border-top: 1px solid var(--line); }
+    .learn { display: flex; flex-direction: column; gap: 14px; }
+    .practice { display: none; flex-direction: column; gap: 16px; max-width: 760px; margin: 0 auto; width: 100%; }
+    .shell.mode-practice .learn { display: none; }
+    .shell.mode-practice .practice { display: flex; }
+    .pick { display: flex; flex-wrap: wrap; gap: 8px; }
+    .pick button {
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 1rem;
+      padding: 10px 16px;
+      min-height: 46px;
+      min-width: 44px;
+      border: 2px solid var(--line);
+      border-radius: 14px;
+      background: #ffffff;
+      cursor: pointer;
+      color: var(--deep);
+      transition: all 0.15s;
+    }
+    .pick button:hover { background: var(--soft); }
+    .pick button.on { background: var(--deep); color: #ffffff; border-color: var(--deep-dark); }
+    .box {
+      background: #f8fafc;
+      border: 2px solid var(--line);
+      border-radius: 16px;
+      padding: 20px;
+      font-weight: 700;
+      line-height: 1.7;
+      font-size: 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: flex-start;
+    }
+    .box h2 { color: var(--deep); font-size: 1.65rem; }
+    .emo { font-size: 3.2rem; line-height: 1.1; }
+    .trace {
+      margin-top: 4px;
+      padding: 12px;
+      border: 2px dashed var(--line);
+      border-radius: 12px;
+      font-size: 2rem;
+      letter-spacing: .12em;
+      color: #64748b;
+      font-weight: 800;
+    }
+    .practice-card {
+      background: #ffffff;
+      border: 2px solid var(--line);
+      border-radius: 16px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .engine-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .engine-mode-group {
+      display: inline-flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .engine-panel { display: none; flex-direction: column; gap: 14px; }
+    .engine-panel.active { display: flex; }
+
+    /* ARCHETYPE ENGINE STYLES */
+    .ke-match-wrap { position: relative; display: flex; flex-direction: column; gap: 12px; width: 100%; }
+    .ke-match-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+    .ke-match-grid {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 20px;
+      align-items: start;
+    }
+    .ke-match-col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+    .ke-match-card, .ke-memory-card {
+      width: 100%;
+      min-height: 48px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 2px solid var(--line);
+      background: #f8fafc;
+      color: var(--navy);
+      font-family: inherit;
+      font-size: 0.98rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      overflow-wrap: anywhere;
+      transition: border-color 0.15s, background 0.15s, transform 0.15s;
+    }
+    .ke-match-card:hover, .ke-memory-card:hover { border-color: var(--deep); background: var(--soft); }
+    .ke-match-card.active { border-color: var(--deep); background: #e0e7ff; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2); }
+    .ke-match-card.matched, .ke-memory-card.matched { background: #dcfce7; border-color: var(--ok); color: #065f46; cursor: default; }
+    .ke-match-card.error, .ke-memory-card.error { background: #ffe4e6; border-color: var(--bad); color: var(--bad); }
+    .ke-memory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(115px, 1fr)); gap: 10px; }
+    .ke-memory-card.flipped { background: var(--soft); border-color: var(--deep); }
+    .ke-match-feedback, .ke-feedback {
+      min-height: 24px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-weight: 700;
+      background: #f1f5f9;
+      color: var(--navy);
+    }
+    .ke-feedback.is-good { background: #dcfce7; color: #065f46; border: 1.5px solid var(--ok); }
+    .ke-feedback.is-learn { background: #fef3c7; color: #78350f; border: 1.5px solid var(--gold); }
+    .ke-quiz-card, .ke-quiz-summary { display: flex; flex-direction: column; gap: 14px; }
+    .ke-quiz-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; font-weight: 800; }
+    .ke-badge { padding: 4px 10px; border-radius: 999px; background: var(--soft); color: var(--deep-dark); font-size: 0.85rem; }
+    .ke-progress { color: var(--muted); font-size: 0.92rem; }
+    .ke-prompt { font-size: 1.2rem; font-weight: 800; color: var(--navy); line-height: 1.5; }
+    .ke-audio-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .ke-options { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    @media (min-width: 640px) { .ke-options { grid-template-columns: 1fr 1fr; } }
+    .ke-option, .ke-btn {
+      min-height: 46px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 2px solid var(--line);
+      background: #f8fafc;
+      color: var(--navy);
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: left;
+    }
+    .ke-btn {
+      background: var(--deep);
+      color: #ffffff;
+      border-color: var(--deep);
+      text-align: center;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .ke-option.is-correct { background: #dcfce7; border-color: var(--ok); color: #065f46; }
+    .ke-option.is-wrong { background: #ffe4e6; border-color: var(--bad); color: var(--bad); }
+    .ke-clue { padding: 10px 12px; border-radius: 10px; background: #fef3c7; color: #78350f; font-weight: 700; }
+
+    @media (max-width: 480px) {
+      body { padding: 0; }
+      .shell { border-radius: 0; min-height: 100vh; }
+      .ke-match-grid { gap: 10px; }
+      .ke-match-card { font-size: 0.92rem; padding: 8px 6px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+      }
+    }
   </style>
-</head><body>
+</head>
+<body>
 <div class="shell" id="shell">
   <header>
     <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back()">← กลับคลังสื่อ</button>
@@ -52,31 +312,271 @@
     <button type="button" class="btn btn-ghost" id="btnFs">⛶ เต็มจอ</button>
     <a class="btn btn-ghost" href="/games/english/sight-words-daily-worksheet.html" target="_blank" rel="noopener">📝 เปิดใบงาน</a>
   </div>
-  <div class="stage" id="stage"><div class="learn"><div class="pick" id="pick"></div><div class="box" id="box"></div></div>
-     <div class="practice"><p style="font-weight:800;font-size:1.15rem;color:var(--deep)" id="prQ"></p><div id="prChoices" style="display:grid;gap:8px"></div><p id="prFb" style="font-weight:800;min-height:24px"></p><button type="button" class="btn btn-primary" id="btnNext">ข้อถัดไป</button></div></div>
-  <div class="footer">โรงเรียนบ้านคำไผ่ · สื่อ ป.ต้น · Phase 12 · ไม่เก็บคะแนน</div>
+  <div class="speech-status" id="speechStatus" role="status" aria-live="polite"></div>
+  <div class="stage" id="stage">
+    <div class="learn" id="learn">
+      <div class="pick" id="pick"></div>
+      <div class="box" id="box"></div>
+    </div>
+    <div class="practice" id="practice">
+      <div class="practice-card">
+        <div class="engine-toolbar">
+          <div class="engine-mode-group" id="practiceSubNav">
+            <button type="button" class="btn btn-primary" data-activity="quiz-choice">📝 ทายคำศัพท์</button>
+            <button type="button" class="btn btn-ghost" data-activity="quiz-listen">🔊 ฟังเสียงเลือกคำ</button>
+            <button type="button" class="btn btn-ghost" data-activity="match-connect">🔗 โยงคู่คำศัพท์</button>
+            <button type="button" class="btn btn-ghost" data-activity="match-memory">🃏 เปิดป้ายจำคู่</button>
+          </div>
+          <button type="button" class="btn btn-ghost" id="btnPracticeNew">🔄 ชุดใหม่</button>
+        </div>
+        <div class="engine-panel active" id="panelQuiz">
+          <div id="quizEngineRoot"></div>
+        </div>
+        <div class="engine-panel" id="panelMatch">
+          <div id="matchEngineRoot"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">โรงเรียนบ้านคำไผ่ · สื่อ ป.ต้น · ไม่เก็บคะแนน</div>
 </div>
 <script>
-const MEDIA_SLUG='sight-words-daily-media';
-if(window.KAMPAI){KAMPAI.setSlug(MEDIA_SLUG);if(KAMPAI.sound&&KAMPAI.sound.mountToggles)KAMPAI.sound.mountToggles();}
-const ITEMS=[{"emoji":"👀","name":"I / you","body":"I = ฉัน, you = คุณ/เธอ","tip":"I am a student.","q":"I แปลว่า?","a":"ฉัน"},{"emoji":"🤝","name":"we / they","body":"we = พวกเรา, they = พวกเขา","tip":"We play.","q":"we แปลว่า?","a":"พวกเรา"},{"emoji":"📦","name":"a / the","body":"a = หนึ่ง/ไม่เจาะจง, the = ชี้เฉพาะ","tip":"a cat / the cat","q":"the ใช้เมื่อใด?","a":"ชี้เฉพาะ / ของที่รู้แล้ว"},{"emoji":"➡️","name":"to / for","body":"to = ไป/ถึง, for = สำหรับ","tip":"go to school","q":"go ___ school","a":"to"},{"emoji":"✅","name":"is / are","body":"is สำหรับหนึ่ง, are สำหรับหลาย","tip":"He is / They are","q":"They ___ happy","a":"are"},{"emoji":"🔁","name":"and / with","body":"and = และ, with = กับ","tip":"mom and dad","q":"and แปลว่า?","a":"และ"}];
-let cur=ITEMS[0];
-function setMode(m){document.getElementById('shell').classList.toggle('mode-practice',m==='practice');document.getElementById('hintText').textContent=m==='learn'?'เลือกหัวข้อ · ตัวใหญ่ชัด':'ตอบคำถาม';if(m==='practice')nextPr();}
-function render(){
-  document.getElementById('pick').innerHTML=ITEMS.map((x,i)=>'<button type="button" data-i="'+i+'" class="'+(x===cur?'on':'')+'">'+(x.emoji?x.emoji+' ':'')+x.name+'</button>').join('');
-  document.getElementById('box').innerHTML=(cur.emoji?'<div class="emo">'+cur.emoji+'</div>':'')+'<h2>'+cur.name+'</h2><p>'+cur.body+'</p>'+(cur.tip?'<p style="margin-top:10px;color:var(--muted);font-size:1rem">💡 '+cur.tip+'</p>':'')+(cur.trace?'<div class="trace">'+cur.trace+'</div>':'');
+const GAME_SLUG = 'sight-words-daily-media';
+const MEDIA_SLUG = 'sight-words-daily-media';
+if (window.KAMPAI) {
+  KAMPAI.setSlug('sight-words-daily-media');
+  if (KAMPAI.sound && KAMPAI.sound.mountToggles) KAMPAI.sound.mountToggles();
 }
-document.getElementById('pick').onclick=e=>{const b=e.target.closest('[data-i]');if(!b)return;cur=ITEMS[+b.dataset.i];render();};
-function nextPr(){const a=ITEMS[Math.floor(Math.random()*ITEMS.length)];document.getElementById('prQ').textContent=a.q;document.getElementById('prFb').textContent='';
-  const opts=new Set([a.a]);while(opts.size<4)opts.add(ITEMS[Math.floor(Math.random()*ITEMS.length)].a);
-  const box=document.getElementById('prChoices');box.innerHTML=[...opts].sort(()=>Math.random()-0.5).map(o=>'<button type="button" class="choice">'+o+'</button>').join('');
-  box.onclick=e=>{const b=e.target.closest('.choice');if(!b)return;const ok=b.textContent===a.a;b.classList.add(ok?'ok':'no');document.getElementById('prFb').textContent=ok?'✅ เก่งมาก!':'เฉลย: '+a.a;if(KAMPAI&&KAMPAI.sound)(ok?KAMPAI.sound.correct:KAMPAI.sound.wrong)();};}
-document.getElementById('btnNext').onclick=nextPr;render();setMode('learn');
-document.getElementById('modeSeg').onclick=e=>{
-  const b=e.target.closest('button[data-mode]');if(!b)return;
-  [...document.querySelectorAll('#modeSeg button')].forEach(x=>x.classList.toggle('on',x===b));
+
+const ITEMS = [
+  { emoji: '👀', name: 'I / you', body: 'I = ฉัน, you = คุณ/เธอ', tip: 'I am a student.', q: 'I แปลว่า?', a: 'ฉัน' },
+  { emoji: '🤝', name: 'we / they', body: 'we = พวกเรา, they = พวกเขา', tip: 'We play.', q: 'we แปลว่า?', a: 'พวกเรา' },
+  { emoji: '📦', name: 'a / the', body: 'a = หนึ่ง/ไม่เจาะจง, the = ชี้เฉพาะ', tip: 'a cat / the cat', q: 'the ใช้เมื่อใด?', a: 'ชี้เฉพาะ / ของที่รู้แล้ว' },
+  { emoji: '➡️', name: 'to / for', body: 'to = ไป/ถึง, for = สำหรับ', tip: 'go to school', q: 'go ___ school', a: 'to' },
+  { emoji: '✅', name: 'is / are', body: 'is สำหรับหนึ่ง, are สำหรับหลาย', tip: 'He is / They are', q: 'They ___ happy', a: 'are' },
+  { emoji: '🔁', name: 'and / with', body: 'and = และ, with = กับ', tip: 'mom and dad', q: 'and แปลว่า?', a: 'และ' }
+];
+
+const DAILY_WORDS = [
+  { id: 'I', term: 'I', meaning: 'ฉัน', example: 'I am a student.', explain: 'I หมายถึง ตัวฉัน (ผู้พูด)', locale: 'en-US' },
+  { id: 'you', term: 'you', meaning: 'คุณ / เธอ', example: 'You are my friend.', explain: 'you หมายถึง คุณ หรือ เธอ', locale: 'en-US' },
+  { id: 'we', term: 'we', meaning: 'พวกเรา', example: 'We play together.', explain: 'we หมายถึง พวกเรา', locale: 'en-US' },
+  { id: 'they', term: 'they', meaning: 'พวกเขา / พวกมัน', example: 'They are happy.', explain: 'they หมายถึง พวกเขา / พวกมัน', locale: 'en-US' },
+  { id: 'a', term: 'a', meaning: 'หนึ่ง (ไม่เจาะจง)', example: 'This is a cat.', explain: 'a ใช้นำหน้าคำนามเอกพจน์ทั่วไป', locale: 'en-US' },
+  { id: 'the', term: 'the', meaning: 'ชี้เฉพาะ (นั้น/นี้)', example: 'Look at the cat.', explain: 'the ใช้นำหน้าคำนามที่ชี้เฉพาะเจาะจง', locale: 'en-US' },
+  { id: 'to', term: 'to', meaning: 'ไป / ถึง', example: 'We go to school.', explain: 'to ใช้บอกทิศทาง เช่น go to school', locale: 'en-US' },
+  { id: 'for', term: 'for', meaning: 'สำหรับ', example: 'This gift is for you.', explain: 'for หมายถึง สำหรับ', locale: 'en-US' },
+  { id: 'is', term: 'is', meaning: 'เป็น / อยู่ / คือ (1 คน)', example: 'He is a good boy.', explain: 'is ใช้กับประธานเอกพจน์ (1 คน/สิ่ง)', locale: 'en-US' },
+  { id: 'are', term: 'are', meaning: 'เป็น / อยู่ / คือ (หลายคน)', example: 'They are happy.', explain: 'are ใช้กับประธานพหูพจน์ (we, they, you)', locale: 'en-US' },
+  { id: 'and', term: 'and', meaning: 'และ', example: 'Mom and dad smile.', explain: 'and ใช้เชื่อมคำหรือข้อความ แปลว่า และ', locale: 'en-US' },
+  { id: 'with', term: 'with', meaning: 'กับ / ด้วยกัน', example: 'Play with your friend.', explain: 'with หมายถึง กับ หรือ ร่วมกับ', locale: 'en-US' }
+];
+
+let cur = ITEMS[0];
+let currentMode = 'learn';
+let practiceActivity = 'quiz-choice';
+let quizSession = null;
+let matchSession = null;
+
+function stopSpeech() {
+  if (window.KampaiMediaLab && typeof window.KampaiMediaLab.stopAllSpeech === 'function') {
+    window.KampaiMediaLab.stopAllSpeech();
+  } else {
+    try { window.KAMPAI?.sound?.stopSpeak?.(); } catch (_) {}
+    try { window.speechSynthesis?.cancel?.(); } catch (_) {}
+  }
+}
+
+function speakSafe(text, lang = 'en-US') {
+  const statusEl = document.getElementById('speechStatus');
+  const clean = String(text || '').trim();
+  if (!clean) return;
+  if (window.KampaiMediaLab && typeof window.KampaiMediaLab.speakSafe === 'function') {
+    const res = window.KampaiMediaLab.speakSafe(clean, { lang: lang, rate: 0.9 });
+    if (statusEl) {
+      if (res && res.ok === false) {
+        statusEl.textContent = 'อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านคำศัพท์และตัวอย่างต่อได้';
+        statusEl.classList.add('show');
+      } else {
+        statusEl.textContent = '';
+        statusEl.classList.remove('show');
+      }
+    }
+    return;
+  }
+  if (!('speechSynthesis' in window)) {
+    if (statusEl) {
+      statusEl.textContent = 'อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านคำศัพท์และตัวอย่างต่อได้';
+      statusEl.classList.add('show');
+    }
+    return;
+  }
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(clean);
+  u.lang = lang;
+  u.rate = 0.9;
+  window.speechSynthesis.speak(u);
+}
+
+function render() {
+  document.getElementById('pick').innerHTML = ITEMS.map((x, i) =>
+    '<button type="button" data-i="' + i + '" class="' + (x === cur ? 'on' : '') + '">' + (x.emoji ? x.emoji + ' ' : '') + x.name + '</button>'
+  ).join('');
+  document.getElementById('box').innerHTML =
+    (cur.emoji ? '<div class="emo">' + cur.emoji + '</div>' : '') +
+    '<h2>' + cur.name + '</h2>' +
+    '<p>' + cur.body + '</p>' +
+    (cur.tip ? '<p style="color:var(--muted);font-size:1rem">💡 ' + cur.tip + '</p>' : '') +
+    (cur.trace ? '<div class="trace">' + cur.trace + '</div>' : '') +
+    '<button type="button" class="btn btn-primary" id="btnSpeakLearn" style="margin-top:6px;">🔊 ฟังเสียงคำและประโยค</button>';
+  const btnSpeak = document.getElementById('btnSpeakLearn');
+  if (btnSpeak) {
+    btnSpeak.onclick = () => {
+      const words = cur.name.replace(/\s*\/\s*/g, ', ');
+      speakSafe(cur.tip ? `${words}. ${cur.tip}` : words, 'en-US');
+    };
+  }
+}
+
+document.getElementById('pick').onclick = (e) => {
+  const b = e.target.closest('[data-i]');
+  if (!b) return;
+  stopSpeech();
+  cur = ITEMS[+b.dataset.i];
+  render();
+};
+
+function buildEnginePool() {
+  return DAILY_WORDS.map((item) => ({
+    id: item.id,
+    term: item.term,
+    left: item.term,
+    right: item.meaning,
+    meaning: item.meaning,
+    example: item.example,
+    explain: item.explain,
+    locale: item.locale
+  }));
+}
+
+function mountQuiz(qType) {
+  if (!window.KampaiEngines || !window.KampaiEngines.Quiz) return;
+  const opts = {
+    items: buildEnginePool(),
+    mode: 'media',
+    roundSize: 6,
+    locale: 'en-US',
+    speak: (text, loc) => speakSafe(text, loc || 'en-US'),
+    onAnswer: (res) => {
+      if (window.KAMPAI && window.KAMPAI.sound) {
+        try {
+          if (res.isCorrect) window.KAMPAI.sound.correct();
+          else window.KAMPAI.sound.wrong();
+        } catch (_) {}
+      }
+    }
+  };
+  quizSession = qType === 'listen'
+    ? window.KampaiEngines.Quiz.mountListen('#quizEngineRoot', opts)
+    : window.KampaiEngines.Quiz.mountChoice('#quizEngineRoot', opts);
+}
+
+function mountMatch(subMode) {
+  if (!window.KampaiEngines || !window.KampaiEngines.ConnectMatch) return;
+  matchSession = window.KampaiEngines.ConnectMatch.mount('#matchEngineRoot', {
+    items: buildEnginePool(),
+    pairCount: 6,
+    mode: 'media',
+    subMode: subMode,
+    locale: 'en-US',
+    onMatch: (pair) => {
+      if (window.KAMPAI && window.KAMPAI.sound) {
+        try { window.KAMPAI.sound.correct(); } catch (_) {}
+      }
+      if (pair && pair.leftText) speakSafe(pair.leftText, 'en-US');
+    }
+  });
+}
+
+function setPracticeActivity(activity, forceRemount = false) {
+  stopSpeech();
+  practiceActivity = activity;
+  document.querySelectorAll('#practiceSubNav [data-activity]').forEach((btn) => {
+    const active = btn.dataset.activity === activity;
+    btn.className = 'btn ' + (active ? 'btn-primary' : 'btn-ghost');
+  });
+  const isMatch = activity.startsWith('match-');
+  document.getElementById('panelQuiz').classList.toggle('active', !isMatch);
+  document.getElementById('panelMatch').classList.toggle('active', isMatch);
+
+  if (activity === 'quiz-listen') {
+    if (forceRemount || !quizSession || quizSession.getState().questionType !== 'listen') mountQuiz('listen');
+  } else if (activity === 'quiz-choice') {
+    if (forceRemount || !quizSession || quizSession.getState().questionType !== 'choice') mountQuiz('choice');
+  } else if (activity === 'match-memory') {
+    mountMatch('memory');
+  } else if (activity === 'match-connect') {
+    mountMatch('connect');
+  }
+}
+
+function setMode(m) {
+  stopSpeech();
+  currentMode = m === 'practice' ? 'practice' : 'learn';
+  document.getElementById('shell').classList.toggle('mode-practice', currentMode === 'practice');
+  document.getElementById('hintText').textContent = currentMode === 'learn'
+    ? 'เลือกคำเพื่อเรียนรู้ · กดฟังเสียงได้'
+    : 'ฝึกทายคำศัพท์และจับคู่ความหมาย · ไม่เก็บคะแนน';
+  document.querySelectorAll('#modeSeg button').forEach((x) => x.classList.toggle('on', x.dataset.mode === currentMode));
+  if (currentMode === 'practice') {
+    setPracticeActivity(practiceActivity, false);
+  }
+}
+
+document.getElementById('practiceSubNav').onclick = (e) => {
+  const b = e.target.closest('[data-activity]');
+  if (!b) return;
+  setPracticeActivity(b.dataset.activity, true);
+};
+
+document.getElementById('btnPracticeNew').onclick = () => {
+  setPracticeActivity(practiceActivity, true);
+};
+
+document.getElementById('modeSeg').onclick = (e) => {
+  const b = e.target.closest('button[data-mode]');
+  if (!b) return;
   setMode(b.dataset.mode);
 };
-document.getElementById('btnFs').onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.();};
+
+document.getElementById('btnFs').onclick = () => {
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen?.().catch?.(() => {});
+  else document.exitFullscreen?.().catch?.(() => {});
+};
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) stopSpeech();
+});
+window.addEventListener('pagehide', stopSpeech);
+
+window.getState = () => Object.freeze({
+  slug: MEDIA_SLUG,
+  mode: currentMode,
+  practiceActivity: practiceActivity,
+  selectedIndex: ITEMS.indexOf(cur),
+  wordCount: DAILY_WORDS.length,
+  quizState: quizSession ? quizSession.getState() : null,
+  matchState: matchSession ? matchSession.getState() : null,
+  reducedMotion: typeof window.matchMedia === 'function'
+    ? Boolean(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+    : false
+});
+window.__getState = window.getState;
+
+render();
+mountQuiz('choice');
+mountMatch('connect');
+setMode('learn');
 </script>
-</body></html>
+</body>
+</html>

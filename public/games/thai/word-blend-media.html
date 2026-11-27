@@ -1,42 +1,327 @@
 <!DOCTYPE html>
-<html lang="th"><head>
+<html lang="th">
+<head>
   <script src="/games/kampai-sdk.js?v=1.181.0"></script>
-  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>ประสมคำ — บ้านคำไผ่</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet"/>
+  <script src="/games/media-lab-runtime.js?v=2.0.0"></script>
+  <script src="/games/engine/classify-bucket-engine.js?v=2.0.0"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ประสมคำ ป.ต้น — สื่อการสอน — บ้านคำไผ่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
   <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{--deep:#b91c1c;--line:#fecaca;--muted:#64748b}
-    body{font-family:'Sarabun',sans-serif;background:linear-gradient(145deg,#fecaca,#b91c1c22);min-height:100%;padding:12px;color:#0f172a}
-    .shell{max-width:1100px;margin:0 auto;background:#fff;border-radius:1.5rem;box-shadow:0 20px 50px rgba(15,23,42,.12);overflow:hidden;min-height:calc(100vh - 24px);display:flex;flex-direction:column}
-    header{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 16px;background:linear-gradient(90deg,var(--deep),#b91c1c);color:#fff}
-    header h1{font-size:1.15rem;font-weight:800;flex:1;min-width:160px}
-    .badge{font-size:.75rem;background:rgba(255,255,255,.2);padding:4px 10px;border-radius:999px;font-weight:700}
-    .btn{font-family:inherit;font-weight:700;border:none;border-radius:12px;padding:10px 14px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
-    .btn:active{transform:scale(.97)}
-    .btn-back{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);padding:8px 12px;font-size:.85rem}
-    .btn-primary{background:var(--deep);color:#fff}
-    .btn-ghost{background:#fff;color:var(--deep);border:2px solid var(--line)}
-    .toolbar{display:flex;flex-wrap:wrap;gap:8px;padding:12px 16px;background:#f8fafc;border-bottom:1px solid var(--line);align-items:center}
-    .seg{display:inline-flex;border-radius:12px;overflow:hidden;border:2px solid var(--line)}
-    .seg button{font-family:inherit;font-weight:800;border:none;background:#fff;color:var(--deep);padding:8px 14px;cursor:pointer}
-    .seg button.on{background:var(--deep);color:#fff}
-    .hint{font-size:.9rem;color:var(--deep);font-weight:700;flex:1;min-width:140px}
-    .stage{flex:1;padding:16px;overflow:auto}
-    .footer{padding:10px;font-size:.8rem;color:var(--muted);text-align:center;border-top:1px solid var(--line)}
-    .practice{display:none;flex-direction:column;gap:12px;max-width:520px;margin:0 auto}
-    .shell.mode-practice .learn{display:none}.shell.mode-practice .practice{display:flex}
-    .choice{font-family:inherit;font-weight:800;font-size:1.05rem;padding:14px;border:2px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;text-align:left}
-    .choice.ok{background:#dcfce7}.choice.no{background:#fee2e2}
-    .pick{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
-     .pick button{font-family:inherit;font-weight:800;font-size:1rem;padding:12px 14px;border:2px solid var(--line);border-radius:14px;background:#fff;cursor:pointer;color:var(--deep)}
-     .pick button.on{background:var(--deep);color:#fff}
-     .box{background:#f8fafc;border:2px solid var(--line);border-radius:16px;padding:18px;font-weight:700;line-height:1.7;font-size:1.1rem}
-     .box h2{color:var(--deep);margin-bottom:8px;font-size:1.5rem}
-     .emo{font-size:3.2rem;margin-bottom:8px}
-     .trace{margin-top:12px;padding:12px;border:2px dashed var(--line);border-radius:12px;font-size:2rem;letter-spacing:.12em;color:#94a3b8;font-weight:800}
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --deep: #991b1b;
+      --deep-dark: #7f1d1d;
+      --accent: #b91c1c;
+      --line: #fecaca;
+      --soft: #fef2f2;
+      --muted: #475569;
+      --ink: #0f172a;
+      --ok: #15803d;
+      --bad: #b91c1c;
+    }
+    html, body { max-width: 100%; overflow-x: hidden; }
+    body {
+      font-family: 'Sarabun', sans-serif;
+      background: linear-gradient(145deg, #fee2e2, #fecaca 55%, #fff5f5);
+      min-height: 100vh;
+      padding: 12px;
+      color: var(--ink);
+    }
+    .shell {
+      max-width: 1100px;
+      width: 100%;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 1.5rem;
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.12);
+      overflow: hidden;
+      min-height: calc(100vh - 24px);
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      background: linear-gradient(90deg, var(--deep-dark), var(--accent));
+      color: #ffffff;
+    }
+    header h1 { font-size: 1.15rem; font-weight: 800; flex: 1; min-width: 160px; }
+    .badge {
+      font-size: 0.78rem;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .btn {
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 0.92rem;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 14px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 44px;
+      min-width: 44px;
+      transition: transform 0.15s, background 0.15s;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn:focus-visible, .seg button:focus-visible, .pick button:focus-visible,
+    .ke-bucket-btn:focus-visible, .ke-btn:focus-visible {
+      outline: 3px solid #f59e0b;
+      outline-offset: 2px;
+    }
+    .btn-back {
+      background: rgba(255, 255, 255, 0.16);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      padding: 8px 12px;
+      font-size: 0.85rem;
+    }
+    .btn-primary { background: var(--deep); color: #ffffff; }
+    .btn-primary:hover { background: var(--deep-dark); }
+    .btn-ghost { background: #ffffff; color: var(--deep); border: 2px solid var(--line); }
+    .btn-ghost:hover { background: var(--soft); }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 12px 16px;
+      background: var(--soft);
+      border-bottom: 1px solid var(--line);
+      align-items: center;
+    }
+    .seg {
+      display: inline-flex;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px solid var(--accent);
+      background: #ffffff;
+    }
+    .seg button {
+      font-family: inherit;
+      font-weight: 800;
+      border: none;
+      background: #ffffff;
+      color: var(--deep);
+      padding: 8px 14px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      min-height: 44px;
+      min-width: 44px;
+    }
+    .seg button.on { background: var(--deep); color: #ffffff; }
+    .hint { font-size: 0.88rem; color: var(--deep); font-weight: 700; flex: 1; min-width: 140px; }
+    .stage { flex: 1; padding: 16px; overflow: auto; }
+    .learn { max-width: 840px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+    .learn.hide { display: none; }
+    .practice { display: none; flex-direction: column; gap: 12px; max-width: 680px; margin: 0 auto; width: 100%; }
+    .practice.on { display: flex; }
+    .pick { display: flex; flex-wrap: wrap; gap: 8px; }
+    .pick button {
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 1rem;
+      padding: 10px 14px;
+      border: 2px solid var(--line);
+      border-radius: 14px;
+      background: #ffffff;
+      cursor: pointer;
+      color: var(--deep);
+      min-height: 44px;
+      min-width: 44px;
+    }
+    .pick button.on { background: var(--deep); color: #ffffff; border-color: var(--deep); }
+    .box {
+      background: #fffafa;
+      border: 2px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      font-weight: 700;
+      line-height: 1.7;
+      font-size: 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .box h2 { color: var(--deep); font-size: 1.5rem; }
+    .emo {
+      display: inline-grid;
+      place-items: center;
+      width: 72px;
+      height: 72px;
+      border-radius: 18px;
+      background: #fee2e2;
+      border: 2px solid #fca5a5;
+      color: var(--deep-dark);
+      font-size: 2.6rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .trace {
+      margin-top: 4px;
+      padding: 12px;
+      border: 2px dashed var(--line);
+      border-radius: 12px;
+      font-size: 2rem;
+      letter-spacing: 0.12em;
+      color: var(--deep);
+      font-weight: 800;
+      background: #ffffff;
+      text-align: center;
+    }
+    .vowel-guide {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+    }
+    .vowel-card {
+      border-radius: 14px;
+      padding: 12px;
+      border: 2px solid var(--line);
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .vowel-card strong { color: var(--deep); font-size: 1.05rem; }
+    .vowel-card span { color: var(--muted); font-weight: 700; font-size: 0.92rem; }
+    .practice-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .practice-note { font-size: 0.9rem; font-weight: 700; color: var(--deep); }
+    .ke-classify-card {
+      background: #fffafa;
+      border: 2px solid var(--line);
+      border-radius: 20px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .ke-classify-head { display: flex; justify-content: space-between; align-items: center; font-weight: 800; color: var(--deep); font-size: 0.95rem; }
+    .ke-classify-item {
+      text-align: center;
+      padding: 20px 14px;
+      background: #fef2f2;
+      border: 2px dashed #f87171;
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .ke-item-icon { font-size: clamp(44px, 10vw, 64px); line-height: 1.05; }
+    .ke-item-label { font-size: clamp(1.8rem, 4vw, 2.5rem); font-weight: 800; color: var(--deep-dark); }
+    .ke-item-sub { font-size: 0.95rem; font-weight: 700; color: var(--muted); }
+    .ke-buckets { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    @media (min-width: 580px) { .ke-buckets { grid-template-columns: repeat(3, 1fr); } }
+    .ke-bucket-btn {
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 0.95rem;
+      min-height: 54px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 2px solid #cbd5e1;
+      background: #ffffff;
+      color: var(--ink);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-align: center;
+      overflow-wrap: anywhere;
+    }
+    .ke-bucket-btn[data-bucket-id="sara-aa"] { border-color: #d97706; background: #fffbeb; color: #78350f; }
+    .ke-bucket-btn[data-bucket-id="sara-ii"] { border-color: #2563eb; background: #eff6ff; color: #1e3a8a; }
+    .ke-bucket-btn[data-bucket-id="sara-uu"] { border-color: #059669; background: #ecfdf5; color: #064e3b; }
+    .ke-bucket-btn.is-correct { outline: 3px solid #15803d; background: #dcfce7; color: #14532d; }
+    .ke-bucket-btn.is-wrong { opacity: 0.65; text-decoration: line-through; }
+    .ke-bucket-btn:disabled { cursor: default; }
+    .ke-classify-feedback {
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-weight: 700;
+      line-height: 1.45;
+      background: #ffffff;
+      border: 1.5px solid #cbd5e1;
+      color: var(--ink);
+    }
+    .ke-classify-feedback.is-good { background: #dcfce7; border-color: #16a34a; color: #14532d; }
+    .ke-classify-feedback.is-learn { background: #fef3c7; border-color: #d97706; color: #78350f; }
+    .ke-btn {
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 0.95rem;
+      min-height: 44px;
+      padding: 10px 16px;
+      border-radius: 12px;
+      border: none;
+      background: var(--deep);
+      color: #ffffff;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      align-self: center;
+    }
+    .ke-classify-summary {
+      text-align: center;
+      padding: 24px 16px;
+      background: var(--soft);
+      border: 2px solid var(--line);
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: center;
+    }
+    .ke-classify-summary h3 { color: var(--deep); font-size: 1.3rem; font-weight: 800; }
+    .speech-status {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #78350f;
+      background: #fef3c7;
+      border: 1px solid #f59e0b;
+      border-radius: 10px;
+      padding: 8px 12px;
+      display: none;
+    }
+    .speech-status.show { display: block; }
+    .footer { padding: 10px 16px; font-size: 0.8rem; color: var(--muted); text-align: center; border-top: 1px solid var(--line); }
+    @media (max-width: 600px) {
+      body { padding: 0; }
+      .shell { border-radius: 0; min-height: 100vh; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+      }
+      .btn:active { transform: none; }
+    }
   </style>
-</head><body>
+</head>
+<body>
 <div class="shell" id="shell">
   <header>
     <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back()">← กลับคลังสื่อ</button>
@@ -46,37 +331,229 @@
   <div class="toolbar">
     <span class="seg" id="modeSeg">
       <button type="button" data-mode="learn" class="on">📖 เรียนรู้</button>
-      <button type="button" data-mode="practice">✏️ ฝึก</button>
+      <button type="button" data-mode="practice">✏️ ฝึกแยกสระ</button>
     </span>
-    <p class="hint" id="hintText">สื่อ ป.ต้น — ไม่เก็บคะแนน</p>
+    <p class="hint" id="hintText">เลือกคำประสม แล้วฝึกอ่านทีละส่วนและฟังเสียง</p>
     <button type="button" class="btn btn-ghost" id="btnFs">⛶ เต็มจอ</button>
     <a class="btn btn-ghost" href="/games/thai/word-blend-worksheet.html" target="_blank" rel="noopener">📝 เปิดใบงาน</a>
   </div>
-  <div class="stage" id="stage"><div class="learn"><div class="pick" id="pick"></div><div class="box" id="box"></div></div>
-     <div class="practice"><p style="font-weight:800;font-size:1.15rem;color:var(--deep)" id="prQ"></p><div id="prChoices" style="display:grid;gap:8px"></div><p id="prFb" style="font-weight:800;min-height:24px"></p><button type="button" class="btn btn-primary" id="btnNext">ข้อถัดไป</button></div></div>
-  <div class="footer">โรงเรียนบ้านคำไผ่ · สื่อ ป.ต้น · Phase 12 · ไม่เก็บคะแนน</div>
+  <div class="stage" id="stage">
+    <div class="learn" id="learn">
+      <div class="pick" id="pick"></div>
+      <div class="box" id="box"></div>
+      <div class="vowel-guide">
+        <div class="vowel-card"><strong>สระ อา (-า)</strong><span>วางไว้หลังพยัญชนะ เช่น กา, มา, ปา</span></div>
+        <div class="vowel-card"><strong>สระ อี (-ี)</strong><span>วางไว้เหนือพยัญชนะ เช่น ดี, มี, สี</span></div>
+        <div class="vowel-card"><strong>สระ อู (-ู)</strong><span>วางไว้ใต้พยัญชนะ เช่น นู, รู, ปู</span></div>
+      </div>
+      <div class="speech-status" id="speechStatusLearn" role="status" aria-live="polite"></div>
+    </div>
+
+    <div class="practice" id="practice">
+      <div class="practice-bar">
+        <span class="practice-note">แตะกลุ่มสระให้ตรงกับคำประสม หรือกดปุ่ม 1–3 (ไม่จับเวลา · ไม่เก็บคะแนน)</span>
+        <button type="button" class="btn btn-ghost" id="btnSpeakCurrent">🔊 ฟังคำนี้</button>
+      </div>
+      <div class="speech-status" id="speechStatusPractice" role="status" aria-live="polite"></div>
+      <div id="classifyEngineRoot"></div>
+    </div>
+  </div>
+  <div class="footer">โรงเรียนบ้านคำไผ่ · สื่อ ป.ต้น · ไม่เก็บคะแนน · ไม่จับเวลา</div>
 </div>
 <script>
-const MEDIA_SLUG='word-blend-media';
-if(window.KAMPAI){KAMPAI.setSlug(MEDIA_SLUG);if(KAMPAI.sound&&KAMPAI.sound.mountToggles)KAMPAI.sound.mountToggles();}
-const ITEMS=[{"emoji":"ก","name":"ก+า = กา","body":"พยัญชนะ ก กับสระ า ประสมเป็นคำว่า “กา”","tip":"อ่านทีละส่วนแล้วรวมเสียง","trace":"ก า → กา","q":"ก + า เป็นคำว่าอะไร?","a":"กา"},{"emoji":"ม","name":"ม+า = มา","body":"ม กับ า ได้คำว่า “มา”","tip":"ใช้ในประโยค: มาโรงเรียน","trace":"ม า → มา","q":"ม + า เป็นคำว่าอะไร?","a":"มา"},{"emoji":"ป","name":"ป+า = ปา","body":"ป กับ า ได้คำว่า “ปา”","tip":"เช่น ปลา (มีตัวสะกดเพิ่ม)","trace":"ป า → ปา","q":"ป + า เป็นคำว่าอะไร?","a":"ปา"},{"emoji":"ด","name":"ด+ี = ดี","body":"ด กับสระ อี ได้คำว่า “ดี”","tip":"สระอยู่เหนือพยัญชนะ","trace":"ด ี → ดี","q":"ด + ี เป็นคำว่าอะไร?","a":"ดี"},{"emoji":"น","name":"น+ู = นู","body":"น กับสระ อู ได้ “นู”","tip":"สระอยู่ใต้พยัญชนะ","trace":"น ู → นู","q":"น + ู เป็นคำว่าอะไร?","a":"นู"},{"emoji":"ร","name":"ร+ู = รู","body":"ร กับ อู ได้ “รู”","tip":"เช่น รู้ (มีวรรณยุกต์)","trace":"ร ู → รู","q":"ร + ู เป็นคำว่าอะไร?","a":"รู"}];
-let cur=ITEMS[0];
-function setMode(m){document.getElementById('shell').classList.toggle('mode-practice',m==='practice');document.getElementById('hintText').textContent=m==='learn'?'เลือกหัวข้อ · ตัวใหญ่ชัด':'ตอบคำถาม';if(m==='practice')nextPr();}
-function render(){
-  document.getElementById('pick').innerHTML=ITEMS.map((x,i)=>'<button type="button" data-i="'+i+'" class="'+(x===cur?'on':'')+'">'+(x.emoji?x.emoji+' ':'')+x.name+'</button>').join('');
-  document.getElementById('box').innerHTML=(cur.emoji?'<div class="emo">'+cur.emoji+'</div>':'')+'<h2>'+cur.name+'</h2><p>'+cur.body+'</p>'+(cur.tip?'<p style="margin-top:10px;color:var(--muted);font-size:1rem">💡 '+cur.tip+'</p>':'')+(cur.trace?'<div class="trace">'+cur.trace+'</div>':'');
+const MEDIA_SLUG = 'word-blend-media';
+if (window.KAMPAI) {
+  KAMPAI.setSlug('word-blend-media');
+  if (KAMPAI.sound && typeof KAMPAI.sound.mountToggles === 'function') {
+    try { KAMPAI.sound.mountToggles(); } catch (_) {}
+  }
 }
-document.getElementById('pick').onclick=e=>{const b=e.target.closest('[data-i]');if(!b)return;cur=ITEMS[+b.dataset.i];render();};
-function nextPr(){const a=ITEMS[Math.floor(Math.random()*ITEMS.length)];document.getElementById('prQ').textContent=a.q;document.getElementById('prFb').textContent='';
-  const opts=new Set([a.a]);while(opts.size<4)opts.add(ITEMS[Math.floor(Math.random()*ITEMS.length)].a);
-  const box=document.getElementById('prChoices');box.innerHTML=[...opts].sort(()=>Math.random()-0.5).map(o=>'<button type="button" class="choice">'+o+'</button>').join('');
-  box.onclick=e=>{const b=e.target.closest('.choice');if(!b)return;const ok=b.textContent===a.a;b.classList.add(ok?'ok':'no');document.getElementById('prFb').textContent=ok?'✅ เก่งมาก!':'เฉลย: '+a.a;if(KAMPAI&&KAMPAI.sound)(ok?KAMPAI.sound.correct:KAMPAI.sound.wrong)();};}
-document.getElementById('btnNext').onclick=nextPr;render();setMode('learn');
-document.getElementById('modeSeg').onclick=e=>{
-  const b=e.target.closest('button[data-mode]');if(!b)return;
-  [...document.querySelectorAll('#modeSeg button')].forEach(x=>x.classList.toggle('on',x===b));
-  setMode(b.dataset.mode);
-};
-document.getElementById('btnFs').onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.();};
+
+const ITEMS = [
+  { emoji: 'ก', name: 'ก+า = กา', body: 'พยัญชนะ ก กับสระ า ประสมเป็นคำว่า “กา”', tip: 'อ่านทีละส่วนแล้วรวมเสียง', trace: 'ก า → กา', q: 'ก + า เป็นคำว่าอะไร?', a: 'กา' },
+  { emoji: 'ม', name: 'ม+า = มา', body: 'ม กับ า ได้คำว่า “มา”', tip: 'ใช้ในประโยค: มาโรงเรียน', trace: 'ม า → มา', q: 'ม + า เป็นคำว่าอะไร?', a: 'มา' },
+  { emoji: 'ป', name: 'ป+า = ปา', body: 'ป กับ า ได้คำว่า “ปา”', tip: 'เช่น ปลา (มีตัวสะกดเพิ่ม)', trace: 'ป า → ปา', q: 'ป + า เป็นคำว่าอะไร?', a: 'ปา' },
+  { emoji: 'ด', name: 'ด+ี = ดี', body: 'ด กับสระ อี ได้คำว่า “ดี”', tip: 'สระอยู่เหนือพยัญชนะ', trace: 'ด ี → ดี', q: 'ด + ี เป็นคำว่าอะไร?', a: 'ดี' },
+  { emoji: 'น', name: 'น+ู = นู', body: 'น กับสระ อู ได้ “นู”', tip: 'สระอยู่ใต้พยัญชนะ', trace: 'น ู → นู', q: 'น + ู เป็นคำว่าอะไร?', a: 'นู' },
+  { emoji: 'ร', name: 'ร+ู = รู', body: 'ร กับ อู ได้ “รู”', tip: 'เช่น รู้ (มีวรรณยุกต์)', trace: 'ร ู → รู', q: 'ร + ู เป็นคำว่าอะไร?', a: 'รู' }
+];
+
+const VOWEL_BUCKETS = [
+  { id: 'sara-aa', label: 'สระ อา (-า) · หลังพยัญชนะ', icon: '📙' },
+  { id: 'sara-ii', label: 'สระ อี (-ี) · เหนือพยัญชนะ', icon: '📘' },
+  { id: 'sara-uu', label: 'สระ อู (-ู) · ใต้พยัญชนะ', icon: '📗' }
+];
+
+const CLASSIFY_ITEMS = [
+  { id: 'ka', icon: '🐦', label: 'กา', sub: 'สังเกตรูปสระในคำนี้', bucketId: 'sara-aa', reason: 'ก ประสมสระ า (อยู่หลังพยัญชนะ) อ่านว่า กา' },
+  { id: 'ma', icon: '🚶', label: 'มา', sub: 'สังเกตรูปสระในคำนี้', bucketId: 'sara-aa', reason: 'ม ประสมสระ า (อยู่หลังพยัญชนะ) อ่านว่า มา' },
+  { id: 'pa', icon: '🎯', label: 'ปา', sub: 'สังเกตรูปสระในคำนี้', bucketId: 'sara-aa', reason: 'ป ประสมสระ า (อยู่หลังพยัญชนะ) อ่านว่า ปา' },
+  { id: 'ta', icon: '👁️', label: 'ตา', sub: 'สังเกตรูปสระในคำนี้', bucketId: 'sara-aa', reason: 'ต ประสมสระ า (อยู่หลังพยัญชนะ) อ่านว่า ตา' },
+  { id: 'di', icon: '👍', label: 'ดี', sub: 'สังเกตรูปสระในคำนี้', bucketId: 'sara-ii', reason: 'ด ประสมสระ อี (อยู่เหนือพยัญชนะ) อ่านว่า ดี' },
+  { id: 'mi', icon: '🐻', label: 'มี', sub: 'สังเกตรูปสระในคำนี้', bucketId: 'sara-ii', reason: 'ม ประสมสระ อี (อยู่เหนือพยัญชนะ) อ่านว่า มี' },
+  { id: 'si', icon: '🎨', label: 'สี', sub: 'สังเกตรูปสระในคำนี้', bucketId: 'sara-ii', reason: 'ส ประสมสระ อี (อยู่เหนือพยัญชนะ) อ่านว่า สี' },
+  { id: 'pi', icon: '📅', label: 'ปี', sub: 'สังเกตรูปสระในคำนี้', bucketId: 'sara-ii', reason: 'ป ประสมสระ อี (อยู่เหนือพยัญชนะ) อ่านว่า ปี' },
+  { id: 'nu', icon: '🔤', label: 'นู', sub: 'สังเกตรูปสระในคำนี้', bucketId: 'sara-uu', reason: 'น ประสมสระ อู (อยู่ใต้พยัญชนะ) อ่านว่า นู' },
+  { id: 'ru', icon: '🕳️', label: 'รู', sub: 'สังเกตรูปสระในคำนี้', bucketId: 'sara-uu', reason: 'ร ประสมสระ อู (อยู่ใต้พยัญชนะ) อ่านว่า รู' },
+  { id: 'pu', icon: '🦀', label: 'ปู', sub: 'สังเกตรูปสระในคำนี้', bucketId: 'sara-uu', reason: 'ป ประสมสระ อู (อยู่ใต้พยัญชนะ) อ่านว่า ปู' },
+  { id: 'du', icon: '👀', label: 'ดู', sub: 'สังเกตรูปสระในคำนี้', bucketId: 'sara-uu', reason: 'ด ประสมสระ อู (อยู่ใต้พยัญชนะ) อ่านว่า ดู' }
+];
+
+let mode = 'learn';
+let curIdx = 0;
+let classifySession = null;
+
+function stopSpeech() {
+  if (window.KampaiMediaLab && typeof window.KampaiMediaLab.stopAllSpeech === 'function') {
+    window.KampaiMediaLab.stopAllSpeech();
+  } else {
+    try { window.KAMPAI?.sound?.stopSpeak?.(); } catch (_) {}
+    try { window.speechSynthesis?.cancel?.(); } catch (_) {}
+  }
+}
+
+function speakText(text, statusId) {
+  const clean = String(text || '').trim();
+  if (!clean) return;
+  const statusEl = document.getElementById(statusId || (mode === 'practice' ? 'speechStatusPractice' : 'speechStatusLearn'));
+  if (window.KampaiMediaLab && typeof window.KampaiMediaLab.speakSafe === 'function') {
+    const res = window.KampaiMediaLab.speakSafe(clean, { lang: 'th-TH', rate: 0.9 });
+    if (statusEl) {
+      if (res && res.ok === false) {
+        statusEl.textContent = 'อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านข้อความต่อได้';
+        statusEl.classList.add('show');
+      } else {
+        statusEl.textContent = '';
+        statusEl.classList.remove('show');
+      }
+    }
+    return;
+  }
+  try {
+    if (window.KAMPAI?.sound?.speak) {
+      KAMPAI.sound.speak(clean, 'th-TH', true);
+      return;
+    }
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(clean);
+      u.lang = 'th-TH';
+      u.rate = 0.9;
+      window.speechSynthesis.speak(u);
+      return;
+    }
+  } catch (_) {}
+  if (statusEl) {
+    statusEl.textContent = 'อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านข้อความต่อได้';
+    statusEl.classList.add('show');
+  }
+}
+
+function renderLearn() {
+  const cur = ITEMS[curIdx] || ITEMS[0];
+  document.getElementById('pick').innerHTML = ITEMS.map((x, i) =>
+    '<button type="button" data-i="' + i + '" class="' + (i === curIdx ? 'on' : '') + '">' +
+    (x.emoji ? x.emoji + ' ' : '') + x.name + '</button>'
+  ).join('');
+  document.getElementById('box').innerHTML =
+    (cur.emoji ? '<div class="emo">' + cur.emoji + '</div>' : '') +
+    '<h2>' + cur.name + '</h2>' +
+    '<p>' + cur.body + '</p>' +
+    (cur.tip ? '<p style="color:var(--muted);font-size:1rem">💡 ' + cur.tip + '</p>' : '') +
+    (cur.trace ? '<div class="trace">' + cur.trace + '</div>' : '') +
+    '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;">' +
+    '<button type="button" class="btn btn-primary" id="btnSpeakBlend">🔊 ฟังเสียงคำว่า 「' + cur.a + '」</button>' +
+    '</div>';
+  document.getElementById('btnSpeakBlend').onclick = () => speakText(cur.a + ' ... ' + cur.body);
+}
+
+function mountClassifyPractice() {
+  if (!window.KampaiEngines || !window.KampaiEngines.ClassifyBucket) return;
+  classifySession = window.KampaiEngines.ClassifyBucket.mount('#classifyEngineRoot', {
+    items: CLASSIFY_ITEMS,
+    buckets: VOWEL_BUCKETS,
+    mode: 'media',
+    roundSize: 9,
+    onAnswer: (res) => {
+      if (window.KAMPAI && window.KAMPAI.sound) {
+        try {
+          if (res.isCorrect) KAMPAI.sound.correct();
+          else KAMPAI.sound.wrong();
+        } catch (_) {}
+      }
+    }
+  });
+}
+
+function setMode(nextMode) {
+  stopSpeech();
+  mode = nextMode === 'practice' ? 'practice' : 'learn';
+  document.getElementById('shell').classList.toggle('mode-practice', mode === 'practice');
+  document.querySelectorAll('#modeSeg button').forEach((x) => {
+    const active = x.dataset.mode === mode;
+    x.classList.toggle('on', active);
+    x.setAttribute('aria-pressed', String(active));
+  });
+  document.getElementById('learn').classList.toggle('hide', mode === 'practice');
+  document.getElementById('practice').classList.toggle('on', mode === 'practice');
+  document.getElementById('hintText').textContent = mode === 'learn'
+    ? 'เลือกคำประสม แล้วฝึกอ่านทีละส่วนและฟังเสียง'
+    : 'จำแนกคำประสมตามสระ -า / -ี / -ู (ไม่เก็บคะแนน)';
+  if (mode === 'practice') {
+    mountClassifyPractice();
+  } else if (window.KampaiEngines?.ClassifyBucket?.cleanup) {
+    window.KampaiEngines.ClassifyBucket.cleanup();
+  }
+}
+
+document.getElementById('pick').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-i]');
+  if (!b) return;
+  stopSpeech();
+  curIdx = Number(b.dataset.i);
+  renderLearn();
+});
+
+document.getElementById('modeSeg').addEventListener('click', (e) => {
+  const b = e.target.closest('button[data-mode]');
+  if (b) setMode(b.dataset.mode);
+});
+
+document.getElementById('btnSpeakCurrent').addEventListener('click', () => {
+  const item = classifySession?.currentItem?.();
+  if (item) {
+    speakText('คำว่า ' + item.label + ' ประสมด้วยสระใด', 'speechStatusPractice');
+  } else {
+    speakText('ฝึกจำแนกสระครบทุกคำแล้ว กดฝึกใหม่อีกครั้งได้', 'speechStatusPractice');
+  }
+});
+
+document.getElementById('btnFs').addEventListener('click', () => {
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen?.().catch(() => {});
+  else document.exitFullscreen?.();
+});
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) stopSpeech();
+});
+window.addEventListener('pagehide', stopSpeech);
+
+window.getState = () => Object.freeze({
+  slug: MEDIA_SLUG,
+  mode: mode,
+  selectedIndex: curIdx,
+  selectedWord: ITEMS[curIdx]?.a || '',
+  totalItems: ITEMS.length,
+  classifyPoolCount: CLASSIFY_ITEMS.length,
+  bucketsCount: VOWEL_BUCKETS.length,
+  classify: classifySession ? classifySession.getState() : null,
+  reducedMotion: typeof window.matchMedia === 'function'
+    ? Boolean(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+    : false
+});
+
+renderLearn();
+setMode('learn');
 </script>
-</body></html>
+</body>
+</html>

@@ -2,35 +2,39 @@
 <html lang="th">
 <head>
   <script src="/games/kampai-sdk.js?v=1.181.0"></script>
+  <script src="/games/media-lab-runtime.js?v=2.0.0"></script>
+  <script src="/games/engine/classify-bucket-engine.js?v=2.0.0"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>อาหารหลัก 5 หมู่ — สื่อการสอน — บ้านคำไผ่</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root { --deep: #c2410c; --line: #fdba74; --muted: #64748b; --ok: #16a34a; --bad: #dc2626; --cream: #fff7ed; }
-    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(160deg, #ffedd5, #fecaca); min-height: 100%; padding: 12px; color: #0f172a; }
+    :root { --deep: #c2410c; --line: #fdba74; --muted: #64748b; --ok: #16a34a; --bad: #dc2626; --cream: #fff7ed; --ink: #0f172a; }
+    html, body { max-width: 100%; overflow-x: hidden; }
+    body { font-family: 'Sarabun', sans-serif; background: linear-gradient(160deg, #ffedd5, #fecaca); min-height: 100%; padding: 12px; color: var(--ink); }
     .shell { max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 1.5rem; box-shadow: 0 20px 50px rgba(15,23,42,.12); overflow: hidden; min-height: calc(100vh - 24px); display: flex; flex-direction: column; }
     header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(90deg, #9a3412, #ea580c); color: #fff; }
     header h1 { font-size: 1.1rem; font-weight: 800; flex: 1; min-width: 140px; }
     .badge { font-size: .75rem; background: rgba(255,255,255,.2); padding: 4px 10px; border-radius: 999px; font-weight: 700; }
-    .btn { font-family: inherit; font-weight: 700; border: none; border-radius: 12px; padding: 10px 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+    .btn { font-family: inherit; font-weight: 700; border: none; border-radius: 12px; padding: 10px 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; min-width: 44px; }
     .btn:active { transform: scale(.97); }
+    .btn:focus-visible, .seg button:focus-visible, .g-card:focus-visible, .f-btn:focus-visible, .filters button:focus-visible, .ke-bucket-btn:focus-visible, .ke-btn:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
     .btn-back { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.35); padding: 8px 12px; font-size: .85rem; }
     .btn-primary { background: var(--deep); color: #fff; }
     .btn-accent { background: #fbbf24; color: #78350f; }
     .btn-ghost { background: #fff; color: var(--deep); border: 2px solid var(--line); }
     .toolbar { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 16px; background: var(--cream); border-bottom: 1px solid var(--line); align-items: center; }
-    .seg { display: inline-flex; flex-wrap: wrap; border-radius: 12px; overflow: hidden; border: 2px solid #fb923c; }
-    .seg button { font-family: inherit; font-weight: 800; border: none; background: #fff; color: var(--deep); padding: 8px 12px; cursor: pointer; font-size: .82rem; }
+    .seg { display: inline-flex; flex-wrap: wrap; border-radius: 12px; overflow: hidden; border: 2px solid #fb923c; max-width: 100%; }
+    .seg button { font-family: inherit; font-weight: 800; border: none; background: #fff; color: var(--deep); padding: 8px 12px; cursor: pointer; font-size: .82rem; min-height: 44px; }
     .seg button.on { background: var(--deep); color: #fff; }
     .hint { font-size: .85rem; color: #9a3412; font-weight: 600; flex: 1; min-width: 120px; }
     .stage { flex: 1; padding: 16px; overflow: auto; }
-    .panel { display: none; flex-direction: column; gap: 14px; max-width: 960px; margin: 0 auto; }
+    .panel { display: none; flex-direction: column; gap: 14px; max-width: 960px; margin: 0 auto; width: 100%; }
     .panel.on { display: flex; }
     .g-grid { display: grid; gap: 10px; }
     @media (min-width: 700px) { .g-grid { grid-template-columns: repeat(5, 1fr); } }
-    .g-card { border-radius: 16px; padding: 14px; border: 3px solid; background: #fff; cursor: pointer; text-align: center; transition: transform .15s; }
+    .g-card { border-radius: 16px; padding: 14px; border: 3px solid; background: #fff; cursor: pointer; text-align: center; transition: transform .15s; min-height: 44px; font-family: inherit; }
     .g-card:hover { transform: translateY(-2px); }
     .g-card .e { font-size: 2rem; }
     .g-card h3 { font-weight: 800; font-size: .95rem; margin: 6px 0 4px; }
@@ -47,7 +51,7 @@
     .f-btn.on { box-shadow: 0 0 0 3px var(--deep); }
     .f-btn.dim { opacity: .35; }
     .filters { display: flex; flex-wrap: wrap; gap: 6px; }
-    .filters button { font-family: inherit; font-weight: 800; border: 2px solid var(--line); background: #fff; color: var(--deep); border-radius: 999px; padding: 6px 12px; cursor: pointer; font-size: .8rem; }
+    .filters button { font-family: inherit; font-weight: 800; border: 2px solid var(--line); background: #fff; color: var(--deep); border-radius: 999px; padding: 6px 12px; cursor: pointer; font-size: .8rem; min-height: 44px; }
     .filters button.on { background: var(--deep); color: #fff; border-color: var(--deep); }
     .plate { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
     .slot { border: 2px dashed var(--line); border-radius: 14px; padding: 10px; min-height: 90px; background: #fff7ed; }
@@ -62,24 +66,54 @@
     .fb.ok { color: var(--ok); }
     .fb.no { color: var(--bad); }
     .actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
-    .q-box { text-align: center; max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; align-items: center; }
-    .q-text { font-weight: 800; font-size: 1.15rem; color: var(--deep); }
-    .opts { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 420px; }
-    .opt { font-family: inherit; font-weight: 700; padding: 12px; border: 2px solid var(--line); border-radius: 12px; background: #fff; cursor: pointer; text-align: left; }
-    .opt.ok { background: #dcfce7; border-color: #86efac; }
-    .opt.no { background: #fee2e2; border-color: #fca5a5; }
     .meal-card { border: 2px solid var(--line); border-radius: 16px; padding: 14px; background: var(--cream); }
     .meal-card h3 { color: var(--deep); font-weight: 800; margin-bottom: 8px; }
     .meal-row { display: flex; flex-wrap: wrap; gap: 8px; }
     .meal-item { background: #fff; border: 2px solid var(--line); border-radius: 12px; padding: 8px 10px; font-weight: 700; font-size: .85rem; }
+    .practice-wrap { max-width: 680px; margin: 0 auto; width: 100%; display: flex; flex-direction: column; gap: 12px; }
+    .practice-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+    .practice-note { font-size: .88rem; font-weight: 700; color: var(--deep); }
+    .speech-status { font-size: .85rem; font-weight: 700; color: #92400e; background: #fef3c7; border-radius: 10px; padding: 8px 12px; display: none; }
+    .speech-status.show { display: block; }
+    .ke-classify-card { background: #fff7ed; border: 2px solid var(--line); border-radius: 20px; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+    .ke-classify-head { display: flex; justify-content: space-between; align-items: center; font-weight: 800; color: var(--deep); font-size: .95rem; }
+    .ke-classify-item { text-align: center; padding: 18px 14px; background: #fff; border: 2px dashed #fb923c; border-radius: 16px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .ke-item-icon { font-size: clamp(56px, 14vw, 84px); line-height: 1.05; }
+    .ke-item-label { font-size: clamp(1.25rem, 3vw, 1.6rem); font-weight: 800; color: var(--ink); }
+    .ke-item-sub { font-size: .9rem; font-weight: 600; color: #475569; }
+    .ke-buckets { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    @media (max-width: 420px) { .ke-buckets { grid-template-columns: 1fr; } }
+    .ke-bucket-btn { font-family: inherit; font-weight: 800; font-size: .95rem; min-height: 54px; padding: 10px 12px; border-radius: 14px; border: 2px solid #cbd5e1; background: #fff; color: var(--ink); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; text-align: center; transition: transform .12s, border-color .12s, background .12s; }
+    .ke-bucket-btn[data-bucket-id="1"] { border-color: #dc2626; background: #fef2f2; color: #7f1d1d; }
+    .ke-bucket-btn[data-bucket-id="2"] { border-color: #d97706; background: #fffbeb; color: #78350f; }
+    .ke-bucket-btn[data-bucket-id="3"] { border-color: #16a34a; background: #f0fdf4; color: #14532d; }
+    .ke-bucket-btn[data-bucket-id="4"] { border-color: #db2777; background: #fdf2f8; color: #831843; }
+    .ke-bucket-btn[data-bucket-id="5"] { border-color: #9333ea; background: #faf5ff; color: #581c87; }
+    .ke-bucket-btn.is-correct { outline: 3px solid #15803d; background: #dcfce7; color: #14532d; }
+    .ke-bucket-btn.is-wrong { opacity: .65; text-decoration: line-through; }
+    .ke-bucket-btn:disabled { cursor: default; }
+    .ke-classify-feedback { padding: 12px 14px; border-radius: 12px; font-weight: 700; line-height: 1.45; background: #fff; border: 1.5px solid #cbd5e1; color: var(--ink); }
+    .ke-classify-feedback.is-good { background: #dcfce7; border-color: #16a34a; color: #14532d; }
+    .ke-classify-feedback.is-learn { background: #fef3c7; border-color: #d97706; color: #78350f; }
+    .ke-btn { font-family: inherit; font-weight: 800; font-size: .95rem; min-height: 44px; padding: 10px 16px; border-radius: 12px; border: none; background: var(--deep); color: #fff; cursor: pointer; align-items: center; justify-content: center; gap: 6px; align-self: center; }
+    .ke-classify-summary { text-align: center; padding: 24px 16px; background: #fff7ed; border: 2px solid var(--line); border-radius: 20px; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+    .ke-classify-summary h3 { color: var(--deep); font-size: 1.3rem; font-weight: 800; }
     .footer { padding: 10px 16px; font-size: .8rem; color: var(--muted); text-align: center; border-top: 1px solid var(--line); }
     .footer a { color: var(--deep); font-weight: 700; text-decoration: none; }
+    @media (max-width: 600px) {
+      body { padding: 0; }
+      .shell { border-radius: 0; min-height: 100vh; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition: none !important; scroll-behavior: auto !important; }
+      .btn:active, .g-card:hover { transform: none; }
+    }
   </style>
 </head>
 <body>
   <div class="shell">
     <header>
-      <button type="button" class="btn btn-back" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back();">← กลับคลังสื่อ</button>
+      <button type="button" class="btn btn-back" id="btnBack">← กลับคลังสื่อ</button>
       <h1>🍽️ อาหารหลัก 5 หมู่</h1>
       <span class="badge">ป.3–4 · สุขศึกษา</span>
     </header>
@@ -88,31 +122,45 @@
         <button type="button" data-mode="learn" class="on">📖 เรียนรู้หมู่</button>
         <button type="button" data-mode="explore">🔍 สำรวจอาหาร</button>
         <button type="button" data-mode="plate">🥗 จัดจาน</button>
-        <button type="button" data-mode="practice">✏️ ฝึกสั้น</button>
+        <button type="button" data-mode="practice">✏️ ฝึกแยก</button>
         <button type="button" data-mode="teacher">👩‍🏫 จานครู</button>
       </span>
       <p class="hint" id="hintText">แตะหมู่เพื่อดูบทบาทและตัวอย่าง</p>
-      <button type="button" class="btn btn-ghost" id="btnFs">⛶</button>
+      <button type="button" class="btn btn-ghost" id="btnFs" aria-label="ขยายเต็มจอ">⛶</button>
     </div>
     <div class="stage">
       <div class="panel on" id="p-learn"></div>
       <div class="panel" id="p-explore"></div>
       <div class="panel" id="p-plate"></div>
-      <div class="panel" id="p-practice"></div>
+      <div class="panel" id="p-practice">
+        <div class="practice-wrap">
+          <div class="practice-bar">
+            <span class="practice-note">แตะเลือกหมู่หรือกดปุ่มตัวเลข 1–5 (ไม่จับเวลา · ไม่เก็บคะแนน)</span>
+            <button type="button" class="btn btn-ghost" id="btnSpeakCurrent">🔊 ฟังเสียง</button>
+          </div>
+          <div class="speech-status" id="speechStatusPractice" role="status" aria-live="polite"></div>
+          <div id="classifyEngineRoot"></div>
+        </div>
+      </div>
       <div class="panel" id="p-teacher"></div>
     </div>
     <footer class="footer">ตัวชี้วัด <strong>พ 4.1 ป.3/2</strong> · <strong>พ 4.1 ป.3/3</strong> · คู่เกม <a href="/play/plate-builder">จัดจานอาหาร</a></footer>
   </div>
   <script>
     const MEDIA_SLUG = 'food-groups-media';
-    if (window.KAMPAI) KAMPAI.setSlug('food-groups-media');
+    if (window.KAMPAI) {
+      KAMPAI.setSlug(MEDIA_SLUG);
+      if (KAMPAI.sound && typeof KAMPAI.sound.mountToggles === 'function') {
+        try { KAMPAI.sound.mountToggles(); } catch (_) {}
+      }
+    }
 
     const GROUPS = [
-      { id: 1, nameTh: 'โปรตีน', shortName: 'โปรตีน', color: '#ef4444', role: 'สร้างกล้ามเนื้อ ซ่อมแซมเนื้อเยื่อ', tip: 'ประมาณ 1 ส่วน / มื้อ', emoji: '🥩' },
-      { id: 2, nameTh: 'คาร์โบไฮเดรต', shortName: 'คาร์บ', color: '#f59e0b', role: 'ให้พลังงานหลักแก่ร่างกาย', tip: 'ประมาณ 2–3 ส่วน / มื้อ', emoji: '🍚' },
-      { id: 3, nameTh: 'ผัก', shortName: 'ผัก', color: '#22c55e', role: 'วิตามิน แร่ธาตุ และใยอาหาร', tip: 'ให้มากในทุกมื้อ', emoji: '🥬' },
-      { id: 4, nameTh: 'ผลไม้', shortName: 'ผลไม้', color: '#ec4899', role: 'วิตามินและหวานธรรมชาติ', tip: '1–2 ส่วน / วัน', emoji: '🍎' },
-      { id: 5, nameTh: 'ไขมันดี', shortName: 'ไขมัน', color: '#a855f7', role: 'พลังงานสำรองและช่วยดูดซึมวิตามิน', tip: 'น้อยแต่จำเป็น · ใช้พอดี', emoji: '🥑' },
+      { id: 1, nameTh: 'โปรตีน', shortName: 'โปรตีน', color: '#dc2626', role: 'สร้างกล้ามเนื้อ ซ่อมแซมเนื้อเยื่อ', tip: 'ประมาณ 1 ส่วน / มื้อ', emoji: '🥩' },
+      { id: 2, nameTh: 'คาร์โบไฮเดรต', shortName: 'คาร์บ', color: '#d97706', role: 'ให้พลังงานหลักแก่ร่างกาย', tip: 'ประมาณ 2–3 ส่วน / มื้อ', emoji: '🍚' },
+      { id: 3, nameTh: 'ผัก', shortName: 'ผัก', color: '#16a34a', role: 'วิตามิน แร่ธาตุ และใยอาหาร', tip: 'ให้มากในทุกมื้อ', emoji: '🥬' },
+      { id: 4, nameTh: 'ผลไม้', shortName: 'ผลไม้', color: '#db2777', role: 'วิตามินและหวานธรรมชาติ', tip: '1–2 ส่วน / วัน', emoji: '🍎' },
+      { id: 5, nameTh: 'ไขมันดี', shortName: 'ไขมัน', color: '#9333ea', role: 'พลังงานสำรองและช่วยดูดซึมวิตามิน', tip: 'น้อยแต่จำเป็น · ใช้พอดี', emoji: '🥑' },
     ];
 
     const FOODS = [
@@ -205,37 +253,116 @@
       }
       return a;
     }
-    function speak(t) {
-      if (window.KAMPAI && KAMPAI.sound && KAMPAI.sound.speak) KAMPAI.sound.speak(t, 'th-TH');
-      else if (window.speechSynthesis) {
-        const u = new SpeechSynthesisUtterance(t);
-        u.lang = 'th-TH';
-        speechSynthesis.speak(u);
-      }
-    }
+
+    const CLASSIFY_BUCKETS = GROUPS.map((g) => ({
+      id: String(g.id),
+      label: g.nameTh,
+      icon: g.emoji,
+      color: g.color,
+      description: g.role,
+    }));
+
+    const CLASSIFY_ITEMS = FOODS.map((f) => {
+      const g = groupById(f.groupId);
+      return {
+        id: f.id,
+        icon: f.emoji,
+        label: f.nameTh,
+        bucketId: String(f.groupId),
+        reason: (f.note ? f.note + ' · ' : '') + g.role,
+      };
+    });
 
     let mode = 'learn', selectedGroup = 1, exploreFilter = 0, explorePick = null;
     let plateMeal = 'มื้อเช้า', platePicks = {}, platePool = [];
-    let quizQ = null, quizAnswered = false;
+    let classifySession = null;
+
+    function speakText(text, statusId) {
+      const clean = String(text || '').trim();
+      if (!clean) return;
+      const statusEl = document.getElementById(statusId || (mode === 'practice' ? 'speechStatusPractice' : 'speechStatusLearn'));
+      if (window.KampaiMediaLab && typeof window.KampaiMediaLab.speakSafe === 'function') {
+        const res = window.KampaiMediaLab.speakSafe(clean, { lang: 'th-TH', rate: 0.92 });
+        if (statusEl) {
+          if (res && res.ok === false) {
+            statusEl.textContent = 'อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านข้อความต่อได้';
+            statusEl.classList.add('show');
+          } else {
+            statusEl.textContent = '';
+            statusEl.classList.remove('show');
+          }
+        }
+        return;
+      }
+      try {
+        if (window.KAMPAI?.sound?.speak) {
+          KAMPAI.sound.speak(clean, 'th-TH', true);
+          return;
+        }
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const u = new SpeechSynthesisUtterance(clean);
+          u.lang = 'th-TH';
+          u.rate = 0.92;
+          window.speechSynthesis.speak(u);
+          return;
+        }
+      } catch (_) {}
+      if (statusEl) {
+        statusEl.textContent = 'อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านข้อความต่อได้';
+        statusEl.classList.add('show');
+      }
+    }
+
+    function stopSpeech() {
+      if (window.KampaiMediaLab && typeof window.KampaiMediaLab.stopAllSpeech === 'function') {
+        window.KampaiMediaLab.stopAllSpeech();
+      } else {
+        try { window.KAMPAI?.sound?.stopSpeak?.(); } catch (_) {}
+        try { window.speechSynthesis?.cancel?.(); } catch (_) {}
+      }
+    }
 
     const hints = {
       learn: 'แตะหมู่เพื่อดูบทบาท สัดส่วน และตัวอย่างอาหาร',
       explore: 'แตะอาหาร → ดูว่าอยู่ในหมู่อะไร',
       plate: 'เลือกอาหารให้ครบทั้ง 5 หมู่ในจานเดียว (ไม่มีการให้คะแนน)',
-      practice: 'ฝึกสั้น: เลือกหมู่ที่ถูกต้องจากอาหารที่แสดง',
+      practice: 'ฝึกแยกอาหาร 5 หมู่ — ไม่จับเวลา ไม่เก็บคะแนน',
       teacher: 'ดูจานตัวอย่าง 3 มื้อที่ครูจัดไว้',
     };
 
+    function mountClassifyPractice() {
+      if (!window.KampaiEngines || !window.KampaiEngines.ClassifyBucket) return;
+      classifySession = window.KampaiEngines.ClassifyBucket.mount('#classifyEngineRoot', {
+        items: CLASSIFY_ITEMS,
+        buckets: CLASSIFY_BUCKETS,
+        mode: 'media',
+        roundSize: 10,
+        onAnswer: function (res) {
+          if (window.KAMPAI && window.KAMPAI.sound) {
+            try {
+              if (res.isCorrect) KAMPAI.sound.correct();
+              else KAMPAI.sound.wrong();
+            } catch (_) {}
+          }
+        },
+      });
+    }
+
     function setMode(m) {
+      stopSpeech();
       mode = m;
       document.querySelectorAll('#modeSeg button').forEach((b) => b.classList.toggle('on', b.dataset.mode === m));
       document.querySelectorAll('.panel').forEach((p) => p.classList.remove('on'));
       document.getElementById('p-' + m).classList.add('on');
       document.getElementById('hintText').textContent = hints[m];
+      if (m !== 'practice' && window.KampaiEngines?.ClassifyBucket?.cleanup) {
+        window.KampaiEngines.ClassifyBucket.cleanup();
+      }
       if (m === 'learn') renderLearn();
       if (m === 'explore') renderExplore();
       if (m === 'plate') { if (!platePool.length) resetPlate(); else renderPlate(); }
-      if (m === 'practice') { if (!quizQ) nextQuiz(); else renderQuiz(); }
+      if (m === 'practice') mountClassifyPractice();
       if (m === 'teacher') renderTeacher();
     }
 
@@ -256,13 +383,14 @@
         '<p><strong>บทบาท:</strong> ' + g.role + '</p>' +
         '<p style="margin-top:6px"><strong>สัดส่วน:</strong> ' + g.tip + '</p>' +
         '<div class="chips">' + samples.map((f) => '<span class="chip">' + f.emoji + ' ' + f.nameTh + '</span>').join('') + '</div>' +
-        '<div class="actions" style="margin-top:10px"><button type="button" class="btn btn-ghost" id="btnSpeakG">🔊 อ่านหมู่</button></div>' +
+        '<div class="actions" style="margin-top:10px"><button type="button" class="btn btn-ghost" id="btnSpeakG">🔊 ฟังเสียง</button></div>' +
+        '<div class="speech-status" id="speechStatusLearn" role="status" aria-live="polite" style="margin-top:8px"></div>' +
         '</div>';
       el.querySelectorAll('[data-gid]').forEach((b) => {
-        b.onclick = () => { selectedGroup = +b.dataset.gid; renderLearn(); };
+        b.onclick = () => { stopSpeech(); selectedGroup = +b.dataset.gid; renderLearn(); };
       });
       const sp = document.getElementById('btnSpeakG');
-      if (sp) sp.onclick = () => speak(g.nameTh + ' ' + g.role);
+      if (sp) sp.onclick = () => speakText(g.nameTh + ' ' + g.role + ' ' + g.tip, 'speechStatusLearn');
     }
 
     function renderExplore() {
@@ -292,16 +420,17 @@
             '</h3><p>อยู่ในหมู่ <strong style="color:' + pg.color + '">' + pg.emoji + ' ' + pg.nameTh +
             '</strong> — ' + pg.role + '</p>' +
             (pick.note ? '<p style="margin-top:6px;color:#9a3412">💡 ' + pick.note + '</p>' : '') +
-            '<div class="actions" style="margin-top:8px"><button type="button" class="btn btn-ghost" id="btnSpeakF">🔊 อ่าน</button></div></div>'
+            '<div class="actions" style="margin-top:8px"><button type="button" class="btn btn-ghost" id="btnSpeakF">🔊 ฟังเสียง</button></div>' +
+            '<div class="speech-status" id="speechStatusExplore" role="status" aria-live="polite" style="margin-top:8px"></div></div>'
           : '<div class="detail"><p>แตะอาหารเพื่อไฮไลต์หมู่</p></div>');
       el.querySelectorAll('[data-f]').forEach((b) => {
-        b.onclick = () => { exploreFilter = +b.dataset.f; renderExplore(); };
+        b.onclick = () => { stopSpeech(); exploreFilter = +b.dataset.f; renderExplore(); };
       });
       el.querySelectorAll('[data-fid]').forEach((b) => {
-        b.onclick = () => { explorePick = b.dataset.fid; renderExplore(); };
+        b.onclick = () => { stopSpeech(); explorePick = b.dataset.fid; renderExplore(); };
       });
       const sp = document.getElementById('btnSpeakF');
-      if (sp && pick) sp.onclick = () => speak(pick.nameTh + ' หมู่' + pg.nameTh);
+      if (sp && pick) sp.onclick = () => speakText(pick.nameTh + ' อยู่ในหมู่' + pg.nameTh + ' ' + pg.role, 'speechStatusExplore');
     }
 
     function resetPlate() {
@@ -358,52 +487,6 @@
       document.getElementById('btnNewPlate').onclick = resetPlate;
     }
 
-    function nextQuiz() {
-      const f = FOODS[(Math.random() * FOODS.length) | 0];
-      const wrong = shuffle(GROUPS.filter((g) => g.id !== f.groupId)).slice(0, 3);
-      const opts = shuffle([groupById(f.groupId)].concat(wrong));
-      quizQ = { food: f, opts, answerId: f.groupId };
-      quizAnswered = false;
-      renderQuiz();
-    }
-
-    function renderQuiz() {
-      const el = document.getElementById('p-practice');
-      if (!quizQ) return;
-      const f = quizQ.food;
-      el.innerHTML =
-        '<div class="q-box">' +
-        '<div style="font-size:3rem">' + f.emoji + '</div>' +
-        '<p class="q-text">' + f.nameTh + ' อยู่ในหมู่ใด?</p>' +
-        '<div class="opts">' +
-        quizQ.opts.map((g) =>
-          '<button type="button" class="opt" data-gid="' + g.id + '">' + g.emoji + ' ' + g.nameTh + '</button>'
-        ).join('') +
-        '</div>' +
-        '<p class="fb" id="quizFb"></p>' +
-        '<div class="actions"><button type="button" class="btn btn-primary" id="btnNextQ">ข้อถัดไป</button></div>' +
-        '</div>';
-      el.querySelectorAll('.opt').forEach((b) => {
-        b.onclick = () => {
-          if (quizAnswered) return;
-          quizAnswered = true;
-          const gid = +b.dataset.gid;
-          const ok = gid === quizQ.answerId;
-          el.querySelectorAll('.opt').forEach((o) => {
-            const id = +o.dataset.gid;
-            if (id === quizQ.answerId) o.classList.add('ok');
-            else if (id === gid) o.classList.add('no');
-          });
-          const g = groupById(quizQ.answerId);
-          document.getElementById('quizFb').className = 'fb ' + (ok ? 'ok' : 'no');
-          document.getElementById('quizFb').textContent = ok
-            ? '✅ ถูกต้อง! ' + f.nameTh + ' อยู่หมู่' + g.nameTh
-            : '❌ คำตอบคือ ' + g.emoji + ' ' + g.nameTh + ' — ' + g.role;
-        };
-      });
-      document.getElementById('btnNextQ').onclick = nextQuiz;
-    }
-
     function renderTeacher() {
       const el = document.getElementById('p-teacher');
       el.innerHTML = TEACHER_MEALS.map((m) =>
@@ -418,14 +501,47 @@
       ).join('');
     }
 
+    document.getElementById('btnBack').onclick = () => {
+      stopSpeech();
+      if (window.KAMPAI && KAMPAI.goHome) KAMPAI.goHome();
+      else history.back();
+    };
+
     document.getElementById('modeSeg').onclick = (e) => {
       const b = e.target.closest('button[data-mode]');
       if (b) setMode(b.dataset.mode);
     };
+
+    document.getElementById('btnSpeakCurrent').onclick = () => {
+      const item = classifySession?.currentItem?.();
+      if (item) {
+        speakText(item.label + ' อยู่ในอาหารหมู่ใด', 'speechStatusPractice');
+      } else {
+        speakText('ฝึกจำแนกอาหารหลัก 5 หมู่สำเร็จแล้ว กดฝึกใหม่อีกครั้งได้', 'speechStatusPractice');
+      }
+    };
+
     document.getElementById('btnFs').onclick = () => {
-      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.().catch(() => {});
       else document.exitFullscreen?.();
     };
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stopSpeech();
+    });
+    window.addEventListener('pagehide', stopSpeech);
+
+    window.getState = () => Object.freeze({
+      slug: MEDIA_SLUG,
+      mode: mode,
+      selectedGroup: selectedGroup,
+      totalGroups: GROUPS.length,
+      totalFoods: FOODS.length,
+      classify: classifySession ? classifySession.getState() : null,
+      reducedMotion: typeof window.matchMedia === 'function'
+        ? Boolean(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+        : false,
+    });
 
     setMode('learn');
   </script>

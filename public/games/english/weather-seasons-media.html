@@ -1,1 +1,859 @@
-<!doctype html><html lang="th"><head><script src="/games/kampai-sdk.js?v=1.181.0"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Weather and Seasons — Teaching Media</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/games/color-fill-media.css?v=1.226.0" rel="stylesheet"></head><body><main class="shell"><header class="hero"><div><h1 id="title"></h1><p id="subtitle"></p></div></header><nav class="tabs"><button class="btn on" data-tab="learn">📖 สรุปความรู้</button><button class="btn" data-tab="practice">✏️ ฝึกสั้น</button></nav><section class="panel on" id="learn"></section><section class="panel" id="practice"></section><p class="links"><a id="worksheetLink">เปิดใบงาน 3 หน้า</a> · <span id="indicator"></span></p></main><script>const MEDIA_SLUG='weather-seasons-media';window.COLOR_FILL_MEDIA_CONFIG={slug:MEDIA_SLUG,icon:'🌦️',title:'Weather and Seasons',grade:'ป.4',subject:'ภาษาอังกฤษ',lead:'บอกสภาพอากาศและเลือกเครื่องแต่งกาย',indicator:'ต 1.1 ป.4/3, ต 1.3 ป.4/1',worksheetUrl:'/games/english/weather-seasons-worksheet.html',facts:[['sunny / hot','แดดออก / อากาศร้อน: wear a hat'],['rainy','ฝนตก: take an umbrella or wear a raincoat'],['cloudy / windy','มีเมฆมาก / มีลมแรง'],['Seasons','summer, rainy season และ winter']],quiz:[{q:'It is raining. What do you take?',opts:['an umbrella','a fan','sunglasses'],a:'an umbrella'},{q:'Which word means มีลมแรง?',opts:['windy','sunny','cold'],a:'windy'}]};</script><script src="/games/color-fill-media.js?v=1.226.0"></script></body></html>
+<!doctype html>
+<html lang="th">
+<head>
+  <script src="/games/kampai-sdk.js?v=1.181.0"></script>
+  <script src="/games/media-lab-runtime.js?v=2.0.0"></script>
+  <script src="/games/engine/vocab-quiz-engine.js?v=2.0.0"></script>
+  <script src="/games/engine/connect-match-engine.js?v=2.0.0"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weather and Seasons — Teaching Media</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --sky: #0284c7;
+      --sky-dark: #0369a1;
+      --sky-soft: #e0f2fe;
+      --amber: #f59e0b;
+      --amber-soft: #fef3c7;
+      --navy: #0f172a;
+      --border: #bae6fd;
+      --muted: #64748b;
+      --ok: #059669;
+      --bad: #e11d48;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      max-width: 100%;
+      overflow-x: hidden;
+      font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(150deg, #e0f2fe 0%, #f0f9ff 50%, #fef9c3 100%);
+      min-height: 100vh;
+      color: var(--navy);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .shell {
+      max-width: 1100px;
+      width: 100%;
+      margin: 0 auto;
+      background: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 40px rgba(15, 23, 42, 0.08);
+      overflow-x: hidden;
+    }
+
+    header.hero {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 14px 16px;
+      background: linear-gradient(135deg, #0369a1 0%, #0284c7 60%, #0ea5e9 100%);
+      color: #ffffff;
+    }
+    .hero-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .hero-left h1 {
+      font-size: clamp(1.15rem, 3vw, 1.5rem);
+      font-weight: 900;
+      color: #ffffff;
+    }
+    .hero-sub {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #e0f2fe;
+    }
+    .hero-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .badge-grade {
+      font-size: 0.78rem;
+      font-weight: 700;
+      background: rgba(245, 158, 11, 0.25);
+      border: 1px solid rgba(245, 158, 11, 0.7);
+      color: #fef08a;
+      padding: 4px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .btn-hdr {
+      background: rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 700;
+      padding: 8px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 44px;
+      min-width: 44px;
+      text-decoration: none;
+      transition: background 0.15s ease;
+    }
+    .btn-hdr:hover { background: rgba(255, 255, 255, 0.26); }
+
+    nav.tabs {
+      display: flex;
+      background: #f1f5f9;
+      border-bottom: 2px solid #e2e8f0;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding: 6px 8px;
+      gap: 6px;
+    }
+    nav.tabs::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      flex: 1 0 auto;
+      min-width: 135px;
+      min-height: 44px;
+      padding: 10px 14px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 800;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+    .tab-btn:hover { background: rgba(2, 132, 199, 0.08); color: var(--sky); }
+    .tab-btn.active {
+      background: #ffffff;
+      color: var(--sky-dark);
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+      border-bottom: 3px solid var(--sky);
+    }
+
+    main.content {
+      padding: 20px 16px 36px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .speech-status {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #78350f;
+      background: var(--amber-soft);
+      border: 1.5px solid var(--amber);
+      border-radius: 10px;
+      padding: 8px 12px;
+      display: none;
+    }
+    .speech-status.show { display: block; }
+
+    .panel { display: none; animation: fadeIn 0.22s ease-out forwards; }
+    .panel.active { display: flex; flex-direction: column; gap: 18px; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card {
+      background: #ffffff;
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+    }
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--navy);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      border-bottom: 1.5px solid #f1f5f9;
+      padding-bottom: 10px;
+    }
+    .tag {
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--sky-soft);
+      color: var(--sky-dark);
+    }
+
+    .facts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+    .fact-card {
+      background: #f8fafc;
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .fact-card h3 { color: var(--sky-dark); font-size: 1.12rem; font-weight: 800; }
+    .fact-card p { font-weight: 600; line-height: 1.55; color: #334155; }
+
+    .word-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+      gap: 10px;
+    }
+    .word-tile {
+      min-height: 76px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      background: #f0f9ff;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      text-align: center;
+      font-family: inherit;
+      transition: all 0.15s ease;
+    }
+    .word-tile:hover { background: var(--sky-soft); border-color: var(--sky); transform: translateY(-2px); }
+    .word-tile.active { background: var(--sky); border-color: var(--sky-dark); color: #ffffff; }
+    .word-tile .w-emo { font-size: 1.4rem; }
+    .word-tile .w-en { font-size: 1.08rem; font-weight: 800; }
+    .word-tile .w-th { font-size: 0.82rem; font-weight: 700; opacity: 0.9; }
+    .word-tile.active .w-th { color: #fef08a; opacity: 1; }
+
+    .selected-banner {
+      background: #f8fafc;
+      border: 2px dashed var(--sky);
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-weight: 700;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .flashcard {
+      max-width: 500px;
+      margin: 0 auto;
+      width: 100%;
+      min-height: 240px;
+      border-radius: 18px;
+      border: 2.5px solid var(--sky);
+      background: linear-gradient(135deg, #f0f9ff, #ffffff);
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      text-align: center;
+      box-shadow: 0 8px 24px rgba(2, 132, 199, 0.1);
+    }
+    .fc-emo { font-size: 3rem; }
+    .fc-word { font-size: clamp(2rem, 7vw, 2.8rem); font-weight: 900; color: var(--sky-dark); overflow-wrap: anywhere; }
+    .fc-th { font-size: 1.25rem; font-weight: 800; color: var(--navy); }
+    .fc-sent {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #334155;
+      background: #f8fafc;
+      padding: 8px 16px;
+      border-radius: 10px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .btn-act {
+      min-height: 44px;
+      min-width: 44px;
+      padding: 10px 16px;
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 0.95rem;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.15s ease;
+    }
+    .btn-act.primary { background: var(--sky); color: #ffffff; }
+    .btn-act.primary:hover { background: var(--sky-dark); }
+    .btn-act.secondary { background: #e2e8f0; color: var(--navy); }
+    .btn-act.secondary:hover { background: #cbd5e1; }
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+
+    /* ARCHETYPE ENGINE STYLES */
+    .engine-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+    .engine-mode-group { display: inline-flex; flex-wrap: wrap; gap: 8px; }
+    .ke-match-wrap { position: relative; display: flex; flex-direction: column; gap: 12px; width: 100%; }
+    .ke-match-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+    .ke-match-grid {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 20px;
+      align-items: start;
+    }
+    .ke-match-col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+    .ke-match-card, .ke-memory-card {
+      width: 100%;
+      min-height: 48px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 2px solid #cbd5e1;
+      background: #f8fafc;
+      color: var(--navy);
+      font-family: inherit;
+      font-size: 0.98rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      overflow-wrap: anywhere;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .ke-match-card:hover, .ke-memory-card:hover { border-color: var(--sky); background: #f0f9ff; }
+    .ke-match-card.active { border-color: var(--sky); background: var(--sky-soft); box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.2); }
+    .ke-match-card.matched, .ke-memory-card.matched { background: #dcfce7; border-color: var(--ok); color: #065f46; cursor: default; }
+    .ke-match-card.error, .ke-memory-card.error { background: #ffe4e6; border-color: var(--bad); color: var(--bad); }
+    .ke-memory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(115px, 1fr)); gap: 10px; }
+    .ke-memory-card.flipped { background: #f0f9ff; border-color: var(--sky); }
+    .ke-match-feedback, .ke-feedback {
+      min-height: 24px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-weight: 700;
+      background: #f1f5f9;
+      color: var(--navy);
+    }
+    .ke-feedback.is-good { background: #dcfce7; color: #065f46; border: 1.5px solid var(--ok); }
+    .ke-feedback.is-learn { background: var(--amber-soft); color: #78350f; border: 1.5px solid var(--amber); }
+    .ke-quiz-card, .ke-quiz-summary { display: flex; flex-direction: column; gap: 14px; }
+    .ke-quiz-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; font-weight: 800; }
+    .ke-badge { padding: 4px 10px; border-radius: 999px; background: var(--sky-soft); color: var(--sky-dark); font-size: 0.85rem; }
+    .ke-progress { color: var(--muted); font-size: 0.92rem; }
+    .ke-prompt { font-size: 1.18rem; font-weight: 800; color: var(--navy); line-height: 1.5; }
+    .ke-audio-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .ke-options { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    @media (min-width: 640px) { .ke-options { grid-template-columns: 1fr 1fr; } }
+    .ke-option, .ke-btn {
+      min-height: 46px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 2px solid #cbd5e1;
+      background: #f8fafc;
+      color: var(--navy);
+      font-family: inherit;
+      font-size: 0.98rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: left;
+    }
+    .ke-btn {
+      background: var(--sky);
+      color: #ffffff;
+      border-color: var(--sky);
+      text-align: center;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .ke-option.is-correct { background: #dcfce7; border-color: var(--ok); color: #065f46; }
+    .ke-option.is-wrong { background: #ffe4e6; border-color: var(--bad); color: var(--bad); }
+    .ke-clue { padding: 10px 12px; border-radius: 10px; background: var(--amber-soft); color: #78350f; font-weight: 700; }
+
+    footer {
+      margin-top: auto;
+      background: #f8fafc;
+      border-top: 1px solid #e2e8f0;
+      padding: 14px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    footer a { color: var(--sky-dark); text-decoration: none; font-weight: 700; }
+    footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 480px) {
+      .ke-match-grid { gap: 10px; }
+      .ke-match-card { font-size: 0.9rem; padding: 8px 6px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+      }
+      .panel { animation: none; }
+    }
+  </style>
+</head>
+<body>
+<div class="shell">
+  <header class="hero">
+    <div class="hero-left">
+      <button type="button" class="btn-hdr" onclick="if(window.KAMPAI&&KAMPAI.goHome)KAMPAI.goHome();else history.back()">← กลับคลังสื่อ</button>
+      <div>
+        <h1>🌦️ Weather and Seasons</h1>
+        <p class="hero-sub">ป.4 · ภาษาอังกฤษ · บอกสภาพอากาศและเลือกเครื่องแต่งกาย</p>
+      </div>
+      <span class="badge-grade">ต 1.1 ป.4/3, ต 1.3 ป.4/1</span>
+    </div>
+    <div class="hero-right">
+      <select id="selVoiceAccent" class="btn-hdr" aria-label="เลือกสำเนียงเสียง" style="color:#0f172a;background:#fff;">
+        <option value="en-US">🇺🇸 สำเนียง US</option>
+        <option value="en-GB">🇬🇧 สำเนียง UK</option>
+      </select>
+      <button type="button" class="btn-hdr" id="btnAudioToggle"><span id="audioIcon">🔊</span> <span id="audioLabel">เปิดเสียง</span></button>
+      <button type="button" class="btn-hdr" id="btnFullscreen"><span>⛶</span> เต็มจอ</button>
+      <a href="/games/english/weather-seasons-worksheet.html" class="btn-hdr" target="_blank" rel="noopener"><span>📄</span> ใบงาน 3 หน้า</a>
+    </div>
+  </header>
+
+  <nav class="tabs" aria-label="โหมดการเรียนรู้">
+    <button type="button" class="tab-btn active" data-tab="learn" data-mode="learn"><span>📖</span> 1. สรุปความรู้ &amp; คำศัพท์</button>
+    <button type="button" class="tab-btn" data-tab="flashcards" data-mode="learn"><span>🃏</span> 2. บัตรคำสภาพอากาศ</button>
+    <button type="button" class="tab-btn" data-tab="match" data-mode="practice"><span>🔗</span> 3. จับคู่คำศัพท์</button>
+    <button type="button" class="tab-btn" data-tab="quiz" data-mode="practice"><span>✏️</span> 4. ฝึกสั้น &amp; ฟังเสียง</button>
+  </nav>
+
+  <main class="content">
+    <div class="speech-status" id="speechStatus" role="status" aria-live="polite"></div>
+
+    <!-- LEARN 1: SUMMARY & WORD GRID -->
+    <section class="panel active" id="panel-learn">
+      <div class="card">
+        <div class="card-title">
+          <span>สรุปความรู้: Weather &amp; Seasons</span>
+          <span class="tag">แตะเพื่อฟังเสียง</span>
+        </div>
+        <div class="facts-grid" id="factsGrid"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <span>คลังคำศัพท์สภาพอากาศ ฤดูกาล และเครื่องแต่งกาย</span>
+          <span class="tag">12 คำสำคัญ</span>
+        </div>
+        <div class="word-grid" id="wordGrid"></div>
+        <div class="selected-banner" id="selectedBanner">
+          <span id="selectedDetail">แตะคำศัพท์ด้านบนเพื่อฟังเสียงอ่านและดูตัวอย่างประโยค</span>
+          <button type="button" class="btn-act primary" id="btnSpeakSelected">🔊 ฟังประโยคตัวอย่าง</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- LEARN 2: FLASHCARDS -->
+    <section class="panel" id="panel-flashcards">
+      <div class="card" style="align-items:center;">
+        <div class="card-title" style="width:100%;">
+          <span>บัตรคำฝึกอ่านออกเสียง (Weather Flashcards)</span>
+          <span class="tag" id="fcCounter">1 / 12</span>
+        </div>
+        <div class="flashcard" id="flashcard">
+          <span class="fc-emo" id="fcEmo">☀️</span>
+          <span class="fc-word" id="fcWord">sunny</span>
+          <span class="fc-th" id="fcTh">แดดออก / มีแดด</span>
+          <span class="fc-sent" id="fcSent">It is sunny. Wear a hat.</span>
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn-act secondary" id="btnPrevFc">⬅ ก่อนหน้า</button>
+          <button type="button" class="btn-act primary" id="btnSpeakFc">🔊 ฟังเสียงอ่าน</button>
+          <button type="button" class="btn-act secondary" id="btnNextFc">ถัดไป ➔</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRACTICE 1: CONNECT MATCH -->
+    <section class="panel" id="panel-match">
+      <div class="card">
+        <div class="card-title">
+          <span>🔗 จับคู่คำศัพท์สภาพอากาศและเครื่องแต่งกาย</span>
+          <span class="tag">ไม่จับเวลา · ไม่เก็บคะแนน</span>
+        </div>
+        <div class="engine-toolbar">
+          <div class="engine-mode-group">
+            <button type="button" class="btn-act primary" id="btnMatchConnect">🔗 โยงคู่คำศัพท์</button>
+            <button type="button" class="btn-act secondary" id="btnMatchMemory">🃏 เปิดป้ายจำคู่</button>
+          </div>
+          <button type="button" class="btn-act secondary" id="btnMatchNew">🔄 ชุดใหม่</button>
+        </div>
+        <div id="matchEngineRoot"></div>
+      </div>
+    </section>
+
+    <!-- PRACTICE 2: VOCAB QUIZ -->
+    <section class="panel" id="panel-quiz">
+      <div class="card">
+        <div class="card-title">
+          <span>✏️ ฝึกสั้น: เลือกคำให้เหมาะกับอากาศ &amp; ฟังเสียง</span>
+          <span class="tag">ฝึกเพื่อเรียนรู้ · ไม่เก็บคะแนน</span>
+        </div>
+        <div class="engine-toolbar">
+          <div class="engine-mode-group">
+            <button type="button" class="btn-act primary" id="btnQuizChoice">📝 เติมคำ / ความหมาย</button>
+            <button type="button" class="btn-act secondary" id="btnQuizListen">🔊 ฟังเสียงแล้วเลือกคำ</button>
+          </div>
+          <button type="button" class="btn-act secondary" id="btnQuizNew">🔄 ชุดใหม่</button>
+        </div>
+        <div id="quizEngineRoot"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div><strong>โรงเรียนบ้านคำไผ่</strong> · ภาษาอังกฤษ ป.4 · ต 1.1 ป.4/3, ต 1.3 ป.4/1</div>
+    <div><a href="/games/english/weather-seasons-worksheet.html" target="_blank" rel="noopener">เปิดใบงานคู่ขนาน (3 หน้า)</a></div>
+  </footer>
+</div>
+
+<script>
+const GAME_SLUG = 'weather-seasons-media';
+const MEDIA_SLUG = 'weather-seasons-media';
+if (window.KAMPAI && typeof window.KAMPAI.setSlug === 'function') {
+  try { window.KAMPAI.setSlug('weather-seasons-media'); } catch (_) {}
+}
+
+const FACTS = [
+  ['sunny / hot', 'แดดออก / อากาศร้อน: wear a hat', 'It is sunny and hot. Wear a hat.'],
+  ['rainy', 'ฝนตก: take an umbrella or wear a raincoat', 'It is rainy. Take an umbrella or wear a raincoat.'],
+  ['cloudy / windy', 'มีเมฆมาก / มีลมแรง', 'It is cloudy and windy today.'],
+  ['Seasons', 'summer, rainy season และ winter', 'Thailand has summer, rainy season, and winter.']
+];
+
+const WEATHER_WORDS = [
+  { emo: '☀️', w: 'sunny', th: 'แดดออก / มีแดด', s: 'Look at the sun. It is sunny.' },
+  { emo: '🌧️', w: 'rainy', th: 'ฝนตก', s: 'Look at the rain. It is rainy.' },
+  { emo: '☁️', w: 'cloudy', th: 'มีเมฆมาก', s: 'There are many clouds. It is cloudy.' },
+  { emo: '💨', w: 'windy', th: 'มีลมแรง', s: 'The leaves are blowing. It is windy.' },
+  { emo: '🔥', w: 'hot', th: 'อากาศร้อน', s: 'Summer is usually hot.' },
+  { emo: '❄️', w: 'cold', th: 'อากาศหนาว', s: 'In winter, the weather is cold.' },
+  { emo: '☂️', w: 'umbrella', th: 'ร่มกันฝน', s: 'It is raining. Take an umbrella.' },
+  { emo: '🧥', w: 'raincoat', th: 'เสื้อกันฝน', s: 'It is rainy. Wear a raincoat.' },
+  { emo: '🧶', w: 'jacket', th: 'เสื้อกันหนาว', s: 'It is cold. I wear a jacket.' },
+  { emo: '🧢', w: 'hat', th: 'หมวก', s: 'It is sunny. Wear a hat.' },
+  { emo: '🏖️', w: 'summer', th: 'ฤดูร้อน', s: 'We go to the beach in summer.' },
+  { emo: '⛄', w: 'winter', th: 'ฤดูหนาว', s: 'People wear warm coats in winter.' }
+];
+
+const state = {
+  tab: 'learn',
+  ttsEnabled: true,
+  voiceAccent: 'en-US',
+  selectedIdx: 0,
+  fcIdx: 0,
+  matchSubMode: 'connect',
+  quizQuestionType: 'choice'
+};
+
+let matchSession = null;
+let quizSession = null;
+
+function currentModeKind() {
+  return (state.tab === 'learn' || state.tab === 'flashcards') ? 'learn' : 'practice';
+}
+
+function stopSpeech() {
+  if (window.KampaiMediaLab && typeof window.KampaiMediaLab.stopAllSpeech === 'function') {
+    window.KampaiMediaLab.stopAllSpeech();
+  } else {
+    try { window.KAMPAI?.sound?.stopSpeak?.(); } catch (_) {}
+    try { window.speechSynthesis?.cancel?.(); } catch (_) {}
+  }
+}
+
+function speakSafe(text, lang = state.voiceAccent) {
+  const statusEl = document.getElementById('speechStatus');
+  if (!state.ttsEnabled) return;
+  const clean = String(text || '').trim();
+  if (!clean) return;
+  if (window.KampaiMediaLab && typeof window.KampaiMediaLab.speakSafe === 'function') {
+    const res = window.KampaiMediaLab.speakSafe(clean, { lang: lang, rate: 0.9 });
+    if (statusEl) {
+      if (res && res.ok === false) {
+        statusEl.textContent = 'อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านคำศัพท์และตัวอย่างประโยคต่อได้';
+        statusEl.classList.add('show');
+      } else {
+        statusEl.textContent = '';
+        statusEl.classList.remove('show');
+      }
+    }
+    return;
+  }
+  if (!('speechSynthesis' in window)) {
+    if (statusEl) {
+      statusEl.textContent = 'อุปกรณ์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ สามารถอ่านคำศัพท์และตัวอย่างประโยคต่อได้';
+      statusEl.classList.add('show');
+    }
+    return;
+  }
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(clean);
+  u.lang = lang;
+  u.rate = 0.9;
+  window.speechSynthesis.speak(u);
+}
+
+// FACTS
+const factsGrid = document.getElementById('factsGrid');
+FACTS.forEach((f, idx) => {
+  const card = document.createElement('article');
+  card.className = 'fact-card';
+  card.innerHTML =
+    '<h3>' + (idx + 1) + '. ' + f[0] + '</h3>' +
+    '<p>' + f[1] + '</p>' +
+    '<button type="button" class="btn-act secondary" style="align-self:flex-start;">🔊 ฟังตัวอย่าง</button>';
+  card.querySelector('button').addEventListener('click', () => speakSafe(f[2]));
+  factsGrid.appendChild(card);
+});
+
+// WORD GRID
+const wordGrid = document.getElementById('wordGrid');
+const selectedDetail = document.getElementById('selectedDetail');
+
+function selectWord(idx, shouldSpeak = true) {
+  state.selectedIdx = idx;
+  const item = WEATHER_WORDS[idx];
+  document.querySelectorAll('.word-tile').forEach((t, i) => t.classList.toggle('active', i === idx));
+  selectedDetail.textContent = `${item.emo} ${item.w} = ${item.th} · ตัวอย่าง: "${item.s}"`;
+  if (shouldSpeak) speakSafe(item.w);
+}
+
+WEATHER_WORDS.forEach((item, idx) => {
+  const tile = document.createElement('button');
+  tile.type = 'button';
+  tile.className = 'word-tile' + (idx === 0 ? ' active' : '');
+  tile.innerHTML = `<span class="w-emo">${item.emo}</span><span class="w-en">${item.w}</span><span class="w-th">${item.th}</span>`;
+  tile.addEventListener('click', () => selectWord(idx, true));
+  wordGrid.appendChild(tile);
+});
+selectWord(0, false);
+
+document.getElementById('btnSpeakSelected').addEventListener('click', () => {
+  const cur = WEATHER_WORDS[state.selectedIdx];
+  speakSafe(`${cur.w}. ${cur.s}`);
+});
+
+// FLASHCARDS
+const fcCounter = document.getElementById('fcCounter');
+const fcEmo = document.getElementById('fcEmo');
+const fcWord = document.getElementById('fcWord');
+const fcTh = document.getElementById('fcTh');
+const fcSent = document.getElementById('fcSent');
+
+function updateFlashcard() {
+  const cur = WEATHER_WORDS[state.fcIdx];
+  fcCounter.textContent = `${state.fcIdx + 1} / ${WEATHER_WORDS.length}`;
+  fcEmo.textContent = cur.emo;
+  fcWord.textContent = cur.w;
+  fcTh.textContent = cur.th;
+  fcSent.textContent = cur.s;
+}
+document.getElementById('btnPrevFc').addEventListener('click', () => {
+  state.fcIdx = (state.fcIdx - 1 + WEATHER_WORDS.length) % WEATHER_WORDS.length;
+  updateFlashcard();
+  speakSafe(WEATHER_WORDS[state.fcIdx].w);
+});
+document.getElementById('btnNextFc').addEventListener('click', () => {
+  state.fcIdx = (state.fcIdx + 1) % WEATHER_WORDS.length;
+  updateFlashcard();
+  speakSafe(WEATHER_WORDS[state.fcIdx].w);
+});
+document.getElementById('btnSpeakFc').addEventListener('click', () => {
+  const cur = WEATHER_WORDS[state.fcIdx];
+  speakSafe(`${cur.w}. ${cur.s}`);
+});
+updateFlashcard();
+
+// ENGINES (ConnectMatch + Quiz, mode: 'media')
+function buildEngineWordPool() {
+  return WEATHER_WORDS.map((item) => ({
+    id: item.w,
+    term: item.w,
+    left: item.w,
+    right: item.th,
+    meaning: item.th,
+    example: item.s,
+    locale: state.voiceAccent
+  }));
+}
+
+function updateMatchButtons() {
+  document.getElementById('btnMatchConnect').className = 'btn-act ' + (state.matchSubMode === 'connect' ? 'primary' : 'secondary');
+  document.getElementById('btnMatchMemory').className = 'btn-act ' + (state.matchSubMode === 'memory' ? 'primary' : 'secondary');
+}
+
+function mountMatch() {
+  if (!window.KampaiEngines || !window.KampaiEngines.ConnectMatch) return;
+  updateMatchButtons();
+  matchSession = window.KampaiEngines.ConnectMatch.mount('#matchEngineRoot', {
+    items: buildEngineWordPool(),
+    pairCount: 6,
+    mode: 'media',
+    subMode: state.matchSubMode,
+    locale: state.voiceAccent,
+    onMatch: (pair) => {
+      if (window.KAMPAI && window.KAMPAI.sound) {
+        try { window.KAMPAI.sound.correct(); } catch (_) {}
+      }
+      if (pair && pair.leftText) speakSafe(pair.leftText, state.voiceAccent);
+    }
+  });
+}
+
+document.getElementById('btnMatchConnect').addEventListener('click', () => {
+  state.matchSubMode = 'connect';
+  mountMatch();
+});
+document.getElementById('btnMatchMemory').addEventListener('click', () => {
+  state.matchSubMode = 'memory';
+  mountMatch();
+});
+document.getElementById('btnMatchNew').addEventListener('click', () => {
+  mountMatch();
+});
+
+function updateQuizButtons() {
+  document.getElementById('btnQuizChoice').className = 'btn-act ' + (state.quizQuestionType === 'choice' ? 'primary' : 'secondary');
+  document.getElementById('btnQuizListen').className = 'btn-act ' + (state.quizQuestionType === 'listen' ? 'primary' : 'secondary');
+}
+
+function mountQuiz() {
+  if (!window.KampaiEngines || !window.KampaiEngines.Quiz) return;
+  updateQuizButtons();
+  const opts = {
+    items: buildEngineWordPool(),
+    mode: 'media',
+    roundSize: 8,
+    locale: state.voiceAccent,
+    speak: (text, loc) => speakSafe(text, loc || state.voiceAccent),
+    onAnswer: (res) => {
+      if (window.KAMPAI && window.KAMPAI.sound) {
+        try {
+          if (res.isCorrect) window.KAMPAI.sound.correct();
+          else window.KAMPAI.sound.wrong();
+        } catch (_) {}
+      }
+    }
+  };
+  quizSession = state.quizQuestionType === 'listen'
+    ? window.KampaiEngines.Quiz.mountListen('#quizEngineRoot', opts)
+    : window.KampaiEngines.Quiz.mountChoice('#quizEngineRoot', opts);
+}
+
+document.getElementById('btnQuizChoice').addEventListener('click', () => {
+  state.quizQuestionType = 'choice';
+  mountQuiz();
+});
+document.getElementById('btnQuizListen').addEventListener('click', () => {
+  state.quizQuestionType = 'listen';
+  mountQuiz();
+});
+document.getElementById('btnQuizNew').addEventListener('click', () => {
+  mountQuiz();
+});
+
+// TABS
+const tabBtns = document.querySelectorAll('.tab-btn');
+const panels = {
+  learn: document.getElementById('panel-learn'),
+  flashcards: document.getElementById('panel-flashcards'),
+  match: document.getElementById('panel-match'),
+  quiz: document.getElementById('panel-quiz')
+};
+
+function switchTab(t) {
+  if (!panels[t]) return;
+  stopSpeech();
+  state.tab = t;
+  tabBtns.forEach((b) => {
+    const on = b.dataset.tab === t;
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-pressed', String(on));
+  });
+  Object.keys(panels).forEach((k) => panels[k].classList.toggle('active', k === t));
+  if (t === 'match' && !matchSession) mountMatch();
+  if (t === 'quiz' && !quizSession) mountQuiz();
+}
+tabBtns.forEach((b) => b.addEventListener('click', () => switchTab(b.dataset.tab)));
+
+// CONTROLS & LIFECYCLE
+document.getElementById('selVoiceAccent').addEventListener('change', (e) => {
+  state.voiceAccent = e.target.value;
+});
+document.getElementById('btnAudioToggle').addEventListener('click', () => {
+  state.ttsEnabled = !state.ttsEnabled;
+  if (!state.ttsEnabled) stopSpeech();
+  document.getElementById('audioIcon').textContent = state.ttsEnabled ? '🔊' : '🔇';
+  document.getElementById('audioLabel').textContent = state.ttsEnabled ? 'เปิดเสียง' : 'ปิดเสียง';
+});
+document.getElementById('btnFullscreen').addEventListener('click', () => {
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen?.().catch?.(() => {});
+  else document.exitFullscreen?.().catch?.(() => {});
+});
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) stopSpeech();
+});
+window.addEventListener('pagehide', stopSpeech);
+
+window.getState = () => Object.freeze({
+  slug: MEDIA_SLUG,
+  tab: state.tab,
+  mode: currentModeKind(),
+  wordCount: WEATHER_WORDS.length,
+  selectedIndex: state.selectedIdx,
+  fcIndex: state.fcIdx,
+  matchSubMode: state.matchSubMode,
+  quizQuestionType: state.quizQuestionType,
+  matchState: matchSession ? matchSession.getState() : null,
+  quizState: quizSession ? quizSession.getState() : null,
+  reducedMotion: typeof window.matchMedia === 'function'
+    ? Boolean(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+    : false
+});
+window.__getState = window.getState;
+
+mountMatch();
+mountQuiz();
+</script>
+</body>
+</html>
