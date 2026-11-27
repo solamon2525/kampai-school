@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Math Survivors — อารีนาคณิตศาสตร์ ป.4–ป.6</title>
+<title>Math Survivors (Godot 4.4) — อารีนาคณิตศาสตร์ ป.4–ป.6</title>
 <link rel="stylesheet" href="style.css">
 <style>
 button:focus-visible, [role="button"]:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid #facc15; outline-offset: 3px; }
@@ -14,7 +14,16 @@ button:focus-visible, [role="button"]:focus-visible, a:focus-visible, input:focu
 </head>
 <body>
 
-<canvas id="game-canvas" aria-label="สนามอารีนาคณิตศาสตร์"></canvas>
+<div id="game-container">
+  <canvas id="godot-canvas" aria-label="สนามอารีนาคณิตศาสตร์ Godot 4"></canvas>
+  <canvas id="joy-overlay" aria-hidden="true"></canvas>
+  <div id="godot-loading" class="hidden">
+    <div class="loading-box">
+      <div class="loading-title">✨ กำลังปลุกอารีนาคณิตศาสตร์ Godot 4...</div>
+      <progress id="godot-progress" max="100" value="0"></progress>
+    </div>
+  </div>
+</div>
 
 <!-- Top HUD Bar (ยึดใน 100vw ไม่ล้นขวาทุกขนาดหน้าจอ) -->
 <header id="hud-bar">
@@ -49,9 +58,9 @@ button:focus-visible, [role="button"]:focus-visible, a:focus-visible, input:focu
 <!-- หน้าแรก (Title / Roguelite Prep) -->
 <div id="blocker">
   <div class="menu-panel">
-    <div class="menu-badge">⚔️ ROGUELITE SURVIVORS · คณิตศาสตร์ ป.4–ป.6</div>
+    <div class="menu-badge">⚔️ GODOT 4.4 ROGUELITE · คณิตศาสตร์ ป.4–ป.6</div>
     <h1>✨ Math Survivors</h1>
-    <p class="subtitle">อารีนาคณิตศาสตร์ ป.4–ป.6 · บวก ลบ คูณ หาร เอาชีวิตรอด 3 องก์</p>
+    <p class="subtitle">อารีนาคณิตศาสตร์ ป.4–ป.6 · บวก ลบ คูณ หาร เอาชีวิตรอด 3 องก์ (Pixel Art + Shader)</p>
 
     <div id="my-stats">
       <div class="ms-cell"><div class="ms-val" id="ms-best">0</div><div class="ms-label">สถิติสูงสุด</div></div>
@@ -129,7 +138,6 @@ window.KampaiVersus = window.KampaiVersus || { create:function(o){var m=window.K
 </script>
 <script src="config.js"></script>
 <script src="data.js"></script>
-<script src="audio.js"></script>
 <script src="game.js"></script>
 </body>
 </html>

@@ -290,6 +290,28 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v2.8.40',
+        date: '27 พ.ย. 2569',
+        title: 'ยกระดับ Math Survivors ด้วย Godot 4.4.1 (Pixel Art, TileMapLayer, Shaders & AudioServer)',
+        description:
+            'อัปเกรดเกม Math Survivors อารีนาคณิตศาสตร์ ป.4–ป.6 (/play/math-survivors) จาก Canvas 2D สู่เอนจิน Godot 4.4.1 (GDScript 2.0) ส่งออกเป็น single-threaded WebAssembly เพิ่มชุดตัวละครและมอนสเตอร์ Pixel Art แอนิเมชันหลายเฟรม, แผนที่อารีนา TileMapLayer ลายวิหารรูนพร้อมคบไฟและเสาเรืองแสง, เอฟเฟกต์ GLSL .gdshader (Hit-flash & Arcane Aura), อนุภาค CPUParticles2D, Hit-stop, Trauma Shake และระบบเสียง Chiptune บน Godot AudioServer (บัส Master/Music/SFX)',
+        type: 'refactor',
+        author: 'ครูณัฐพงศ์ สิงห์ชมภู',
+        tags: [
+            'Godot 4.4',
+            'Pixel Art',
+            'TileMapLayer',
+            'Shaders',
+            'Roguelite',
+        ],
+        badge: 'bg-primary',
+        items: [
+            'Pixel Art & Animation: สร้างสไปรต์พิกเซลจอมเวท มอนสเตอร์ 4 ประเภท + บอส 3 องก์, คบไฟกะพริบ, เสารูน และเพชร EXP ด้วย AnimatedSprite2D + NEAREST filter',
+            'TileMapLayer & GLSL Shaders: ฉากอารีนา TileSet (.tres) ขนาด 80×80 ช่องพร้อมกำแพงฟิสิกส์ และ hit_flash.gdshader / arcane_aura.gdshader + CPUParticles2D + Hit-stop',
+            'AudioServer & Verification: เสียง Chiptune บนบัส Master/Music/SFX (ผ่าน check_scripts_compile, check_audio_buses, compile_shaders, Godot headless 15/15, Playwright 3 จอ และ verify:game:all) + Migration 598 (game_docs v2.0.0)',
+        ],
+    },
+    {
         version: 'v2.8.39',
         date: '27 พ.ย. 2569',
         title: 'วรรณคดีลำนำ ป.4: ขยายเนื้อหาบทกลอนและบทอาขยานฉบับเต็มครบ ๗ บท',
