@@ -1,7 +1,6 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=2 format=3]
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
-[ext_resource type="PackedScene" path="res://scenes/player.tscn" id="2_hero"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_main")
@@ -18,13 +17,12 @@ z_index = 2
 [node name="WorldContainer" type="Node2D" parent="."]
 z_index = 4
 
-[node name="Hero" parent="." instance=ExtResource("2_hero")]
+[node name="HeroesContainer" type="Node2D" parent="."]
 z_index = 6
-position = Vector2(960, 960)
 
-[node name="Camera2D" type="Camera2D" parent="Hero"]
-position_smoothing_enabled = true
-position_smoothing_speed = 9.0
+[node name="SharedCamera" type="Camera2D" parent="."]
+position = Vector2(960, 960)
+position_smoothing_enabled = false
 
 [node name="RadarLayer" type="CanvasLayer" parent="."]
 layer = 8

@@ -1,7 +1,7 @@
 class_name MathOrb
 extends Area2D
 
-signal picked(orb: MathOrb)
+signal picked(orb: MathOrb, picker_idx: int)
 
 const AURA_SHADER: Shader = preload("res://shaders/arcane_aura.gdshader")
 const THAI_FONT: Font = preload("res://assets/fonts/thai_bold.ttf")
@@ -58,8 +58,11 @@ func _process(delta: float) -> void:
 	position.y = _base_y + sin(_t) * 3.0
 
 func _on_body_entered(body: Node2D) -> void:
-	if consumed or not body.is_in_group("hero"):
+	if consumed or not (body is MathHero):
+		return
+	var h: MathHero = body as MathHero
+	if not h.is_alive_active():
 		return
 	consumed = true
 	set_deferred("monitoring", false)
-	picked.emit(self)
+	picked.emit(self, h.player_idx)

@@ -1,10 +1,20 @@
-/* data.js — คลังข้อมูลอาวุธ มอนสเตอร์ และระบบสร้างโจทย์คณิต ป.4-ป.6 แบบกำหนด Seed ได้ */
+/* data.js — คลังข้อมูล 7 อาชีพ อาวุธ มอนสเตอร์ และระบบสร้างโจทย์คณิต ป.4-ป.6 แบบกำหนด Seed ได้ */
 window.GAME_DATA = {
   TIPS: [
-    'บังคับจอมเวทด้วย WASD / ลูกศร หรือลากนิ้ว/เมาส์บนจอ — เวทมนตร์จะยิงอัตโนมัติ!',
-    'เก็บเพชร EXP สีฟ้าเพื่ออัปเลเวล เลือกการ์ดอาวุธ 1 ใน 3 ใบสร้างคอมโบ Roguelite',
-    'แก้โจทย์ด้านบน แล้ววิ่งชนลูกแก้วคำตอบที่ถูก เพื่อระเบิดเวทล้างฝูง + ฮีล HP + รับโบนัส!',
-    'ระวังลูกแก้วคำตอบผิด จะทำให้เสีย HP และมีเฉลยวิธีคิดแสดงให้ทันที'
+    '1P: เดินด้วย WASD หรือลูกศร + Space พุ่งหลบ | 2P จอเดียวกัน: P1 (WASD+Space) · P2 (ลูกศร+Enter)',
+    'เลือกจาก 7 อาชีพสมดุล (25 แต้มเท่ากัน) — เริ่มต้น 3 อาชีพ + ปลดล็อกเพิ่ม 4 อาชีพ (ลองฟรีได้ในฝึกซ้อม!)',
+    'แก้โจทย์ด้านบนแล้วชนลูกแก้วคำตอบถูก: ระเบิดล้างฝูง + ฮีล HP (2P แข่งกัน: แย่งชนก่อนหน่วงคู่แข่ง 2 วิ!)',
+    '2P โคออฟช่วยกัน: เพื่อนล้มเดินเข้าวงเขียว 2.5 วิ หรือตอบลูกแก้วถูกเพื่อชุบชีวิตทันที!'
+  ],
+
+  HEROES: [
+    { id: 'mage', name: 'จอมเวทดาวฤกษ์', icon: '✨', starter: true, weapon: '✨ คทาประกายดาว', vit: 4, spd: 5, atk: 3, mag: 8, agi: 5, trait: 'Arcane Echo: ระเบิดลูกแก้วกว้าง +30% + ดาวตกเสริม 2 นัด', unlockText: 'เริ่มต้น (ปลดล็อกแล้ว)' },
+    { id: 'knight', name: 'อัศวินโล่พาย', icon: '🛡️', starter: true, weapon: '🛡️ วงแหวนพาย (π)', vit: 8, spd: 4, atk: 7, mag: 2, agi: 4, trait: 'Fortress Guard: เกราะบล็อกดาเมจ 1 ครั้งทุก 6 วิ + ผลักศัตรู', unlockText: 'เริ่มต้น (ปลดล็อกแล้ว)' },
+    { id: 'ranger', name: 'พรานความเร็ว', icon: '🏹', starter: true, weapon: '🌀 จักรเศษส่วน', vit: 3, spd: 8, atk: 6, mag: 1, agi: 7, trait: 'Wind Runner: Dash ไว 2 วิ + ยิงรัว +35% นาน 2 วิหลังพุ่ง', unlockText: 'เริ่มต้น (ปลดล็อกแล้ว)' },
+    { id: 'inventor', name: 'นักประดิษฐ์สายฟ้า', icon: '⚡', starter: false, weapon: '⚡ สายฟ้าสมการ', vit: 3, spd: 6, atk: 3, mag: 7, agi: 6, trait: 'Overcharge: ทุก 4 สายฟ้าวางเสาเทสลาช็อตศัตรู 5 วิ', unlockText: 'ตอบลูกแก้วถูกสะสมครบ 15 ข้อ' },
+    { id: 'alchemist', name: 'หมอยาพฤกษา', icon: '💚', starter: false, weapon: '💥 คลื่นคูณสิบ', vit: 6, spd: 5, atk: 2, mag: 7, agi: 5, trait: 'Math Elixir: รีเจน +2 HP/5วิ · โคออฟฮีลทั้งคู่ +25 & ชุบไว ×2', unlockText: 'ผ่านองก์ 1 โดย HP เหลือ ≥ 50%' },
+    { id: 'berserker', name: 'นักรบคลั่งสมการ', icon: '⚔️', starter: false, weapon: '🛡️ วงแหวนพาย (π)', vit: 6, spd: 5, atk: 9, mag: 1, agi: 4, trait: 'Blood Math: เลือดยิ่งต่ำยิ่งตีแรง (+55%) + ดูดเลือดทุก 15 ตัว', unlockText: 'โค่นบอสสะสมครบ 2 ตัว' },
+    { id: 'chronomancer', name: 'ปราชญ์กาลเวลา', icon: '🌌', starter: false, weapon: '✨ คทาประกายดาว', vit: 4, spd: 5, atk: 2, mag: 8, agi: 6, trait: 'Time Dilation: Dash หน่วงศัตรู -50% นาน 2.5 วิ + Fever นานขึ้น +4 วิ', unlockText: 'เอาชีวิตรอดชนะครบ 3 องก์ 1 ครั้ง' }
   ],
 
   WEAPONS: {
@@ -149,129 +159,55 @@ window.MathGen = (function () {
       if (pick < 0.28) {
         const a = randInt(rng, 12, 68) * 10 + randInt(rng, 1, 9);
         const b = randInt(rng, 11, 45) * 10 + randInt(rng, 1, 9);
-        answer = a + b;
-        op = 'add';
-        prompt = a + ' + ' + b + ' = ?';
-        explain = a + ' + ' + b + ' = ' + answer;
+        answer = a + b; op = 'add'; prompt = a + ' + ' + b + ' = ?'; explain = a + ' + ' + b + ' = ' + answer;
       } else if (pick < 0.56) {
-        const b = randInt(rng, 120, 480);
-        const ans = randInt(rng, 130, 520);
-        const a = b + ans;
-        answer = ans;
-        op = 'sub';
-        prompt = a + ' − ' + b + ' = ?';
-        explain = a + ' − ' + b + ' = ' + answer;
+        const b = randInt(rng, 120, 480); const ans = randInt(rng, 130, 520); const a = b + ans;
+        answer = ans; op = 'sub'; prompt = a + ' − ' + b + ' = ?'; explain = a + ' − ' + b + ' = ' + answer;
       } else if (pick < 0.80) {
-        const a = randInt(rng, 12, 36);
-        const b = randInt(rng, 4, 9);
-        answer = a * b;
-        op = 'mul';
-        prompt = a + ' × ' + b + ' = ?';
-        explain = a + ' × ' + b + ' = ' + answer;
+        const a = randInt(rng, 12, 36); const b = randInt(rng, 4, 9);
+        answer = a * b; op = 'mul'; prompt = a + ' × ' + b + ' = ?'; explain = a + ' × ' + b + ' = ' + answer;
       } else {
-        const b = randInt(rng, 4, 12);
-        const ans = randInt(rng, 6, 18);
-        const a = b * ans;
-        answer = ans;
-        op = 'div';
-        prompt = a + ' ÷ ' + b + ' = ?';
-        explain = b + ' × ' + ans + ' = ' + a + ' ดังนั้นตอบ ' + ans;
+        const b = randInt(rng, 4, 12); const ans = randInt(rng, 6, 18); const a = b * ans;
+        answer = ans; op = 'div'; prompt = a + ' ÷ ' + b + ' = ?'; explain = b + ' × ' + ans + ' = ' + a + ' ดังนั้นตอบ ' + ans;
       }
     } else if (act === 2) {
       grade = 'ป.5';
       if (pick < 0.30) {
-        const a = randInt(rng, 14, 38);
-        const b = randInt(rng, 11, 19);
-        answer = a * b;
-        op = 'mul';
-        prompt = a + ' × ' + b + ' = ?';
-        explain = a + ' × ' + b + ' = ' + answer;
+        const a = randInt(rng, 14, 38); const b = randInt(rng, 11, 19);
+        answer = a * b; op = 'mul'; prompt = a + ' × ' + b + ' = ?'; explain = a + ' × ' + b + ' = ' + answer;
       } else if (pick < 0.58) {
-        const b = randInt(rng, 11, 25);
-        const ans = randInt(rng, 8, 24);
-        const a = b * ans;
-        answer = ans;
-        op = 'div';
-        prompt = a + ' ÷ ' + b + ' = ?';
-        explain = a + ' ÷ ' + b + ' = ' + answer;
+        const b = randInt(rng, 11, 25); const ans = randInt(rng, 8, 24); const a = b * ans;
+        answer = ans; op = 'div'; prompt = a + ' ÷ ' + b + ' = ?'; explain = a + ' ÷ ' + b + ' = ' + answer;
       } else if (pick < 0.80) {
-        const a = randInt(rng, 18, 52);
-        const b = randInt(rng, 12, 38);
-        const c = randInt(rng, 3, 7);
-        answer = (a + b) * c;
-        op = 'mix';
-        prompt = '(' + a + ' + ' + b + ') × ' + c + ' = ?';
-        explain = 'ทำในวงเล็บก่อน: ' + (a + b) + ' × ' + c + ' = ' + answer;
+        const a = randInt(rng, 18, 52); const b = randInt(rng, 12, 38); const c = randInt(rng, 3, 7);
+        answer = (a + b) * c; op = 'mix'; prompt = '(' + a + ' + ' + b + ') × ' + c + ' = ?'; explain = 'ทำในวงเล็บก่อน: ' + (a + b) + ' × ' + c + ' = ' + answer;
       } else {
-        const a = randInt(rng, 8, 16);
-        const b = randInt(rng, 5, 9);
-        const c = randInt(rng, 25, 95);
-        answer = a * b + c;
-        op = 'mix';
-        prompt = a + ' × ' + b + ' + ' + c + ' = ?';
-        explain = 'คูณก่อนบวก: ' + (a * b) + ' + ' + c + ' = ' + answer;
+        const a = randInt(rng, 8, 16); const b = randInt(rng, 5, 9); const c = randInt(rng, 25, 95);
+        answer = a * b + c; op = 'mix'; prompt = a + ' × ' + b + ' + ' + c + ' = ?'; explain = 'คูณก่อนบวก: ' + (a * b) + ' + ' + c + ' = ' + answer;
       }
     } else {
       grade = 'ป.6';
       if (pick < 0.28) {
-        const x = randInt(rng, 9, 26);
-        const k = randInt(rng, 8, 16);
-        const rhs = x * k;
-        answer = x;
-        op = 'eq';
-        prompt = '□ × ' + k + ' = ' + rhs + ' (หา □)';
-        explain = rhs + ' ÷ ' + k + ' = ' + x;
+        const x = randInt(rng, 9, 26); const k = randInt(rng, 8, 16); const rhs = x * k;
+        answer = x; op = 'eq'; prompt = '□ × ' + k + ' = ' + rhs + ' (หา □)'; explain = rhs + ' ÷ ' + k + ' = ' + x;
       } else if (pick < 0.56) {
-        const a = randInt(rng, 150, 320);
-        const b = randInt(rng, 6, 15);
-        const c = randInt(rng, 4, 12);
-        const prod = b * c;
+        const a = randInt(rng, 150, 320); const b = randInt(rng, 6, 15); const c = randInt(rng, 4, 12); const prod = b * c;
         if (a > prod) {
-          answer = a - prod;
-          op = 'mix';
-          prompt = a + ' − ' + b + ' × ' + c + ' = ?';
-          explain = 'คูณก่อนลบ: ' + a + ' − ' + prod + ' = ' + answer;
+          answer = a - prod; op = 'mix'; prompt = a + ' − ' + b + ' × ' + c + ' = ?'; explain = 'คูณก่อนลบ: ' + a + ' − ' + prod + ' = ' + answer;
         } else {
-          answer = prod + a;
-          op = 'mix';
-          prompt = b + ' × ' + c + ' + ' + a + ' = ?';
-          explain = prod + ' + ' + a + ' = ' + answer;
+          answer = prod + a; op = 'mix'; prompt = b + ' × ' + c + ' + ' + a + ' = ?'; explain = prod + ' + ' + a + ' = ' + answer;
         }
       } else if (pick < 0.80) {
-        const p = randInt(rng, 4, 15);
-        const q = randInt(rng, 3, 12);
-        const ans = randInt(rng, 5, 18);
-        const sum = p + q;
-        const total = sum * ans;
-        answer = ans;
-        op = 'div';
-        prompt = total + ' ÷ (' + p + ' + ' + q + ') = ?';
-        explain = total + ' ÷ ' + sum + ' = ' + ans;
+        const p = randInt(rng, 4, 15); const q = randInt(rng, 3, 12); const ans = randInt(rng, 5, 18); const sum = p + q; const total = sum * ans;
+        answer = ans; op = 'div'; prompt = total + ' ÷ (' + p + ' + ' + q + ') = ?'; explain = total + ' ÷ ' + sum + ' = ' + ans;
       } else {
-        const pct = [10, 20, 25, 50][Math.floor(rng() * 4)];
-        const base = randInt(rng, 2, 16) * 20;
-        answer = Math.round((pct * base) / 100);
-        op = 'pct';
-        prompt = pct + '% ของ ' + base + ' = ?';
-        explain = '(' + pct + ' × ' + base + ') ÷ 100 = ' + answer;
+        const pct = [10, 20, 25, 50][Math.floor(rng() * 4)]; const base = randInt(rng, 2, 16) * 20;
+        answer = Math.round((pct * base) / 100); op = 'pct'; prompt = pct + '% ของ ' + base + ' = ?'; explain = '(' + pct + ' × ' + base + ') ÷ 100 = ' + answer;
       }
     }
 
-    return {
-      grade: grade,
-      op: op,
-      prompt: prompt,
-      answer: answer,
-      choices: buildChoices(rng, answer, op),
-      explain: explain
-    };
+    return { grade: grade, op: op, prompt: prompt, answer: answer, choices: buildChoices(rng, answer, op), explain: explain };
   }
 
-  return {
-    mulberry32: mulberry32,
-    hashSeed: hashSeed,
-    randInt: randInt,
-    shuffle: shuffle,
-    generateQuestion: generateQuestion
-  };
+  return { mulberry32: mulberry32, hashSeed: hashSeed, randInt: randInt, shuffle: shuffle, generateQuestion: generateQuestion };
 })();

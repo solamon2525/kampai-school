@@ -16,7 +16,9 @@ func _initialize() -> void:
 		"test_multi_biome_tileset_and_walls",
 		"test_shaders_compile",
 		"test_audio_buses_and_volumes",
-		"test_heroes_evolutions_and_chest"
+		"test_7_class_balance_and_defense",
+		"test_coop_team_dual_draft_and_rival",
+		"test_evolutions_and_boss_chest"
 	]:
 		if call(test_name) != true:
 			failed += 1
@@ -75,19 +77,65 @@ func test_audio_buses_and_volumes() -> bool:
 	_check(not AudioServer.is_bus_mute(AudioServer.get_bus_index("SFX")), "SFX unmuted at 1.0 linear")
 	return true
 
-func test_heroes_evolutions_and_chest() -> bool:
+func test_7_class_balance_and_defense() -> bool:
 	var gs: Node = root.get_node("GameState")
-	gs.call("start_new_round", 1337, "normal", "lava_citadel", "knight")
-	_check(gs.get("weapons").get("orbs", 0) == 1, "knight hero starts with orbs Lv.1")
-	_check(float(gs.get("max_hp")) == 125.0, "knight hero gets +25 max HP")
-	gs.get("weapons")["orbs"] = 5
-	gs.get("passives")["vitality"] = 1
-	_check(bool(gs.call("can_evolve", "orbs")), "orbs Lv.5 + vitality Lv.1 unlocks evolution")
+	var heroes_dict: Dictionary = gs.get("HEROES")
+	_check(heroes_dict.size() == 7, "exactly 7 hero classes defined")
 
-	gs.call("open_boss_chest")
+	var indices: Array[float] = []
+	var sum_idx: float = 0.0
+	for hid: String in heroes_dict.keys():
+		var m: Dictionary = gs.call("compute_class_metrics", hid)
+		_check(int(m["total_pts"]) == 25, "class %s has exact 25 stat budget" % hid)
+		var pidx: float = float(m["power_index"])
+		indices.append(pidx)
+		sum_idx += pidx
+	var mean_idx: float = sum_idx / maxf(1.0, float(indices.size()))
+	for i: int in range(indices.size()):
+		var dev: float = absf(indices[i] - mean_idx) / maxf(0.001, mean_idx)
+		_check(dev <= 0.16, "class power index within 16%% of mean (dev=%.3f)" % dev)
+
+	# Ratio defense + Knight Fortress Guard check
+	gs.call("start_new_round", 1337, "normal", "arcane_temple", "knight", "mage")
+	var first_hit: float = float(gs.call("apply_damage_to_player", 0, 20.0))
+	_check(first_hit == -1.0, "knight Fortress Guard blocks 1st hit")
+	var second_hit: float = float(gs.call("apply_damage_to_player", 0, 20.0))
+	_check(second_hit > 0.0 and second_hit < 20.0, "knight Ratio DEF mitigates 2nd hit without immunity (dmg=%.1f)" % second_hit)
+	return true
+
+func test_coop_team_dual_draft_and_rival() -> bool:
+	var gs: Node = root.get_node("GameState")
+	gs.call("start_new_round", 1337, "coop_team", "crystal_forest", "mage", "alchemist")
+	var pls: Array = gs.get("players")
+	_check(pls.size() == 2, "coop_team initializes 2 players")
+	_check(bool(gs.call("add_xp", 0, 100)), "team XP triggers dual level-up draft")
+	_check(bool(gs.get("is_levelup")), "level-up active")
+	var done_after_p1: bool = bool(gs.call("pick_draft", 0, 0))
+	_check(not done_after_p1 and bool(gs.get("is_levelup")), "dual draft stays open until P2 picks")
+	var done_after_p2: bool = bool(gs.call("pick_draft", 1, 0))
+	_check(done_after_p2 and not bool(gs.get("is_levelup")), "dual draft closes once both pick")
+
+	gs.call("start_new_round", 1337, "coop_rival", "lava_citadel", "ranger", "berserker")
+	_check(float(gs.get("run_duration")) == 120.0, "coop_rival runs 120s duration")
+	gs.call("add_score", 0, 200)
+	gs.call("add_score", 1, 100)
+	var hud: Dictionary = gs.call("build_hud_payload")
+	_check(int(hud["p1Score"]) > int(hud["p2Score"]), "coop_rival tracks separate P1 & P2 scores")
+	return true
+
+func test_evolutions_and_boss_chest() -> bool:
+	var gs: Node = root.get_node("GameState")
+	gs.call("start_new_round", 1337, "normal", "lava_citadel", "knight", "mage")
+	var p0: Dictionary = gs.call("get_player", 0)
+	_check(int(p0["weapons"].get("orbs", 0)) == 1, "knight hero starts with orbs Lv.1")
+	p0["weapons"]["orbs"] = 5
+	p0["passives"]["vitality"] = 1
+	_check(bool(gs.call("can_evolve", 0, "orbs")), "orbs Lv.5 + vitality Lv.1 unlocks evolution")
+
+	gs.call("open_boss_chest", 0)
 	_check(bool(gs.get("is_chest_open")), "boss chest opens")
 	var chest_q: Dictionary = gs.get("active_chest_q")
 	var res: Dictionary = gs.call("resolve_boss_chest", int(chest_q["answer"]))
 	_check(bool(res["correct"]), "correct boss chest answer resolves true")
-	_check(int(gs.get("weapons")["orbs"]) == 6, "boss chest evolves ready Lv.5 weapon to Lv.6")
+	_check(int(p0["weapons"]["orbs"]) == 6, "boss chest evolves ready Lv.5 weapon to Lv.6")
 	return true

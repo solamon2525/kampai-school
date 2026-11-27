@@ -41,16 +41,25 @@ static func _from_grid(grid: Array[String], pal: Dictionary, px_scale: int = 2) 
 	return ImageTexture.create_from_image(img)
 
 static func _hero_pal(hero_id: String) -> Dictionary:
-	if hero_id == "knight":
-		return {"K": Color("#0f172a"), "B": Color("#059669"), "D": Color("#065f46"), "I": Color("#0d9488"), "Y": Color("#fde047"), "G": Color("#f59e0b"), "S": Color("#fed7aa"), "W": Color("#ffffff"), "C": Color("#5eead4")}
-	if hero_id == "inventor":
-		return {"K": Color("#0f172a"), "B": Color("#7c3aed"), "D": Color("#4c1d95"), "I": Color("#c026d3"), "Y": Color("#facc15"), "G": Color("#fb923c"), "S": Color("#fed7aa"), "W": Color("#ffffff"), "C": Color("#f472b6")}
-	return {"K": Color("#0f172a"), "B": Color("#2563eb"), "D": Color("#1e3a8a"), "I": Color("#4338ca"), "Y": Color("#facc15"), "G": Color("#f59e0b"), "S": Color("#fed7aa"), "W": Color("#ffffff"), "C": Color("#38bdf8")}
+	match hero_id:
+		"knight":
+			return {"K": Color("#0f172a"), "B": Color("#0ea5e9"), "D": Color("#0369a1"), "I": Color("#94a3b8"), "Y": Color("#fde047"), "G": Color("#f59e0b"), "S": Color("#fed7aa"), "W": Color("#ffffff"), "C": Color("#e2e8f0")}
+		"ranger":
+			return {"K": Color("#0f172a"), "B": Color("#16a34a"), "D": Color("#14532d"), "I": Color("#22c55e"), "Y": Color("#fef08a"), "G": Color("#854d0e"), "S": Color("#fed7aa"), "W": Color("#ffffff"), "C": Color("#86efac")}
+		"inventor":
+			return {"K": Color("#0f172a"), "B": Color("#7c3aed"), "D": Color("#4c1d95"), "I": Color("#d97706"), "Y": Color("#38bdf8"), "G": Color("#facc15"), "S": Color("#fed7aa"), "W": Color("#ffffff"), "C": Color("#f472b6")}
+		"alchemist":
+			return {"K": Color("#0f172a"), "B": Color("#10b981"), "D": Color("#065f46"), "I": Color("#059669"), "Y": Color("#a7f3d0"), "G": Color("#34d399"), "S": Color("#fed7aa"), "W": Color("#ffffff"), "C": Color("#6ee7b7")}
+		"berserker":
+			return {"K": Color("#0f172a"), "B": Color("#dc2626"), "D": Color("#7f1d1d"), "I": Color("#991b1b"), "Y": Color("#fb923c"), "G": Color("#fde047"), "S": Color("#fed7aa"), "W": Color("#ffffff"), "C": Color("#fca5a5")}
+		"chronomancer":
+			return {"K": Color("#0f172a"), "B": Color("#312e81"), "D": Color("#1e1b4b"), "I": Color("#6366f1"), "Y": Color("#22d3ee"), "G": Color("#facc15"), "S": Color("#fed7aa"), "W": Color("#ffffff"), "C": Color("#a5f3fc")}
+		_:
+			return {"K": Color("#0f172a"), "B": Color("#2563eb"), "D": Color("#1e3a8a"), "I": Color("#4338ca"), "Y": Color("#facc15"), "G": Color("#f59e0b"), "S": Color("#fed7aa"), "W": Color("#ffffff"), "C": Color("#38bdf8")}
 
 static func _build(key: String) -> ImageTexture:
 	if key.begins_with("hero_"):
 		var parts: PackedStringArray = key.split("_")
-		# hero_idle_0 (mage) OR hero_knight_idle_0 / hero_inventor_run_1
 		var hid: String = "mage"
 		var pose: String = "idle_0"
 		if parts.size() >= 4:
@@ -59,6 +68,78 @@ static func _build(key: String) -> ImageTexture:
 		elif parts.size() == 3:
 			pose = parts[1] + "_" + parts[2]
 		var pal: Dictionary = _hero_pal(hid)
+		if hid == "knight" or hid == "berserker":
+			# Armored horned / plumed helm silhouette
+			match pose:
+				"idle_0":
+					return _from_grid([
+						"....K......K....",
+						"...KIKKKKKKIK...",
+						"...KIIIIIIIIK...",
+						"...KIYYYYYYIK...",
+						"...KISWKKWSIK...",
+						"...KIIIIIIIIK...",
+						"..KKDBBBBBBDKK..",
+						".KYYDBBBBBBDYYK.",
+						".KYYBBBBBBBBYYK.",
+						"..KKBBBBBBBBKK..",
+						"...KDBBKKBBDK...",
+						"...KDDK..KDDK...",
+						"...KKK....KKK...",
+						"................",
+					], pal, 2)
+				"idle_1":
+					return _from_grid([
+						"................",
+						"....K......K....",
+						"...KIKKKKKKIK...",
+						"...KIIIIIIIIK...",
+						"...KIYYYYYYIK...",
+						"...KISWKKWSIK...",
+						"...KIIIIIIIIK...",
+						"..KKDBBBBBBDKK..",
+						".KYYDBBBBBBDYYK.",
+						".KYYBBBBBBBBYYK.",
+						"..KKBBBBBBBBKK..",
+						"...KDDK..KDDK...",
+						"...KKK....KKK...",
+						"................",
+					], pal, 2)
+				"run_0":
+					return _from_grid([
+						"...K......K.....",
+						"..KIKKKKKKIK....",
+						"..KIIIIIIIIK....",
+						"..KIYYYYYYIK....",
+						"..KISWKKWSIK....",
+						"..KIIIIIIIIK....",
+						".KKDBBBBBBDKK...",
+						"KYYDBBBBBBDYYK..",
+						".KKBBBBBBBBKK...",
+						"..KBBBK..KBBK...",
+						".KDDK......KDDK.",
+						".KKK........KKK.",
+						"................",
+						"................",
+					], pal, 2)
+				_:
+					return _from_grid([
+						"....K......K....",
+						"...KIKKKKKKIK...",
+						"...KIIIIIIIIK...",
+						"...KIYYYYYYIK...",
+						"...KISWKKWSIK...",
+						"...KIIIIIIIIK...",
+						"..KKDBBBBBBDKK..",
+						".KYYDBBBBBBDYYK.",
+						"..KKBBBBBBBBKK..",
+						"....KBBKKBBK....",
+						"....KDDKKDDK....",
+						"....KKK..KKK....",
+						"................",
+						"................",
+					], pal, 2)
+
 		match pose:
 			"idle_0":
 				return _from_grid([
@@ -138,172 +219,51 @@ static func _build(key: String) -> ImageTexture:
 				], pal, 2)
 
 	match key:
+		"tesla_coil":
+			return _from_grid([
+				"..KKKK..",
+				".KCCCCK.",
+				"KCWWWWCK",
+				".KCCCCK.",
+				"..KYYK..",
+				"..KDDK..",
+				".KDDDDK.",
+				"KKKKKKKK",
+			], {"K": Color("#0f172a"), "C": Color("#38bdf8"), "W": Color("#ffffff"), "Y": Color("#facc15"), "D": Color("#475569")}, 2)
 		"slime_0":
 			var p := {"K": Color("#0f172a"), "C": Color("#38bdf8"), "L": Color("#bae6fd"), "D": Color("#0284c7"), "W": Color("#ffffff")}
-			return _from_grid([
-				"....KKKKKK....",
-				"..KKCCCCCCKK..",
-				".KCLLCCCCCCCK.",
-				"KCLWWCCCCCCCCK",
-				"KCCWKCCCCCCWKK",
-				"KCCCKCCCCCCCK.",
-				"KCCCCCCCCCCDK.",
-				"KCCDDDDDDDDDK.",
-				".KKKKKKKKKKK..",
-			], p, 2)
+			return _from_grid(["....KKKKKK....","..KKCCCCCCKK..",".KCLLCCCCCCCK.","KCLWWCCCCCCCCK","KCCWKCCCCCCWKK","KCCCKCCCCCCCK.","KCCCCCCCCCCDK.","KCCDDDDDDDDDK.",".KKKKKKKKKKK.."], p, 2)
 		"slime_1":
 			var p2 := {"K": Color("#0f172a"), "C": Color("#38bdf8"), "L": Color("#bae6fd"), "D": Color("#0284c7"), "W": Color("#ffffff")}
-			return _from_grid([
-				"..............",
-				"...KKKKKKKK...",
-				".KKCLLCCCCCKK.",
-				"KCCLWWCCCCCCCK",
-				"KCCCWKCCCCWKCK",
-				"KCCCCCCCCCCCDK",
-				"KCCDDDDDDDDDDK",
-				".KKKKKKKKKKKK.",
-				"..............",
-			], p2, 2)
+			return _from_grid(["..............","...KKKKKKKK...",".KKCLLCCCCCKK.","KCCLWWCCCCCCCK","KCCCWKCCCCWKCK","KCCCCCCCCCCCDK","KCCDDDDDDDDDDK",".KKKKKKKKKKKK.",".............."], p2, 2)
 		"bat_0":
 			var bp := {"K": Color("#0f172a"), "P": Color("#a855f7"), "L": Color("#d8b4fe"), "D": Color("#6b21a8"), "R": Color("#f43f5e")}
-			return _from_grid([
-				"K............K",
-				"KPK........KPK",
-				"KPPKK.KK.KKPPK",
-				"KPPDPPPPPPDppK".to_upper().substr(0,14),
-				".KDDPRPPPRDDK.",
-				"..KPPPPPPPPK..",
-				"...KDDDDDDK...",
-				"....KK..KK....",
-			], bp, 2)
+			return _from_grid(["K............K","KPK........KPK","KPPKK.KK.KKPPK","KPPDPPPPPPDppK".to_upper().substr(0,14),".KDDPRPPPRDDK.","..KPPPPPPPPK..","...KDDDDDDK...","....KK..KK...."], bp, 2)
 		"bat_1":
 			var bp2 := {"K": Color("#0f172a"), "P": Color("#a855f7"), "L": Color("#d8b4fe"), "D": Color("#6b21a8"), "R": Color("#f43f5e")}
-			return _from_grid([
-				"....KK..KK....",
-				"...KPPPPPPK...",
-				"..KPPRPPPRPK..",
-				".KDDPPPPPPDDK.",
-				"KPPKDDDDDDKPPK",
-				"KPK........KPK",
-				"KK..........KK",
-				"..............",
-			], bp2, 2)
+			return _from_grid(["....KK..KK....","...KPPPPPPK...","..KPPRPPPRPK..",".KDDPPPPPPDDK.","KPPKDDDDDDKPPK","KPK........KPK","KK..........KK",".............."], bp2, 2)
 		"golem_0":
 			var gp := {"K": Color("#0f172a"), "G": Color("#f59e0b"), "L": Color("#fde047"), "D": Color("#92400e"), "R": Color("#ef4444")}
-			return _from_grid([
-				"...KKKKKKKK...",
-				"..KGGGGGGGGK..",
-				".KGGLLGGLLGGK.",
-				".KGRRGGGGGRGK.",
-				"KKGGGGGGGGGGKK",
-				"KDDGGGGGGGGDDK",
-				"KDDGDDDDDDGDDK",
-				"KDDKDDDDDDKDDK",
-				".KK.KDDDDK.KK.",
-				"....KDDKDDK...",
-				"....KKK.KKK...",
-			], gp, 2)
+			return _from_grid(["...KKKKKKKK...","..KGGGGGGGGK..",".KGGLLGGLLGGK.",".KGRRGGGGGRGK.","KKGGGGGGGGGGKK","KDDGGGGGGGGDDK","KDDGDDDDDDGDDK","KDDKDDDDDDKDDK",".KK.KDDDDK.KK.","....KDDKDDK...","....KKK.KKK..."], gp, 2)
 		"golem_1":
 			var gp2 := {"K": Color("#0f172a"), "G": Color("#f59e0b"), "L": Color("#fde047"), "D": Color("#92400e"), "R": Color("#ef4444")}
-			return _from_grid([
-				"...KKKKKKKK...",
-				"..KGGGGGGGGK..",
-				".KGGLLGGLLGGK.",
-				".KGRRGGGGGRGK.",
-				"KKGGGGGGGGGGKK",
-				"KDDGGGGGGGGDDK",
-				"KDDGDDDDDDGDDK",
-				".KK.KDDDDK.KK.",
-				"...KDDKKDDK...",
-				"...KKK..KKK...",
-				"..............",
-			], gp2, 2)
+			return _from_grid(["...KKKKKKKK...","..KGGGGGGGGK..",".KGGLLGGLLGGK.",".KGRRGGGGGRGK.","KKGGGGGGGGGGKK","KDDGGGGGGGGDDK","KDDGDDDDDDGDDK",".KK.KDDDDK.KK.","...KDDKKDDK...","...KKK..KKK...",".............."], gp2, 2)
 		"knight_0":
 			var kp := {"K": Color("#0f172a"), "R": Color("#f43f5e"), "L": Color("#fda4af"), "D": Color("#9f1239"), "Y": Color("#fde047")}
-			return _from_grid([
-				".K..........K.",
-				"KRK.KKKKKK.KRK",
-				".KKRRRRRRRRKK.",
-				"..KRRRRRRRRK..",
-				"..KRYYKKYYRK..",
-				"..KRRRRRRRRK..",
-				".KDRRRRRRRRDK.",
-				"KDRRDDDDDDRRDK",
-				".KK.KDDDDK.KK.",
-				"....KDDKDDK...",
-				"....KKK.KKK...",
-			], kp, 2)
+			return _from_grid([".K..........K.","KRK.KKKKKK.KRK",".KKRRRRRRRRKK.","..KRRRRRRRRK..","..KRYYKKYYRK..","..KRRRRRRRRK..",".KDRRRRRRRRDK.","KDRRDDDDDDRRDK",".KK.KDDDDK.KK.","....KDDKDDK...","....KKK.KKK..."], kp, 2)
 		"knight_1":
 			var kp2 := {"K": Color("#0f172a"), "R": Color("#f43f5e"), "L": Color("#fda4af"), "D": Color("#9f1239"), "Y": Color("#fde047")}
-			return _from_grid([
-				".K..........K.",
-				"KRK.KKKKKK.KRK",
-				".KKRRRRRRRRKK.",
-				"..KRRRRRRRRK..",
-				"..KRYYKKYYRK..",
-				"..KRRRRRRRRK..",
-				".KDRRRRRRRRDK.",
-				".KKRDDDDDDRKK.",
-				"...KDDDDDDK...",
-				"...KDDKKDDK...",
-				"...KKK..KKK...",
-			], kp2, 2)
+			return _from_grid([".K..........K.","KRK.KKKKKK.KRK",".KKRRRRRRRRKK.","..KRRRRRRRRK..","..KRYYKKYYRK..","..KRRRRRRRRK..",".KDRRRRRRRRDK.",".KKRDDDDDDRKK.","...KDDDDDDK...","...KDDKKDDK...","...KKK..KKK..."], kp2, 2)
 		"boss_0":
 			var bsp := {"K": Color("#0f172a"), "Y": Color("#facc15"), "O": Color("#f97316"), "D": Color("#9a3412"), "R": Color("#ef4444"), "W": Color("#ffffff")}
-			return _from_grid([
-				"..KY......YK..",
-				"..KYY.KK.YYK..",
-				"...KYYYYYYK...",
-				".KKOOOOOOOOOKK".substr(0,14),
-				"KOOYYOOOOYYOOK",
-				"KOOWROOOORWOOK",
-				"KOOOOOOOOOOOOK",
-				"KOOYYYYYYYYOOK",
-				"KDDDDDDDDDDDDK",
-				".KDDDKKKKDDDK.",
-				".KDDK....KDDK.",
-				".KKK......KKK.",
-			], bsp, 3)
+			return _from_grid(["..KY......YK..","..KYY.KK.YYK..","...KYYYYYYK...",".KKOOOOOOOOOKK".substr(0,14),"KOOYYOOOOYYOOK","KOOWROOOORWOOK","KOOOOOOOOOOOOK","KOOYYYYYYYYOOK","KDDDDDDDDDDDDK",".KDDDKKKKDDDK.",".KDDK....KDDK.",".KKK......KKK."], bsp, 3)
 		"boss_1":
 			var bsp2 := {"K": Color("#0f172a"), "Y": Color("#facc15"), "O": Color("#f97316"), "D": Color("#9a3412"), "R": Color("#ef4444"), "W": Color("#ffffff")}
-			return _from_grid([
-				"..............",
-				"..KY......YK..",
-				"..KYY.KK.YYK..",
-				"...KYYYYYYK...",
-				".KKOOOOOOOOOKK".substr(0,14),
-				"KOOYYOOOOYYOOK",
-				"KOOWROOOORWOOK",
-				"KOOOOOOOOOOOOK",
-				"KOOYYYYYYYYOOK",
-				"KDDDDDDDDDDDDK",
-				"..KDDKKKKDDK..",
-				"..KKK....KKK..",
-			], bsp2, 3)
+			return _from_grid(["..............","..KY......YK..","..KYY.KK.YYK..","...KYYYYYYK...",".KKOOOOOOOOOKK".substr(0,14),"KOOYYOOOOYYOOK","KOOWROOOORWOOK","KOOOOOOOOOOOOK","KOOYYYYYYYYOOK","KDDDDDDDDDDDDK","..KDDKKKKDDK..","..KKK....KKK.."], bsp2, 3)
 		"chest_0":
-			return _from_grid([
-				".KKKKKKKKKK.",
-				"KYYYYYYYYYYK",
-				"KYBBBBBBBBYK",
-				"KYBBYYYYBBYK",
-				"KYYYYWWYYYYK",
-				"KYBBYYYYBBYK",
-				"KYBBBBBBBBYK",
-				"KYYYYYYYYYYK",
-				".KKKKKKKKKK.",
-			], {"K": Color("#0f172a"), "Y": Color("#facc15"), "B": Color("#92400e"), "W": Color("#ffffff")}, 2)
+			return _from_grid([".KKKKKKKKKK.","KYYYYYYYYYYK","KYBBBBBBBBYK","KYBBYYYYBBYK","KYYYYWWYYYYK","KYBBYYYYBBYK","KYBBBBBBBBYK","KYYYYYYYYYYK",".KKKKKKKKKK."], {"K": Color("#0f172a"), "Y": Color("#facc15"), "B": Color("#92400e"), "W": Color("#ffffff")}, 2)
 		"chest_1":
-			return _from_grid([
-				"....W..W....",
-				".KKKKKKKKKK.",
-				"KYYYYYYYYYYK",
-				"KYBBBBBBBBYK",
-				"KYYYYWWYYYYK",
-				"KYBBYYYYBBYK",
-				"KYBBBBBBBBYK",
-				"KYYYYYYYYYYK",
-				".KKKKKKKKKK.",
-			], {"K": Color("#0f172a"), "Y": Color("#fde047"), "B": Color("#b45309"), "W": Color("#ffffff")}, 2)
+			return _from_grid(["....W..W....",".KKKKKKKKKK.","KYYYYYYYYYYK","KYBBBBBBBBYK","KYYYYWWYYYYK","KYBBYYYYBBYK","KYBBBBBBBBYK","KYYYYYYYYYYK",".KKKKKKKKKK."], {"K": Color("#0f172a"), "Y": Color("#fde047"), "B": Color("#b45309"), "W": Color("#ffffff")}, 2)
 		"wand_bolt":
 			return _from_grid(["..WW..",".WCCW.","WCYYCW","WCYYCW",".WCCW.","..WW.."], {"W": Color("#ffffff"), "C": Color("#38bdf8"), "Y": Color("#fde047")}, 2)
 		"evo_bolt":

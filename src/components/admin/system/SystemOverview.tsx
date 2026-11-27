@@ -290,6 +290,28 @@ const mediaRoadmap = {
 
 const versionHistory = [
     {
+        version: 'v2.8.42',
+        date: '27 พ.ย. 2569',
+        title: 'Math Survivors v3.0: ระบบ 7 อาชีพสมดุล (3 เริ่มต้น + 4 ปลดล็อก) และโหมด 2P โคออฟช่วยกัน / แข่งกันจอเดียวกัน',
+        description:
+            'อัปเกรดเกม Math Survivors (/play/math-survivors) บน Godot 4.4.1 สู่ v3.0.0 เพิ่มระบบ 7 อาชีพสมดุลงบค่าพลัง 25 แต้มเท่ากัน (VIT/SPD/ATK/MAG/AGI + Ratio Defense) พร้อมสไปรต์พิกเซลและสกิลเอกลักษณ์เฉพาะตัวทุกอาชีพ และเพิ่มโหมดเล่น 2 คนพร้อมกันบนจอเดียวทั้งแบบโคออฟช่วยกัน (Co-op Team 180 วิ พร้อมวงชุบชีวิต & Dual Level-Up Draft) และแบบแข่งกัน (Rival 120 วิ พร้อมแถบชักเย่อคะแนนและดีบัฟหน่วงคู่แข่ง) รวมถึง Dual Touch Joystick บนมือถือ/แท็บเล็ต',
+        type: 'feature',
+        author: 'ครูณัฐพงศ์ สิงห์ชมภู',
+        tags: [
+            'Godot 4.4',
+            'Math Survivors',
+            'RPG Classes',
+            '2P Co-op',
+            '2P Rival',
+        ],
+        badge: 'bg-primary',
+        items: [
+            '7 อาชีพสมดุล (25 แต้มเท่ากัน): 3 อาชีพเริ่มต้น (จอมเวทดาวฤกษ์, อัศวินโล่พาย, พรานความเร็ว) + 4 อาชีพปลดล็อก (นักประดิษฐ์สายฟ้า/เสาเทสลา, หมอยาพฤกษา/ฮีล+ชุบไว ×2, นักรบคลั่งสมการ/Blood Math, ปราชญ์กาลเวลา/Time Dilation) ลองฟรีครบทุกอาชีพในโหมดฝึกซ้อม',
+            '2P Co-op & Rival จอเดียวกัน: P1 (WASD+Space · 1/2/3) + P2 (ลูกศร+Enter · J/K/L) พร้อมกล้องซูมร่วมอัตโนมัติ (SharedCamera), Dual Level-Up Draft, Dual Touch Joystick, วงชุบชีวิตสีเขียว (ช่วยกัน) และแถบคะแนนชักเย่อ + หน่วงคู่แข่ง 2 วิ (แข่งกัน)',
+            'Verification & Docs: ผ่าน Godot headless tests 41/41 (ตรวจสมดุล 7 อาชีพ + 2P Dual Draft + 1,800 โจทย์คณิต), Playwright WebGL 1280×720 / 360×800 (0 error), pnpm verify:game:all, pnpm build และ Migration 600 (game_docs v3.0.0)',
+        ],
+    },
+    {
         version: 'v2.8.41',
         date: '27 พ.ย. 2569',
         title: 'Math Survivors v2.2 (เฟส 1+2): เลือกได้ 3 แผนที่, 3 จอมเวท, Dash, 5 Evolutions, บอส & Pause/Minimap',

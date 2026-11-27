@@ -1,7 +1,7 @@
 class_name BossChest
 extends Area2D
 
-signal opened(chest: BossChest)
+signal opened(chest: BossChest, opener_idx: int)
 
 var _opened: bool = false
 
@@ -23,9 +23,12 @@ func _ready() -> void:
 	body_entered.connect(_on_body_entered)
 
 func _on_body_entered(body: Node2D) -> void:
-	if _opened or not body.is_in_group("hero"):
+	if _opened or not (body is MathHero):
+		return
+	var h: MathHero = body as MathHero
+	if not h.is_alive_active():
 		return
 	_opened = true
 	set_deferred("monitoring", false)
-	opened.emit(self)
+	opened.emit(self, h.player_idx)
 	queue_free()

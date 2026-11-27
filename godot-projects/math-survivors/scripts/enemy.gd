@@ -1,7 +1,7 @@
 class_name ArenaEnemy
 extends CharacterBody2D
 
-signal defeated(enemy: ArenaEnemy)
+signal defeated(enemy: ArenaEnemy, killer_idx: int)
 signal boss_attack_requested(boss: ArenaEnemy, target_pos: Vector2)
 
 const HIT_FLASH_SHADER: Shader = preload("res://shaders/hit_flash.gdshader")
@@ -28,7 +28,8 @@ var is_boss: bool = false
 var alive: bool = true
 var orb_cd: float = 0.0
 var slow_timer: float = 0.0
-var target_hero: Node2D
+var last_hit_by: int = 0
+var target_heroes: Array[MathHero] = []
 
 var _anim: AnimatedSprite2D
 var _mat: ShaderMaterial
@@ -42,7 +43,8 @@ func setup(p_type: String, act_hp_mult: float, act_spd_mult: float, p_boss: bool
 	boss_act = p_act_idx
 	var def: Dictionary = ARCHETYPES.get(p_type, ARCHETYPES["slime"])
 	display_name = p_custom_name if not p_custom_name.is_empty() else str(def["name"])
-	max_hp = float(def["hp"]) * act_hp_mult * ((1.0 + float(p_act_idx) * 0.45) if p_boss else 1.0)
+	var coop_boss_mult: float = 1.6 if (p_boss and GameState.mode == "coop_team") else 1.0
+	max_hp = float(def["hp"]) * act_hp_mult * ((1.0 + float(p_act_idx) * 0.45) if p_boss else 1.0) * coop_boss_mult
 	hp = max_hp
 	move_speed = float(def["speed"]) * act_spd_mult
 	hit_radius = float(def["radius"])
@@ -92,6 +94,17 @@ func _ready() -> void:
 func apply_slow(sec: float) -> void:
 	slow_timer = maxf(slow_timer, sec)
 
+func _nearest_living_hero() -> MathHero:
+	var best: MathHero = null
+	var bd: float = 1e9
+	for h: MathHero in target_heroes:
+		if is_instance_valid(h) and h.is_alive_active():
+			var d: float = h.global_position.distance_to(global_position)
+			if d < bd:
+				bd = d
+				best = h
+	return best
+
 func _physics_process(delta: float) -> void:
 	if not alive:
 		return
@@ -109,11 +122,14 @@ func _physics_process(delta: float) -> void:
 		if _mat:
 			_mat.set_shader_parameter("flash_amount", _flash)
 
-	if target_hero == null or not is_instance_valid(target_hero):
+	var target_hero: MathHero = _nearest_living_hero()
+	if target_hero == null:
+		velocity = Vector2.ZERO
 		return
+
 	var dir: Vector2 = target_hero.global_position - global_position
 	var dist: float = dir.length()
-	var eff_spd: float = move_speed * (0.6 if slow_timer > 0.0 else 1.0)
+	var eff_spd: float = move_speed * (0.52 if slow_timer > 0.0 else 1.0)
 	if dist > 1.0:
 		var v: Vector2 = (dir / dist) * eff_spd
 		velocity = v
@@ -125,17 +141,23 @@ func _physics_process(delta: float) -> void:
 
 	if is_boss:
 		_boss_atk_cd -= delta
-		if _boss_atk_cd <= 0.0 and dist < 340.0:
+		if _boss_atk_cd <= 0.0 and dist < 360.0:
 			_boss_atk_cd = 4.4
 			boss_attack_requested.emit(self, target_hero.global_position)
 
-	if dist < hit_radius + 11.0 and target_hero is MathHero:
-		(target_hero as MathHero).trigger_hurt(contact_dmg, display_name)
-		global_position -= (dir / maxf(1.0, dist)) * 12.0
+	for h: MathHero in target_heroes:
+		if not is_instance_valid(h) or not h.is_alive_active():
+			continue
+		var hd: Vector2 = h.global_position - global_position
+		var hdist: float = hd.length()
+		if hdist < hit_radius + 11.0:
+			h.trigger_hurt(contact_dmg, display_name)
+			global_position -= (hd / maxf(1.0, hdist)) * 12.0
 
-func take_damage(amount: float) -> bool:
+func take_damage(amount: float, attacker_idx: int = 0) -> bool:
 	if not alive:
 		return false
+	last_hit_by = attacker_idx
 	hp -= amount
 	_flash = 1.0
 	if _mat:
@@ -144,7 +166,7 @@ func take_damage(amount: float) -> bool:
 		_hp_fill.size.x = 46.0 * clampf(hp / maxf(1.0, max_hp), 0.0, 1.0)
 	if hp <= 0.0:
 		alive = false
-		defeated.emit(self)
+		defeated.emit(self, last_hit_by)
 		queue_free()
 		return true
 	return false
